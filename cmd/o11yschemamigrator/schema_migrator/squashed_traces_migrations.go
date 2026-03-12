@@ -6,8 +6,8 @@ var (
 			MigrationID: 1,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
-					Table:    "o11y_index_v2",
+					Database: "signoz_traces",
+					Table:    "signoz_index_v2",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTime64ColumnType{Precision: 9}, Codec: "DoubleDelta, LZ4"},
 						{Name: "traceID", Type: FixedStringColumnType{Length: 32}, Codec: "ZSTD(1)"},
@@ -87,8 +87,8 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
-					Table:    "o11y_index_v2",
+					Database: "signoz_traces",
+					Table:    "signoz_index_v2",
 				},
 			},
 		},
@@ -96,8 +96,8 @@ var (
 			MigrationID: 2,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
-					Table:    "distributed_o11y_index_v2",
+					Database: "signoz_traces",
+					Table:    "distributed_signoz_index_v2",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTime64ColumnType{Precision: 9}, Codec: "DoubleDelta, LZ4"},
 						{Name: "traceID", Type: FixedStringColumnType{Length: 32}, Codec: "ZSTD(1)"},
@@ -136,16 +136,16 @@ var (
 						{Name: "spanKind", Type: ColumnTypeString, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_traces",
-						Table:       "o11y_index_v2",
+						Database:    "signoz_traces",
+						Table:       "signoz_index_v2",
 						ShardingKey: "cityHash64(traceID)",
 					},
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
-					Table:    "distributed_o11y_index_v2",
+					Database: "signoz_traces",
+					Table:    "distributed_signoz_index_v2",
 				},
 			},
 		},
@@ -153,7 +153,7 @@ var (
 			MigrationID: 3,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "durationSort",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTime64ColumnType{Precision: 9}, Codec: "DoubleDelta, LZ4"},
@@ -215,7 +215,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "durationSort",
 				},
 			},
@@ -224,7 +224,7 @@ var (
 			MigrationID: 4,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_traces",
+					Database:  "signoz_traces",
 					ViewName:  "durationSortMV",
 					DestTable: "durationSort",
 					Columns: []Column{
@@ -280,7 +280,7 @@ var (
     statusMessage,
     statusCodeString,
     spanKind
-FROM o11y_traces.o11y_index_v2
+FROM signoz_traces.signoz_index_v2
 ORDER BY
     durationNano ASC,
     timestamp ASC`,
@@ -288,7 +288,7 @@ ORDER BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "durationSortMV",
 				},
 			},
@@ -297,7 +297,7 @@ ORDER BY
 			MigrationID: 5,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_durationSort",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTime64ColumnType{Precision: 9}, Codec: "DoubleDelta, LZ4"},
@@ -327,7 +327,7 @@ ORDER BY
 						{Name: "spanKind", Type: ColumnTypeString, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_traces",
+						Database:    "signoz_traces",
 						Table:       "durationSort",
 						ShardingKey: "cityHash64(traceID)",
 					},
@@ -335,7 +335,7 @@ ORDER BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_durationSort",
 				},
 			},
@@ -344,8 +344,8 @@ ORDER BY
 			MigrationID: 6,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
-					Table:    "o11y_error_index_v2",
+					Database: "signoz_traces",
+					Table:    "signoz_error_index_v2",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTime64ColumnType{Precision: 9}, Codec: "DoubleDelta, LZ4"},
 						{Name: "errorID", Type: FixedStringColumnType{Length: 32}, Codec: "ZSTD(1)"},
@@ -377,8 +377,8 @@ ORDER BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
-					Table:    "o11y_error_index_v2",
+					Database: "signoz_traces",
+					Table:    "signoz_error_index_v2",
 				},
 			},
 		},
@@ -386,8 +386,8 @@ ORDER BY
 			MigrationID: 7,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
-					Table:    "distributed_o11y_error_index_v2",
+					Database: "signoz_traces",
+					Table:    "distributed_signoz_error_index_v2",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTime64ColumnType{Precision: 9}, Codec: "DoubleDelta, LZ4"},
 						{Name: "errorID", Type: FixedStringColumnType{Length: 32}, Codec: "ZSTD(1)"},
@@ -402,16 +402,16 @@ ORDER BY
 						{Name: "resourceTagsMap", Type: MapColumnType{LowCardinalityColumnType{ColumnTypeString}, ColumnTypeString}, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_traces",
-						Table:       "o11y_error_index_v2",
+						Database:    "signoz_traces",
+						Table:       "signoz_error_index_v2",
 						ShardingKey: "cityHash64(groupID)",
 					},
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
-					Table:    "distributed_o11y_error_index_v2",
+					Database: "signoz_traces",
+					Table:    "distributed_signoz_error_index_v2",
 				},
 			},
 		},
@@ -419,8 +419,8 @@ ORDER BY
 			MigrationID: 8,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
-					Table:    "o11y_spans",
+					Database: "signoz_traces",
+					Table:    "signoz_spans",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTime64ColumnType{Precision: 9}, Codec: "DoubleDelta, LZ4"},
 						{Name: "traceID", Type: FixedStringColumnType{Length: 32}, Codec: "ZSTD(1)"},
@@ -439,8 +439,8 @@ ORDER BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
-					Table:    "o11y_spans",
+					Database: "signoz_traces",
+					Table:    "signoz_spans",
 				},
 			},
 		},
@@ -448,24 +448,24 @@ ORDER BY
 			MigrationID: 9,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
-					Table:    "distributed_o11y_spans",
+					Database: "signoz_traces",
+					Table:    "distributed_signoz_spans",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTime64ColumnType{Precision: 9}, Codec: "DoubleDelta, LZ4"},
 						{Name: "traceID", Type: FixedStringColumnType{Length: 32}, Codec: "ZSTD(1)"},
 						{Name: "model", Type: ColumnTypeString, Codec: "ZSTD(9)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_traces",
-						Table:       "o11y_spans",
+						Database:    "signoz_traces",
+						Table:       "signoz_spans",
 						ShardingKey: "cityHash64(traceID)",
 					},
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
-					Table:    "distributed_o11y_spans",
+					Database: "signoz_traces",
+					Table:    "distributed_signoz_spans",
 				},
 			},
 		},
@@ -473,7 +473,7 @@ ORDER BY
 			MigrationID: 10,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "dependency_graph_minutes_v2",
 					Columns: []Column{
 						{Name: "src", Type: LowCardinalityColumnType{ColumnTypeString}, Codec: "ZSTD(1)"},
@@ -498,7 +498,7 @@ ORDER BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "dependency_graph_minutes_v2",
 				},
 			},
@@ -507,7 +507,7 @@ ORDER BY
 			MigrationID: 11,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_traces",
+					Database:  "signoz_traces",
 					ViewName:  "dependency_graph_minutes_db_calls_mv_v2",
 					DestTable: "dependency_graph_minutes_v2",
 					Columns: []Column{
@@ -531,7 +531,7 @@ ORDER BY
     resourceTagsMap['deployment.environment'] AS deployment_environment,
     resourceTagsMap['k8s.cluster.name'] AS k8s_cluster_name,
     resourceTagsMap['k8s.namespace.name'] AS k8s_namespace_name
-FROM o11y_traces.o11y_index_v2
+FROM signoz_traces.signoz_index_v2
 WHERE (dest != '') AND (kind != 2)
 GROUP BY
     timestamp,
@@ -544,7 +544,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "dependency_graph_minutes_db_calls_mv_v2",
 				},
 			},
@@ -553,7 +553,7 @@ GROUP BY
 			MigrationID: 12,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_traces",
+					Database:  "signoz_traces",
 					ViewName:  "dependency_graph_minutes_messaging_calls_mv_v2",
 					DestTable: "dependency_graph_minutes_v2",
 					Columns: []Column{
@@ -577,7 +577,7 @@ GROUP BY
     resourceTagsMap['deployment.environment'] AS deployment_environment,
     resourceTagsMap['k8s.cluster.name'] AS k8s_cluster_name,
     resourceTagsMap['k8s.namespace.name'] AS k8s_namespace_name
-FROM o11y_traces.o11y_index_v2
+FROM signoz_traces.signoz_index_v2
 WHERE (dest != '') AND (kind != 2)
 GROUP BY
     timestamp,
@@ -590,7 +590,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "dependency_graph_minutes_messaging_calls_mv_v2",
 				},
 			},
@@ -599,7 +599,7 @@ GROUP BY
 			MigrationID: 13,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_traces",
+					Database:  "signoz_traces",
 					ViewName:  "dependency_graph_minutes_service_calls_mv_v2",
 					DestTable: "dependency_graph_minutes_v2",
 					Columns: []Column{
@@ -623,7 +623,7 @@ GROUP BY
     B.resourceTagsMap['deployment.environment'] AS deployment_environment,
     B.resourceTagsMap['k8s.cluster.name'] AS k8s_cluster_name,
     B.resourceTagsMap['k8s.namespace.name'] AS k8s_namespace_name
-FROM o11y_traces.o11y_index_v2 AS A, o11y_traces.o11y_index_v2 AS B
+FROM signoz_traces.signoz_index_v2 AS A, signoz_traces.signoz_index_v2 AS B
 WHERE (A.serviceName != B.serviceName) AND (A.spanID = B.parentSpanID)
 GROUP BY
     timestamp,
@@ -636,7 +636,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "dependency_graph_minutes_service_calls_mv_v2",
 				},
 			},
@@ -645,7 +645,7 @@ GROUP BY
 			MigrationID: 14,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_dependency_graph_minutes_v2",
 					Columns: []Column{
 						{Name: "src", Type: LowCardinalityColumnType{ColumnTypeString}, Codec: "ZSTD(1)"},
@@ -659,7 +659,7 @@ GROUP BY
 						{Name: "k8s_namespace_name", Type: LowCardinalityColumnType{ColumnTypeString}, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_traces",
+						Database:    "signoz_traces",
 						Table:       "dependency_graph_minutes_v2",
 						ShardingKey: "cityHash64(rand())",
 					},
@@ -667,7 +667,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_dependency_graph_minutes_v2",
 				},
 			},
@@ -676,7 +676,7 @@ GROUP BY
 			MigrationID: 15,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "usage_explorer",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTime64ColumnType{Precision: 9}, Codec: "DoubleDelta, LZ4"},
@@ -696,7 +696,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "usage_explorer",
 				},
 			},
@@ -705,7 +705,7 @@ GROUP BY
 			MigrationID: 16,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_traces",
+					Database:  "signoz_traces",
 					ViewName:  "usage_explorer_mv",
 					DestTable: "usage_explorer",
 					Columns: []Column{
@@ -717,7 +717,7 @@ GROUP BY
     toStartOfHour(timestamp) AS timestamp,
     serviceName AS service_name,
     count() AS count
-FROM o11y_traces.o11y_index_v2
+FROM signoz_traces.signoz_index_v2
 GROUP BY
     timestamp,
     serviceName`,
@@ -725,7 +725,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "usage_explorer_mv",
 				},
 			},
@@ -734,7 +734,7 @@ GROUP BY
 			MigrationID: 17,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_usage_explorer",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTime64ColumnType{Precision: 9}, Codec: "DoubleDelta, LZ4"},
@@ -742,7 +742,7 @@ GROUP BY
 						{Name: "count", Type: ColumnTypeUInt64, Codec: "T64, ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_traces",
+						Database:    "signoz_traces",
 						Table:       "usage_explorer",
 						ShardingKey: "cityHash64(rand())",
 					},
@@ -750,7 +750,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_usage_explorer",
 				},
 			},
@@ -759,7 +759,7 @@ GROUP BY
 			MigrationID: 18,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "top_level_operations",
 					Columns: []Column{
 						{Name: "name", Type: LowCardinalityColumnType{ColumnTypeString}, Codec: "ZSTD(1)"},
@@ -779,7 +779,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "top_level_operations",
 				},
 			},
@@ -788,7 +788,7 @@ GROUP BY
 			MigrationID: 19,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_top_level_operations",
 					Columns: []Column{
 						{Name: "name", Type: LowCardinalityColumnType{ColumnTypeString}, Codec: "ZSTD(1)"},
@@ -796,7 +796,7 @@ GROUP BY
 						{Name: "time", Type: DateTimeColumnType{}, Default: "now()", Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_traces",
+						Database:    "signoz_traces",
 						Table:       "top_level_operations",
 						ShardingKey: "cityHash64(rand())",
 					},
@@ -804,7 +804,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_top_level_operations",
 				},
 			},
@@ -813,7 +813,7 @@ GROUP BY
 			MigrationID: 20,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_traces",
+					Database:  "signoz_traces",
 					ViewName:  "root_operations",
 					DestTable: "top_level_operations",
 					Columns: []Column{
@@ -823,13 +823,13 @@ GROUP BY
 					Query: `SELECT DISTINCT
     name,
     serviceName
-FROM o11y_traces.o11y_index_v2
+FROM signoz_traces.signoz_index_v2
 WHERE parentSpanID = ''`,
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "root_operations",
 				},
 			},
@@ -838,7 +838,7 @@ WHERE parentSpanID = ''`,
 			MigrationID: 21,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_traces",
+					Database:  "signoz_traces",
 					ViewName:  "sub_root_operations",
 					DestTable: "top_level_operations",
 					Columns: []Column{
@@ -848,13 +848,13 @@ WHERE parentSpanID = ''`,
 					Query: `SELECT DISTINCT
     name,
     serviceName
-FROM o11y_traces.o11y_index_v2 AS A, o11y_traces.o11y_index_v2 AS B
+FROM signoz_traces.signoz_index_v2 AS A, signoz_traces.signoz_index_v2 AS B
 WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "sub_root_operations",
 				},
 			},
@@ -863,7 +863,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 			MigrationID: 22,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "span_attributes",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTimeColumnType{}, Codec: "DoubleDelta, ZSTD(1)"},
@@ -889,7 +889,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "span_attributes",
 				},
 			},
@@ -898,7 +898,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 			MigrationID: 23,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_span_attributes",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTimeColumnType{}, Codec: "DoubleDelta, ZSTD(1)"},
@@ -910,7 +910,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 						{Name: "isColumn", Type: ColumnTypeBool, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_traces",
+						Database:    "signoz_traces",
 						Table:       "span_attributes",
 						ShardingKey: "cityHash64(rand())",
 					},
@@ -918,7 +918,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_span_attributes",
 				},
 			},
@@ -927,7 +927,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 			MigrationID: 24,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "span_attributes_keys",
 					Columns: []Column{
 						{Name: "tagKey", Type: LowCardinalityColumnType{ColumnTypeString}, Codec: "ZSTD(1)"},
@@ -944,7 +944,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "span_attributes_keys",
 				},
 			},
@@ -953,7 +953,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 			MigrationID: 25,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_span_attributes_keys",
 					Columns: []Column{
 						{Name: "tagKey", Type: LowCardinalityColumnType{ColumnTypeString}, Codec: "ZSTD(1)"},
@@ -962,7 +962,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 						{Name: "isColumn", Type: ColumnTypeBool, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_traces",
+						Database:    "signoz_traces",
 						Table:       "span_attributes_keys",
 						ShardingKey: "cityHash64(rand())",
 					},
@@ -970,7 +970,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_span_attributes_keys",
 				},
 			},
@@ -979,7 +979,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 			MigrationID: 26,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "usage",
 					Columns: []Column{
 						{Name: "tenant", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -999,7 +999,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "usage",
 				},
 			},
@@ -1008,7 +1008,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 			MigrationID: 27,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_traces",
+					Database: "signoz_traces",
 					Table:    "distributed_usage",
 					Columns: []Column{
 						{Name: "tenant", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -1018,7 +1018,7 @@ WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 						{Name: "data", Type: ColumnTypeString, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_traces",
+						Database:    "signoz_traces",
 						Table:       "usage",
 						ShardingKey: "cityHash64(rand())",
 					},

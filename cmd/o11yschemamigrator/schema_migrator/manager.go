@@ -29,12 +29,12 @@ var (
 	ErrDistributionQueueError           = errors.New("distribution_queue has entries with error_count != 0 or is_blocked = 1")
 
 	legacyMigrationsTable = "schema_migrations"
-	O11yLogsDB          = "o11y_logs"
-	O11yMetricsDB       = "o11y_metrics"
-	O11yTracesDB        = "o11y_traces"
-	O11yMetadataDB      = "o11y_metadata"
-	O11yAnalyticsDB     = "o11y_analytics"
-	O11yMeterDB         = "o11y_meter"
+	O11yLogsDB          = "signoz_logs"
+	O11yMetricsDB       = "signoz_metrics"
+	O11yTracesDB        = "signoz_traces"
+	O11yMetadataDB      = "signoz_metadata"
+	O11yAnalyticsDB     = "signoz_analytics"
+	O11yMeterDB         = "signoz_meter"
 	Databases             = []string{O11yTracesDB, O11yMetricsDB, O11yLogsDB, O11yMetadataDB, O11yAnalyticsDB, O11yMeterDB}
 
 	InProgressStatus = "in-progress"
@@ -259,7 +259,7 @@ func (m *MigrationManager) ShouldRunSquashedV2(ctx context.Context, db string) (
 
 func (m *MigrationManager) runCustomRetentionMigrationsForLogs(ctx context.Context) error {
 	m.logger.Info("Checking if should run squashed migrations for logs")
-	should, err := m.shouldRunSquashed(ctx, "o11y_logs")
+	should, err := m.shouldRunSquashed(ctx, "signoz_logs")
 	if err != nil {
 		return err
 	}
@@ -271,7 +271,7 @@ func (m *MigrationManager) runCustomRetentionMigrationsForLogs(ctx context.Conte
 	m.logger.Info("Running custom retention migrations for logs")
 	for _, migration := range CustomRetentionLogsMigrations {
 		for _, item := range migration.UpItems {
-			if err := m.RunOperation(ctx, item, migration.MigrationID, "o11y_logs", false); err != nil {
+			if err := m.RunOperation(ctx, item, migration.MigrationID, "signoz_logs", false); err != nil {
 				return err
 			}
 		}
@@ -283,7 +283,7 @@ func (m *MigrationManager) runCustomRetentionMigrationsForLogs(ctx context.Conte
 //nolint:unused
 func (m *MigrationManager) runSquashedMigrationsForLogs(ctx context.Context) error {
 	m.logger.Info("Checking if should run squashed migrations for logs")
-	should, err := m.shouldRunSquashed(ctx, "o11y_logs")
+	should, err := m.shouldRunSquashed(ctx, "signoz_logs")
 	if err != nil {
 		return err
 	}
@@ -295,7 +295,7 @@ func (m *MigrationManager) runSquashedMigrationsForLogs(ctx context.Context) err
 	m.logger.Info("Running squashed migrations for logs")
 	for _, migration := range SquashedLogsMigrations {
 		for _, item := range migration.UpItems {
-			if err := m.RunOperation(ctx, item, migration.MigrationID, "o11y_logs", false); err != nil {
+			if err := m.RunOperation(ctx, item, migration.MigrationID, "signoz_logs", false); err != nil {
 				return err
 			}
 		}

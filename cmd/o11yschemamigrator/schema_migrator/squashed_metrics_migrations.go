@@ -6,7 +6,7 @@ var (
 			MigrationID: 1,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v2",
 					Columns: []Column{
 						{Name: "metric_name", Type: LowCardinalityColumnType{ColumnTypeString}},
@@ -27,7 +27,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v2",
 				},
 			},
@@ -36,7 +36,7 @@ var (
 			MigrationID: 2,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_samples_v2",
 					Columns: []Column{
 						{Name: "metric_name", Type: LowCardinalityColumnType{ColumnTypeString}},
@@ -45,7 +45,7 @@ var (
 						{Name: "value", Type: ColumnTypeFloat64, Codec: "Gorilla, LZ4"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "samples_v2",
 						ShardingKey: "cityHash64(metric_name, fingerprint)",
 					},
@@ -53,7 +53,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_samples_v2",
 				},
 			},
@@ -62,7 +62,7 @@ var (
 			MigrationID: 3,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v2",
 					Columns: []Column{
 						{Name: "metric_name", Type: LowCardinalityColumnType{ColumnTypeString}},
@@ -95,7 +95,7 @@ var (
 			MigrationID: 4,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_time_series_v2",
 					Columns: []Column{
 						{Name: "metric_name", Type: LowCardinalityColumnType{ColumnTypeString}},
@@ -109,7 +109,7 @@ var (
 						{Name: "is_monotonic", Type: ColumnTypeBool, Default: "false", Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "time_series_v2",
 						ShardingKey: "cityHash64(metric_name, fingerprint)",
 					},
@@ -121,7 +121,7 @@ var (
 			MigrationID: 5,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "exp_hist",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -148,7 +148,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "exp_hist",
 				},
 			},
@@ -157,7 +157,7 @@ var (
 			MigrationID: 6,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_exp_hist",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -172,7 +172,7 @@ var (
 						{Name: "sketch", Type: AggregateFunction{FunctionName: "quantilesDD(0.01, 0.5, 0.75, 0.9, 0.95, 0.99)", Arguments: []ColumnType{ColumnTypeUInt64}}, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "exp_hist",
 						ShardingKey: "cityHash64(env, temporality, metric_name, fingerprint)",
 					},
@@ -180,7 +180,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_exp_hist",
 				},
 			},
@@ -189,7 +189,7 @@ var (
 			MigrationID: 7,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -212,7 +212,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4",
 				},
 			},
@@ -221,7 +221,7 @@ var (
 			MigrationID: 8,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_samples_v4",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -232,7 +232,7 @@ var (
 						{Name: "value", Type: ColumnTypeFloat64, Codec: "Gorilla, ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "samples_v4",
 						ShardingKey: "cityHash64(env, temporality, metric_name, fingerprint)",
 					},
@@ -240,7 +240,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_samples_v4",
 				},
 			},
@@ -249,7 +249,7 @@ var (
 			MigrationID: 9,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -278,7 +278,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4",
 				},
 			},
@@ -287,7 +287,7 @@ var (
 			MigrationID: 10,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_time_series_v4",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -302,7 +302,7 @@ var (
 						{Name: "labels", Type: ColumnTypeString, Codec: "ZSTD(5)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "time_series_v4",
 						ShardingKey: "cityHash64(env, temporality, metric_name, fingerprint)",
 					},
@@ -310,7 +310,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_time_series_v4",
 				},
 			},
@@ -319,7 +319,7 @@ var (
 			MigrationID: 11,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4_6hrs",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -348,7 +348,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4_6hrs",
 				},
 			},
@@ -357,7 +357,7 @@ var (
 			MigrationID: 12,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_time_series_v4_6hrs",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -372,7 +372,7 @@ var (
 						{Name: "labels", Type: ColumnTypeString, Codec: "ZSTD(5)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "time_series_v4_6hrs",
 						ShardingKey: "cityHash64(env, temporality, metric_name, fingerprint)",
 					},
@@ -380,7 +380,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_time_series_v4_6hrs",
 				},
 			},
@@ -389,7 +389,7 @@ var (
 			MigrationID: 13,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4_1day",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -418,7 +418,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4_1day",
 				},
 			},
@@ -427,7 +427,7 @@ var (
 			MigrationID: 14,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_time_series_v4_1day",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -442,7 +442,7 @@ var (
 						{Name: "labels", Type: ColumnTypeString, Codec: "ZSTD(5)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "time_series_v4_1day",
 						ShardingKey: "cityHash64(env, temporality, metric_name, fingerprint)",
 					},
@@ -450,7 +450,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_time_series_v4_1day",
 				},
 			},
@@ -459,7 +459,7 @@ var (
 			MigrationID: 15,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4_1week",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -488,7 +488,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4_1week",
 				},
 			},
@@ -497,7 +497,7 @@ var (
 			MigrationID: 16,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_time_series_v4_1week",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -512,7 +512,7 @@ var (
 						{Name: "labels", Type: ColumnTypeString, Codec: "ZSTD(5)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "time_series_v4_1week",
 						ShardingKey: "cityHash64(env, temporality, metric_name, fingerprint)",
 					},
@@ -520,7 +520,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_time_series_v4_1week",
 				},
 			},
@@ -529,7 +529,7 @@ var (
 			MigrationID: 17,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_metrics",
+					Database:  "signoz_metrics",
 					ViewName:  "time_series_v4_6hrs_mv",
 					DestTable: "time_series_v4_6hrs",
 					Columns: []Column{
@@ -555,12 +555,12 @@ var (
     fingerprint,
     floor(unix_milli / 21600000) * 21600000 AS unix_milli,
     labels
-FROM o11y_metrics.time_series_v4`,
+FROM signoz_metrics.time_series_v4`,
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4_6hrs_mv",
 				},
 			},
@@ -569,7 +569,7 @@ FROM o11y_metrics.time_series_v4`,
 			MigrationID: 18,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_metrics",
+					Database:  "signoz_metrics",
 					ViewName:  "time_series_v4_1day_mv",
 					DestTable: "time_series_v4_1day",
 					Columns: []Column{
@@ -595,12 +595,12 @@ FROM o11y_metrics.time_series_v4`,
     fingerprint,
     floor(unix_milli / 86400000) * 86400000 AS unix_milli,
     labels
-FROM o11y_metrics.time_series_v4`,
+FROM signoz_metrics.time_series_v4`,
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4_1day_mv",
 				},
 			},
@@ -609,7 +609,7 @@ FROM o11y_metrics.time_series_v4`,
 			MigrationID: 19,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_metrics",
+					Database:  "signoz_metrics",
 					ViewName:  "time_series_v4_1week_mv",
 					DestTable: "time_series_v4_1week",
 					Columns: []Column{
@@ -635,12 +635,12 @@ FROM o11y_metrics.time_series_v4`,
     fingerprint,
     floor(unix_milli / 604800000) * 604800000 AS unix_milli,
     labels
-FROM o11y_metrics.time_series_v4_1day`,
+FROM signoz_metrics.time_series_v4_1day`,
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4_1week_mv",
 				},
 			},
@@ -649,7 +649,7 @@ FROM o11y_metrics.time_series_v4_1day`,
 			MigrationID: 20,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4_agg_5m",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -678,7 +678,7 @@ FROM o11y_metrics.time_series_v4_1day`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4_agg_5m",
 				},
 			},
@@ -687,7 +687,7 @@ FROM o11y_metrics.time_series_v4_1day`,
 			MigrationID: 21,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4_agg_30m",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -716,7 +716,7 @@ FROM o11y_metrics.time_series_v4_1day`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4_agg_30m",
 				},
 			},
@@ -725,7 +725,7 @@ FROM o11y_metrics.time_series_v4_1day`,
 			MigrationID: 22,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_metrics",
+					Database:  "signoz_metrics",
 					ViewName:  "samples_v4_agg_5m_mv",
 					DestTable: "samples_v4_agg_5m",
 					Query: `SELECT
@@ -739,7 +739,7 @@ FROM o11y_metrics.time_series_v4_1day`,
     max(value) as max,
     sum(value) as sum,
     count(*) as count
-FROM o11y_metrics.samples_v4 
+FROM signoz_metrics.samples_v4 
 GROUP BY
     env,
     temporality,
@@ -750,7 +750,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4_agg_5m_mv",
 				},
 			},
@@ -759,7 +759,7 @@ GROUP BY
 			MigrationID: 23,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_metrics",
+					Database:  "signoz_metrics",
 					ViewName:  "samples_v4_agg_30m_mv",
 					DestTable: "samples_v4_agg_30m",
 					Query: `SELECT
@@ -773,7 +773,7 @@ GROUP BY
     max(max) as max,
     sum(sum) as sum,
     sum(count) as count
-FROM o11y_metrics.samples_v4_agg_5m 
+FROM signoz_metrics.samples_v4_agg_5m 
 GROUP BY
     env,
     temporality,
@@ -784,7 +784,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4_agg_30m_mv",
 				},
 			},
@@ -793,7 +793,7 @@ GROUP BY
 			MigrationID: 24,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_samples_v4_agg_5m",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -808,7 +808,7 @@ GROUP BY
 						{Name: "count", Type: SimpleAggregateFunction{FunctionName: "sum", Arguments: []ColumnType{ColumnTypeUInt64}}, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "samples_v4_agg_5m",
 						ShardingKey: "cityHash64(env, temporality, metric_name, fingerprint)",
 					},
@@ -816,7 +816,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_samples_v4_agg_5m",
 				},
 			},
@@ -825,7 +825,7 @@ GROUP BY
 			MigrationID: 25,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_samples_v4_agg_30m",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -840,7 +840,7 @@ GROUP BY
 						{Name: "count", Type: SimpleAggregateFunction{FunctionName: "sum", Arguments: []ColumnType{ColumnTypeUInt64}}, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "samples_v4_agg_30m",
 						ShardingKey: "cityHash64(env, temporality, metric_name, fingerprint)",
 					},
@@ -848,7 +848,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_samples_v4_agg_30m",
 				},
 			},
@@ -857,7 +857,7 @@ GROUP BY
 			MigrationID: 26,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "usage",
 					Columns: []Column{
 						{Name: "tenant", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -877,7 +877,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "usage",
 				},
 			},
@@ -886,7 +886,7 @@ GROUP BY
 			MigrationID: 27,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_usage",
 					Columns: []Column{
 						{Name: "tenant", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -896,7 +896,7 @@ GROUP BY
 						{Name: "data", Type: ColumnTypeString, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "usage",
 						ShardingKey: "cityHash64(rand())",
 					},
@@ -904,7 +904,7 @@ GROUP BY
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_usage",
 				},
 			},
@@ -913,7 +913,7 @@ GROUP BY
 			MigrationID: 28,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4_agg_5m",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -939,7 +939,7 @@ GROUP BY
 					},
 				},
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4_agg_30m",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -965,7 +965,7 @@ GROUP BY
 					},
 				},
 				CreateMaterializedViewOperation{
-					Database:  "o11y_metrics",
+					Database:  "signoz_metrics",
 					ViewName:  "samples_v4_agg_5m_mv",
 					DestTable: "samples_v4_agg_5m",
 					Columns: []Column{
@@ -991,7 +991,7 @@ GROUP BY
     max(value) as max,
     sum(value) as sum,
     count(*) as count
-FROM o11y_metrics.samples_v4 
+FROM signoz_metrics.samples_v4 
 GROUP BY
     env,
     temporality,
@@ -1000,7 +1000,7 @@ GROUP BY
     unix_milli;`,
 				},
 				CreateMaterializedViewOperation{
-					Database:  "o11y_metrics",
+					Database:  "signoz_metrics",
 					ViewName:  "samples_v4_agg_30m_mv",
 					DestTable: "samples_v4_agg_30m",
 					Columns: []Column{
@@ -1026,7 +1026,7 @@ GROUP BY
     max(max) as max,
     sum(sum) as sum,
     sum(count) as count
-FROM o11y_metrics.samples_v4_agg_5m 
+FROM signoz_metrics.samples_v4_agg_5m 
 GROUP BY
     env,
     temporality,
@@ -1035,7 +1035,7 @@ GROUP BY
     unix_milli;`,
 				},
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_samples_v4_agg_5m",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -1050,13 +1050,13 @@ GROUP BY
 						{Name: "count", Type: SimpleAggregateFunction{FunctionName: "sum", Arguments: []ColumnType{ColumnTypeUInt64}}, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "samples_v4_agg_5m",
 						ShardingKey: "cityHash64(env, temporality, metric_name, fingerprint)",
 					},
 				},
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_samples_v4_agg_30m",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -1071,13 +1071,13 @@ GROUP BY
 						{Name: "count", Type: SimpleAggregateFunction{FunctionName: "sum", Arguments: []ColumnType{ColumnTypeUInt64}}, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "samples_v4_agg_30m",
 						ShardingKey: "cityHash64(env, temporality, metric_name, fingerprint)",
 					},
 				},
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4_1week",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -1103,7 +1103,7 @@ GROUP BY
 					},
 				},
 				CreateMaterializedViewOperation{
-					Database:  "o11y_metrics",
+					Database:  "signoz_metrics",
 					ViewName:  "time_series_v4_1week_mv",
 					DestTable: "time_series_v4_1week",
 					Columns: []Column{
@@ -1129,10 +1129,10 @@ GROUP BY
     fingerprint,
     floor(unix_milli/604800000)*604800000 AS unix_milli,
     labels
-FROM o11y_metrics.time_series_v4_1day;`,
+FROM signoz_metrics.time_series_v4_1day;`,
 				},
 				CreateTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_time_series_v4_1week",
 					Columns: []Column{
 						{Name: "env", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
@@ -1141,7 +1141,7 @@ FROM o11y_metrics.time_series_v4_1day;`,
 						{Name: "description", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'default'"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_metrics",
+						Database:    "signoz_metrics",
 						Table:       "time_series_v4_1week",
 						ShardingKey: "cityHash64(env, temporality, metric_name, fingerprint)",
 					},
@@ -1149,39 +1149,39 @@ FROM o11y_metrics.time_series_v4_1day;`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4_agg_5m",
 				},
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4_agg_5m_mv",
 				},
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4_agg_30m",
 				},
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "samples_v4_agg_30m_mv",
 				},
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_samples_v4_agg_5m",
 				},
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_samples_v4_agg_30m",
 				},
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4_1week",
 				},
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "distributed_time_series_v4_1week",
 				},
 				DropTableOperation{
-					Database: "o11y_metrics",
+					Database: "signoz_metrics",
 					Table:    "time_series_v4_1week_mv",
 				},
 			},
