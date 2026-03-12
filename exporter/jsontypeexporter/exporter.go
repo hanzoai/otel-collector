@@ -9,9 +9,9 @@ import (
 
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/SigNoz/signoz-otel-collector/constants"
-	"github.com/SigNoz/signoz-otel-collector/pkg/keycheck"
-	"github.com/SigNoz/signoz-otel-collector/utils"
+	"github.com/hanzoai/otel-collector/constants"
+	"github.com/hanzoai/otel-collector/pkg/keycheck"
+	"github.com/hanzoai/otel-collector/utils"
 	lru "github.com/hashicorp/golang-lru/v2"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/exporter"
@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	distributedPathTypesTableName = constants.SignozMetadataDB + "." + constants.DistributedPathTypesTable
+	distributedPathTypesTableName = constants.O11yMetadataDB + "." + constants.DistributedPathTypesTable
 	defaultKeyCacheSize           = 10_000
 	ArraySeparator                = "[]."
 	ArraySuffix                   = "[]"

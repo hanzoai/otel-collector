@@ -1,0 +1,10 @@
+type: o11ykafkareceiver
+
+status:
+  class: receiver
+  stability:
+    beta: [metrics, logs, traces]
+
+tests:
+  skip_lifecycle: true
+  skip_shutdown: true

@@ -1,1 +1,1 @@
-# SigNoz Otel Collector
+# Hanzo O11y Otel Collector

@@ -1,6 +1,6 @@
 COMMIT_SHA ?= $(shell git rev-parse HEAD)
 REPONAME ?= signoz
-IMAGE_NAME ?= signoz-otel-collector
+IMAGE_NAME ?= hanzo-otel-collector
 MIGRATOR_IMAGE_NAME ?= signoz-schema-migrator
 CONFIG_FILE ?= ./config/default-config.yaml
 DOCKER_TAG ?= latest
@@ -34,7 +34,7 @@ test:
 
 .PHONY: build
 build:
-	go build -o .build/${GOOS}-${GOARCH}/signoz-otel-collector ./cmd/signozotelcollector
+	go build -o .build/${GOOS}-${GOARCH}/hanzo-otel-collector ./cmd/signozotelcollector
 	go build -o .build/${GOOS}-${GOARCH}/signoz-schema-migrator ./cmd/signozschemamigrator
 
 .PHONY: amd64

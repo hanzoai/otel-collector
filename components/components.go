@@ -1,24 +1,24 @@
 package components
 
 import (
-	"github.com/SigNoz/signoz-otel-collector/connectors/signozmeterconnector"
-	"github.com/SigNoz/signoz-otel-collector/exporter/clickhouselogsexporter"
-	"github.com/SigNoz/signoz-otel-collector/exporter/clickhousetracesexporter"
-	"github.com/SigNoz/signoz-otel-collector/exporter/jsontypeexporter"
-	"github.com/SigNoz/signoz-otel-collector/exporter/metadataexporter"
-	"github.com/SigNoz/signoz-otel-collector/exporter/signozclickhousemeter"
-	"github.com/SigNoz/signoz-otel-collector/exporter/signozclickhousemetrics"
-	"github.com/SigNoz/signoz-otel-collector/exporter/signozkafkaexporter"
-	signozhealthcheckextension "github.com/SigNoz/signoz-otel-collector/extension/healthcheckextension"
-	_ "github.com/SigNoz/signoz-otel-collector/pkg/parser/grok"
-	"github.com/SigNoz/signoz-otel-collector/processor/signozlogspipelineprocessor"
-	"github.com/SigNoz/signoz-otel-collector/processor/signozspanmetricsprocessor"
-	"github.com/SigNoz/signoz-otel-collector/processor/signoztailsampler"
-	"github.com/SigNoz/signoz-otel-collector/processor/signoztransformprocessor"
-	"github.com/SigNoz/signoz-otel-collector/receiver/clickhousesystemtablesreceiver"
-	"github.com/SigNoz/signoz-otel-collector/receiver/httplogreceiver"
-	"github.com/SigNoz/signoz-otel-collector/receiver/signozawsfirehosereceiver"
-	"github.com/SigNoz/signoz-otel-collector/receiver/signozkafkareceiver"
+	"github.com/hanzoai/otel-collector/connectors/o11ymeterconnector"
+	"github.com/hanzoai/otel-collector/exporter/clickhouselogsexporter"
+	"github.com/hanzoai/otel-collector/exporter/clickhousetracesexporter"
+	"github.com/hanzoai/otel-collector/exporter/jsontypeexporter"
+	"github.com/hanzoai/otel-collector/exporter/metadataexporter"
+	"github.com/hanzoai/otel-collector/exporter/o11yclickhousemeter"
+	"github.com/hanzoai/otel-collector/exporter/o11yclickhousemetrics"
+	"github.com/hanzoai/otel-collector/exporter/o11ykafkaexporter"
+	o11yhealthcheckextension "github.com/hanzoai/otel-collector/extension/healthcheckextension"
+	_ "github.com/hanzoai/otel-collector/pkg/parser/grok"
+	"github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor"
+	"github.com/hanzoai/otel-collector/processor/o11yspanmetricsprocessor"
+	"github.com/hanzoai/otel-collector/processor/o11ytailsampler"
+	"github.com/hanzoai/otel-collector/processor/o11ytransformprocessor"
+	"github.com/hanzoai/otel-collector/receiver/clickhousesystemtablesreceiver"
+	"github.com/hanzoai/otel-collector/receiver/httplogreceiver"
+	"github.com/hanzoai/otel-collector/receiver/o11yawsfirehosereceiver"
+	"github.com/hanzoai/otel-collector/receiver/o11ykafkareceiver"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/connector/countconnector"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/connector/datadogconnector"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/connector/exceptionsconnector"
@@ -343,8 +343,8 @@ func Components() (otelcol.Factories, error) {
 		tlscheckreceiver.NewFactory(),
 		windowsservicereceiver.NewFactory(),
 		yanggrpcreceiver.NewFactory(),
-		signozkafkareceiver.NewFactory(),
-		signozawsfirehosereceiver.NewFactory(),
+		o11ykafkareceiver.NewFactory(),
+		o11yawsfirehosereceiver.NewFactory(),
 	}
 
 	exporters := []exporter.Factory{
@@ -353,7 +353,7 @@ func Components() (otelcol.Factories, error) {
 		awss3exporter.NewFactory(),
 		cassandraexporter.NewFactory(),
 		clickhouselogsexporter.NewFactory(),
-		signozclickhousemetrics.NewFactory(),
+		o11yclickhousemetrics.NewFactory(),
 		clickhousetracesexporter.NewFactory(),
 		debugexporter.NewFactory(),
 		fileexporter.NewFactory(),
@@ -366,11 +366,11 @@ func Components() (otelcol.Factories, error) {
 		prometheusremotewriteexporter.NewFactory(),
 		pulsarexporter.NewFactory(),
 		rabbitmqexporter.NewFactory(),
-		signozkafkaexporter.NewFactory(),
+		o11ykafkaexporter.NewFactory(),
 		syslogexporter.NewFactory(),
 		zipkinexporter.NewFactory(),
 		nopexporter.NewFactory(),
-		signozclickhousemeter.NewFactory(),
+		o11yclickhousemeter.NewFactory(),
 	}
 
 	processors := []processor.Factory{
@@ -400,14 +400,14 @@ func Components() (otelcol.Factories, error) {
 		resourceprocessor.NewFactory(),
 		schemaprocessor.NewFactory(),
 		sumologicprocessor.NewFactory(),
-		signozspanmetricsprocessor.NewFactory(),
+		o11yspanmetricsprocessor.NewFactory(),
 		spanprocessor.NewFactory(),
 		tailsamplingprocessor.NewFactory(),
 		transformprocessor.NewFactory(),
 		unrollprocessor.NewFactory(),
-		signoztailsampler.NewFactory(),
-		signoztransformprocessor.NewFactory(),
-		signozlogspipelineprocessor.NewFactory(),
+		o11ytailsampler.NewFactory(),
+		o11ytransformprocessor.NewFactory(),
+		o11ylogspipelineprocessor.NewFactory(),
 	}
 
 	connectors := []connector.Factory{
@@ -426,7 +426,7 @@ func Components() (otelcol.Factories, error) {
 		slowsqlconnector.NewFactory(),
 		spanmetricsconnector.NewFactory(),
 		sumconnector.NewFactory(),
-		signozmeterconnector.NewFactory(),
+		o11ymeterconnector.NewFactory(),
 	}
 
 	factories, err := CoreComponents(
@@ -470,7 +470,7 @@ func CoreComponents(
 		oidcauthextension.NewFactory(),
 		healthcheckextension.NewFactory(),
 		pprofextension.NewFactory(),
-		signozhealthcheckextension.NewFactory(),
+		o11yhealthcheckextension.NewFactory(),
 		zpagesextension.NewFactory(),
 		azureauthextension.NewFactory(),
 	)

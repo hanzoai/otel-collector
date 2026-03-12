@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync/atomic"
 
-	"github.com/SigNoz/signoz-otel-collector/constants"
-	"github.com/SigNoz/signoz-otel-collector/signozcol"
+	"github.com/hanzoai/otel-collector/constants"
+	"github.com/hanzoai/otel-collector/o11ycol"
 	"github.com/google/uuid"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -45,7 +45,7 @@ type serverClient struct {
 type NewServerClientOpts struct {
 	Logger           *zap.Logger
 	Config           *AgentManagerConfig
-	WrappedCollector *signozcol.WrappedCollector
+	WrappedCollector *o11ycol.WrappedCollector
 
 	CollectorConfigPath string
 }
@@ -112,7 +112,7 @@ func (s *serverClient) createAgentDescription() *protobufs.AgentDescription {
 	// Create Agent description.
 	return &protobufs.AgentDescription{
 		IdentifyingAttributes: []*protobufs.KeyValue{
-			keyVal("service.name", "signoz-otel-collector"),
+			keyVal("service.name", "hanzo-otel-collector"),
 			keyVal("service.version", constants.Version),
 		},
 		NonIdentifyingAttributes: []*protobufs.KeyValue{
@@ -196,7 +196,7 @@ func (s *serverClient) Start(ctx context.Context) error {
 }
 
 // initialNopConfig adds Nopreceiver under `reciever` and strips off all the recievers under pipelines
-// and adds nop receiver to start collector regardless of connecting with Signoz OpAMP server
+// and adds nop receiver to start collector regardless of connecting with O11y OpAMP server
 // this enables Collector to start in a No Operation state; enabling extensions so to bypass healthchecks in
 // docker and helm installation
 func (s *serverClient) initialNopConfig() ([]byte, error) {
