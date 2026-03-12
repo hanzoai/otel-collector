@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	Type      = component.MustNewType("o11yclickhousemeter")
-	ScopeName = "github.com/hanzoai/otel-collector/exporter/o11yclickhousemeter"
+	Type      = component.MustNewType("signozclickhousemeter")
+	ScopeName = "github.com/hanzoai/otel-collector/exporter/o11ydatastoremeter"
 )
 
 const (
