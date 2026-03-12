@@ -1,4 +1,4 @@
-name: gor-signozotelcollector
+name: gor-o11yotelcollector
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
           - ubuntu-latest
           - macos-latest
     env:
-      CONFIG_PATH: cmd/signozotelcollector/.goreleaser.yaml
+      CONFIG_PATH: cmd/o11yotelcollector/.goreleaser.yaml
     runs-on: ${{ matrix.os }}
     steps:
       - name: checkout
@@ -49,13 +49,13 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         with:
           path: dist/linux
-          key: signozotelcollector-linux-${{ env.sha_short }}
+          key: o11yotelcollector-linux-${{ env.sha_short }}
       - name: cache-darwin
         uses: actions/cache@v4
         if: matrix.os == 'macos-latest'
         with:
           path: dist/darwin
-          key: signozotelcollector-darwin-${{ env.sha_short }}
+          key: o11yotelcollector-darwin-${{ env.sha_short }}
       - name: release
         uses: goreleaser/goreleaser-action@v6
         with:
@@ -104,13 +104,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: dist/linux
-          key: signozotelcollector-linux-${{ env.sha_short }}
+          key: o11yotelcollector-linux-${{ env.sha_short }}
       - name: cache-darwin
         id: cache-darwin
         uses: actions/cache@v4
         with:
           path: dist/darwin
-          key: signozotelcollector-darwin-${{ env.sha_short }}
+          key: o11yotelcollector-darwin-${{ env.sha_short }}
 
       # release
       - uses: goreleaser/goreleaser-action@v6

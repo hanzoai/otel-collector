@@ -1,0 +1,10 @@
+type: o11ytransform
+
+status:
+  class: processor
+  stability:
+    alpha: [traces, metrics, logs]
+
+tests:
+  skip_lifecycle: true
+  skip_shutdown: true

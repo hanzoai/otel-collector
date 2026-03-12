@@ -1,4 +1,4 @@
-module github.com/SigNoz/signoz-otel-collector
+module github.com/hanzoai/otel-collector
 
 go 1.24.0
 

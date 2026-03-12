@@ -3,9 +3,9 @@ package v1
 import (
 	"github.com/goccy/go-json"
 
-	"github.com/SigNoz/signoz-otel-collector/pkg/metering"
-	"github.com/SigNoz/signoz-otel-collector/pkg/schema/common"
-	schema "github.com/SigNoz/signoz-otel-collector/pkg/schema/traces"
+	"github.com/hanzoai/otel-collector/pkg/metering"
+	"github.com/hanzoai/otel-collector/pkg/schema/common"
+	schema "github.com/hanzoai/otel-collector/pkg/schema/traces"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.uber.org/zap"
 )
@@ -19,7 +19,7 @@ type traces struct {
 func NewTraces(logger *zap.Logger) metering.Traces {
 	return &traces{
 		Logger: logger,
-		Sizer:  metering.NewJSONSizer(logger, metering.WithExcludePattern(metering.ExcludeSigNozWorkspaceResourceAttrs)),
+		Sizer:  metering.NewJSONSizer(logger, metering.WithExcludePattern(metering.ExcludeHanzo O11yWorkspaceResourceAttrs)),
 		KeySizes: map[string]int{
 			"resources_string":  len("\"resources_string\""),
 			"startTimeUnixNano": len("\"startTimeUnixNano\""),

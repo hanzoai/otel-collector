@@ -6,7 +6,7 @@ import (
 	"time"
 
 	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/SigNoz/signoz-otel-collector/pkg/pdatagen/plogsgen"
+	"github.com/hanzoai/otel-collector/pkg/pdatagen/plogsgen"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
 	cmock "github.com/srikanthccv/ClickHouse-go-mock"
@@ -14,7 +14,7 @@ import (
 	"go.opentelemetry.io/otel/metric/noop"
 	"go.uber.org/zap"
 
-	"github.com/SigNoz/signoz-otel-collector/exporter/clickhouselogsexporter/internal/metadata"
+	"github.com/hanzoai/otel-collector/exporter/clickhouselogsexporter/internal/metadata"
 )
 
 // setupBenchmarkExporter creates a new exporter with mock ClickHouse client for benchmarking

@@ -8,8 +8,8 @@ import (
 
 	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/SigNoz/signoz-otel-collector/pkg/pdatagen/plogsgen"
-	"github.com/SigNoz/signoz-otel-collector/utils"
+	"github.com/hanzoai/otel-collector/pkg/pdatagen/plogsgen"
+	"github.com/hanzoai/otel-collector/utils"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
 	cmock "github.com/srikanthccv/ClickHouse-go-mock"
@@ -20,7 +20,7 @@ import (
 	"go.opentelemetry.io/otel/metric/noop"
 	"go.uber.org/zap"
 
-	"github.com/SigNoz/signoz-otel-collector/exporter/clickhouselogsexporter/internal/metadata"
+	"github.com/hanzoai/otel-collector/exporter/clickhouselogsexporter/internal/metadata"
 )
 
 func eventually(t *testing.T, f func() bool) {
@@ -126,11 +126,11 @@ func TestExporterPushLogsData(t *testing.T) {
 	}
 
 	// expect prepare batch for 5 tables
-	tagStatementV2 := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_tag_attributes_v2")
-	attributeKeysStmt := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_attribute_keys")
-	resourceKeysStmt := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_resource_keys")
-	logsStatementV2 := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_v2.*")
-	logsResourceStatementV2 := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_v2_resource.*")
+	tagStatementV2 := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_tag_attributes_v2")
+	attributeKeysStmt := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_attribute_keys")
+	resourceKeysStmt := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_resource_keys")
+	logsStatementV2 := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_v2.*")
+	logsResourceStatementV2 := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_v2_resource.*")
 
 	tagStatementV2.ExpectAppend()
 	tagStatementV2.ExpectSend()
@@ -144,7 +144,7 @@ func TestExporterPushLogsData(t *testing.T) {
 	logsResourceStatementV2.ExpectSend()
 
 	// make sure usage is inserted on shutdown
-	mock.ExpectExec(".*insert into signoz_logs.distributed_usage.*").WithArgs()
+	mock.ExpectExec(".*insert into o11y_logs.distributed_usage.*").WithArgs()
 	mock.ExpectClose()
 
 	exporter := setupTestExporter(t, mock)
@@ -171,13 +171,13 @@ func TestGetResourceAttributesByte(t *testing.T) {
 		pass      bool
 	}{
 		{
-			name:      "add_signoz_resource_attribute",
-			attribute: "signoz.workspace.internal.test",
+			name:      "add_o11y_resource_attribute",
+			attribute: "o11y.workspace.internal.test",
 			pass:      true,
 		},
 		{
-			name:      "add_non_signoz_resource_attribute",
-			attribute: "nonsignoz.internal.test",
+			name:      "add_non_o11y_resource_attribute",
+			attribute: "nono11y.internal.test",
 			pass:      false,
 		},
 	}
@@ -187,7 +187,7 @@ func TestGetResourceAttributesByte(t *testing.T) {
 			plogs := plogsgen.Generate(plogsgen.WithResourceAttributeCount(10))
 
 			// get the base expected value
-			withoutSigNozAttrs, err := getResourceAttributesByte(plogs.ResourceLogs().At(0).Resource())
+			withoutHanzo O11yAttrs, err := getResourceAttributesByte(plogs.ResourceLogs().At(0).Resource())
 			require.NoError(t, err)
 
 			// add the provided attributeand get the actual value
@@ -196,9 +196,9 @@ func TestGetResourceAttributesByte(t *testing.T) {
 			require.NoError(t, err)
 
 			if tc.pass {
-				assert.Equal(t, withoutSigNozAttrs, WithNewAttribute)
+				assert.Equal(t, withoutHanzo O11yAttrs, WithNewAttribute)
 			} else {
-				assert.NotEqual(t, withoutSigNozAttrs, WithNewAttribute)
+				assert.NotEqual(t, withoutHanzo O11yAttrs, WithNewAttribute)
 			}
 
 		})
@@ -279,11 +279,11 @@ func TestExporterConcurrency(t *testing.T) {
 			}
 
 			// expect prepare batch for 5 tables
-			tagStatementV2 := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_tag_attributes_v2")
-			attributeKeysStmt := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_attribute_keys")
-			resourceKeysStmt := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_resource_keys")
-			logsStatementV2 := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_v2.*")
-			logsResourceStatementV2 := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_v2_resource.*")
+			tagStatementV2 := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_tag_attributes_v2")
+			attributeKeysStmt := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_attribute_keys")
+			resourceKeysStmt := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_resource_keys")
+			logsStatementV2 := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_v2.*")
+			logsResourceStatementV2 := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_v2_resource.*")
 
 			tagStatementV2.ExpectAppend()
 			tagStatementV2.ExpectSend()

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/SigNoz/signoz-otel-collector/opamp"
-	"github.com/SigNoz/signoz-otel-collector/signozcol"
+	"github.com/hanzoai/otel-collector/opamp"
+	"github.com/hanzoai/otel-collector/o11ycol"
 	"go.uber.org/zap"
 )
 
@@ -28,7 +28,7 @@ type service struct {
 }
 
 func New(
-	wrappedCollector *signozcol.WrappedCollector,
+	wrappedCollector *o11ycol.WrappedCollector,
 	logger *zap.Logger,
 	managerConfigPath string,
 	collectorConfigPath string,

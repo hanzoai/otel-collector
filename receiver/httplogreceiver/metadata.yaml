@@ -4,6 +4,6 @@ status:
   class: receiver
   stability:
     alpha: [logs]
-  distributions: [signoz]
+  distributions: [o11y]
   codeowners:
-    active: [signoz]
+    active: [o11y]

@@ -19,7 +19,7 @@ import (
 	"time"
 
 	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/SigNoz/signoz-otel-collector/usage"
+	"github.com/hanzoai/otel-collector/usage"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
 	"go.opentelemetry.io/otel/metric"
@@ -50,7 +50,7 @@ func WithNewUsageCollector(id uuid.UUID, db driver.Conn, logger *zap.Logger) Tra
 			usage.Options{
 				ReportingInterval: usage.DefaultCollectionInterval,
 			},
-			"signoz_traces",
+			"o11y_traces",
 			UsageExporter,
 			logger,
 		)

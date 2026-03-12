@@ -17,7 +17,7 @@ import (
 	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/config/confignet"
 
-	"github.com/SigNoz/signoz-otel-collector/internal/common/testutil"
+	"github.com/hanzoai/otel-collector/internal/common/testutil"
 )
 
 const (

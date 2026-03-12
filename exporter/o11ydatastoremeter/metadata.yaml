@@ -1,0 +1,14 @@
+type: o11yclickhousemeter
+
+status:
+  class: exporter
+  stability:
+    beta:
+      - metrics
+  distributions:
+    - o11y
+
+tests:
+  config:
+  skip_lifecycle: false
+  skip_shutdown: false

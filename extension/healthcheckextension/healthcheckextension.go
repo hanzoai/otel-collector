@@ -14,7 +14,7 @@ import (
 	"go.opentelemetry.io/collector/extension/extensioncapabilities"
 	"go.uber.org/zap"
 
-	"github.com/SigNoz/signoz-otel-collector/extension/healthcheckextension/internal/healthcheck"
+	"github.com/hanzoai/otel-collector/extension/healthcheckextension/internal/healthcheck"
 )
 
 type healthCheckExtension struct {

@@ -1,5 +1,5 @@
-signoz_health_check:
-signoz_health_check/1:
+o11y_health_check:
+o11y_health_check/1:
   endpoint: "localhost:13"
   tls:
     ca_file: "/path/to/ca"
@@ -9,19 +9,19 @@ signoz_health_check/1:
     enabled: false
     interval: "5m"
     exporter_failure_threshold: 5
-signoz_health_check/missingendpoint:
+o11y_health_check/missingendpoint:
   endpoint: ""
   check_collector_pipeline:
     enabled: false
     interval: "5m"
     exporter_failure_threshold: 5
-signoz_health_check/invalidthreshold:
+o11y_health_check/invalidthreshold:
   endpoint: "localhost:13"
   check_collector_pipeline:
     enabled: false
     interval: "5m"
     exporter_failure_threshold: -1
-signoz_health_check/invalidpath:
+o11y_health_check/invalidpath:
   endpoint: "localhost:13"
   path: "invalid"
   check_collector_pipeline:

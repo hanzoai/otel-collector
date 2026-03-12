@@ -28,12 +28,12 @@ import (
 
 	"github.com/ClickHouse/clickhouse-go/v2"
 	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/SigNoz/signoz-otel-collector/constants"
-	"github.com/SigNoz/signoz-otel-collector/internal/common"
-	"github.com/SigNoz/signoz-otel-collector/pkg/keycheck"
-	"github.com/SigNoz/signoz-otel-collector/usage"
-	"github.com/SigNoz/signoz-otel-collector/utils"
-	"github.com/SigNoz/signoz-otel-collector/utils/fingerprint"
+	"github.com/hanzoai/otel-collector/constants"
+	"github.com/hanzoai/otel-collector/internal/common"
+	"github.com/hanzoai/otel-collector/pkg/keycheck"
+	"github.com/hanzoai/otel-collector/usage"
+	"github.com/hanzoai/otel-collector/utils"
+	"github.com/hanzoai/otel-collector/utils/fingerprint"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
 	"github.com/segmentio/ksuid"
@@ -57,7 +57,7 @@ const (
 	distributedLogsResourceV2        = "distributed_logs_v2_resource"
 	distributedLogsAttributeKeys     = "distributed_logs_attribute_keys"
 	distributedLogsResourceKeys      = "distributed_logs_resource_keys"
-	distributedColumnEvolutionTable  = constants.SignozMetadataDB + ".distributed_column_evolution_metadata"
+	distributedColumnEvolutionTable  = constants.O11yMetadataDB + ".distributed_column_evolution_metadata"
 	distributedLogsResourceV2Seconds = 1800
 	// language=ClickHouse SQL
 	insertLogsResourceSQLTemplate = `INSERT INTO %s.%s (
@@ -823,7 +823,7 @@ producerIteration:
 		zap.String("cost", duration.String()))
 
 	for k, v := range metrics {
-		_ = stats.RecordWithTags(ctx, []tag.Mutator{tag.Upsert(usage.TagTenantKey, k), tag.Upsert(usage.TagExporterIdKey, e.id.String())}, ExporterSigNozSentLogRecords.M(int64(v.Count)), ExporterSigNozSentLogRecordsBytes.M(int64(v.Size)))
+		_ = stats.RecordWithTags(ctx, []tag.Mutator{tag.Upsert(usage.TagTenantKey, k), tag.Upsert(usage.TagExporterIdKey, e.id.String())}, ExporterHanzo O11ySentLogRecords.M(int64(v.Count)), ExporterHanzo O11ySentLogRecordsBytes.M(int64(v.Size)))
 	}
 
 	return nil

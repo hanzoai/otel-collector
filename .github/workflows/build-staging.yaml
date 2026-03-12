@@ -34,7 +34,7 @@ jobs:
       - name: primus-checkout
         uses: actions/checkout@v4
         with:
-          repository: signoz/primus
+          repository: o11y/primus
           ref: main
           path: .primus
           token: ${{ steps.token.outputs.token }}
@@ -52,38 +52,38 @@ jobs:
           fi
           echo "version=$($MAKE info-version)" >> $GITHUB_OUTPUT
           echo "deployment=${deployment}" >> $GITHUB_OUTPUT
-  signoz-otel-collector:
-    uses: signoz/primus.workflows/.github/workflows/go-build.yaml@main
+  hanzo-otel-collector:
+    uses: o11y/primus.workflows/.github/workflows/go-build.yaml@main
     secrets: inherit
     needs: prepare
     with:
       PRIMUS_REF: main
       GO_VERSION: 1.24
-      GO_BUILD_CONTEXT: ./cmd/signozotelcollector
+      GO_BUILD_CONTEXT: ./cmd/o11yotelcollector
       GO_BUILD_FLAGS: ""
       DOCKER_BASE_IMAGES: '{"debian":"debian:bookworm-slim"}'
-      DOCKER_DOCKERFILE_PATH: ./cmd/signozotelcollector/Dockerfile.multi-arch
+      DOCKER_DOCKERFILE_PATH: ./cmd/o11yotelcollector/Dockerfile.multi-arch
       DOCKER_MANIFEST: true
       DOCKER_PROVIDERS: gcp
-  signoz-schema-migrator:
-    uses: signoz/primus.workflows/.github/workflows/go-build.yaml@main
+  o11y-schema-migrator:
+    uses: o11y/primus.workflows/.github/workflows/go-build.yaml@main
     secrets: inherit
     needs: prepare
     with:
       PRIMUS_REF: main
       GO_VERSION: 1.24
-      GO_NAME: signoz-schema-migrator
-      GO_BUILD_CONTEXT: ./cmd/signozschemamigrator
+      GO_NAME: o11y-schema-migrator
+      GO_BUILD_CONTEXT: ./cmd/o11yschemamigrator
       GO_BUILD_FLAGS: ""
       DOCKER_BASE_IMAGES: '{"debian":"debian:bookworm-slim"}'
-      DOCKER_DOCKERFILE_PATH: ./cmd/signozschemamigrator/Dockerfile.multi-arch
+      DOCKER_DOCKERFILE_PATH: ./cmd/o11yschemamigrator/Dockerfile.multi-arch
       DOCKER_MANIFEST: true
       DOCKER_PROVIDERS: gcp
   staging:
     if: ${{ contains(github.event.label.name, 'staging:') || github.event.ref == 'refs/heads/main' }}
-    uses: signoz/primus.workflows/.github/workflows/github-trigger.yaml@main
+    uses: o11y/primus.workflows/.github/workflows/github-trigger.yaml@main
     secrets: inherit
-    needs: [prepare, signoz-otel-collector, signoz-schema-migrator]
+    needs: [prepare, hanzo-otel-collector, o11y-schema-migrator]
     with:
       PRIMUS_REF: main
       GITHUB_ENVIRONMENT: staging

@@ -1,0 +1,22 @@
+ARG DEBIAN_SHA="pass-a-valid-docker-sha-otherwise-this-will-fail"
+
+FROM debian@sha256:${DEBIAN_SHA}
+LABEL maintainer="o11y"
+
+ARG OS="linux"
+ARG ARCH
+ARG USER_UID=10001
+
+RUN apt-get update && \
+    apt-get install -y ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+USER ${USER_UID}
+
+COPY ./target/${OS}-${ARCH}/hanzo-otel-collector /hanzo-otel-collector
+COPY conf/default.yaml /etc/otel/config.yaml
+
+EXPOSE 4317 4318
+
+ENTRYPOINT [ "/hanzo-otel-collector" ]
+CMD ["--config", "/etc/otel/config.yaml"]

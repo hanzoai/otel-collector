@@ -3,7 +3,7 @@ package jsontypeexporter
 import (
 	"sync"
 
-	"github.com/SigNoz/signoz-otel-collector/utils"
+	"github.com/hanzoai/otel-collector/utils"
 )
 
 const (

@@ -3,14 +3,14 @@ package v1
 import (
 	"regexp"
 
-	"github.com/SigNoz/signoz-otel-collector/pkg/metering"
+	"github.com/hanzoai/otel-collector/pkg/metering"
 
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.uber.org/zap"
 )
 
 var (
-	excludeRegex = regexp.MustCompile("^(signoz|otelcol).*")
+	excludeRegex = regexp.MustCompile("^(o11y|otelcol).*")
 )
 
 type metrics struct {
