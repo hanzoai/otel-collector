@@ -32,7 +32,7 @@ func TestLogsProcessingSimulation(t *testing.T) {
 	testLogstransformConf1, err := yaml.Parser().Unmarshal([]byte(`
     operators:
         - type: router
-          id: router_signoz
+          id: router_o11y
           routes:
             - output: add
               expr: attributes.method == "GET"
@@ -53,7 +53,7 @@ func TestLogsProcessingSimulation(t *testing.T) {
 	testLogstransformConf2, err := yaml.Parser().Unmarshal([]byte(`
     operators:
         - type: router
-          id: router_signoz
+          id: router_o11y
           routes:
             - output: add
               expr: attributes.method == "POST"

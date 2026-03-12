@@ -27,12 +27,12 @@ import (
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
 
-	"github.com/SigNoz/signoz-otel-collector/exporter/clickhouselogsexporter/internal/metadata"
-	"github.com/SigNoz/signoz-otel-collector/utils"
+	"github.com/hanzoai/otel-collector/exporter/clickhouselogsexporter/internal/metadata"
+	"github.com/hanzoai/otel-collector/utils"
 )
 
 const (
-	databaseName = "signoz_logs"
+	databaseName = "o11y_logs"
 )
 
 // NewFactory creates a factory for Elastic exporter.

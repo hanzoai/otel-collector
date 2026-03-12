@@ -24,7 +24,7 @@ processors:
   batch:
     send_batch_size: 1000
     timeout: 10s
-  signozspanmetrics/prometheus:
+  o11yspanmetrics/prometheus:
     metrics_exporter: prometheus
     latency_histogram_buckets: [100us, 1ms, 2ms, 6ms, 10ms, 50ms, 100ms, 250ms, 500ms, 1000ms, 1400ms, 2000ms, 5s, 10s, 20s, 40s, 60s ]
     dimensions_cache_size: 10000
@@ -33,8 +33,8 @@ processors:
         default: default
       - name: deployment.environment
         default: default
-  signozspanmetrics/delta:
-    metrics_exporter: signozclickhousemetrics
+  o11yspanmetrics/delta:
+    metrics_exporter: o11ydatastoremetrics
     metrics_flush_interval: 60s
     latency_histogram_buckets: [100us, 1ms, 2ms, 6ms, 10ms, 50ms, 100ms, 250ms, 500ms, 1000ms, 1400ms, 2000ms, 5s, 10s, 20s, 40s, 60s ]
     dimensions_cache_size: 100000
@@ -49,7 +49,7 @@ processors:
       # This is added to ensure the uniqueness of the timeseries
       # Otherwise, identical timeseries produced by multiple replicas of
       # collectors result in incorrect APM metrics
-      - name: signoz.collector.id
+      - name: o11y.collector.id
       - name: service.version
       - name: browser.platform
       - name: browser.mobile
@@ -80,7 +80,7 @@ extensions:
   zpages: {}
 exporters:
   clickhousetraces:
-    datasource: tcp://localhost:9000/signoz_traces
+    datasource: tcp://localhost:9000/o11y_traces
     retry_on_failure:
       enabled: true
       initial_interval: 5s
@@ -90,12 +90,12 @@ exporters:
       enabled: true
       queue_size: 100
       num_consumers: 5
-  signozclickhousemetrics:
+  o11ydatastoremetrics:
     sending_queue:
       enabled: false
-    dsn: tcp://localhost:9000/signoz_metrics
+    dsn: tcp://localhost:9000/o11y_metrics
   clickhouselogsexporter:
-    dsn: tcp://localhost:9000/signoz_logs
+    dsn: tcp://localhost:9000/o11y_logs
     timeout: 10s
     sending_queue:
       enabled: false
@@ -107,12 +107,12 @@ service:
   pipelines:
     traces:
       receivers: [jaeger, otlp]
-      processors: [signozspanmetrics/delta, batch]
+      processors: [o11yspanmetrics/delta, batch]
       exporters: [clickhousetraces]
     metrics:
       receivers: [otlp, hostmetrics]
       processors: [batch]
-      exporters: [signozclickhousemetrics]
+      exporters: [o11ydatastoremetrics]
     logs:
       receivers: [otlp]
       processors: [batch]

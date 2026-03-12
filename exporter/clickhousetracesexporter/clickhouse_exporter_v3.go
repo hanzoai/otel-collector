@@ -12,11 +12,11 @@ import (
 
 	"github.com/goccy/go-json"
 
-	"github.com/SigNoz/signoz-otel-collector/pkg/metering"
-	"github.com/SigNoz/signoz-otel-collector/usage"
-	"github.com/SigNoz/signoz-otel-collector/utils"
-	"github.com/SigNoz/signoz-otel-collector/utils/fingerprint"
-	"github.com/SigNoz/signoz-otel-collector/utils/flatten"
+	"github.com/hanzoai/otel-collector/pkg/metering"
+	"github.com/hanzoai/otel-collector/usage"
+	"github.com/hanzoai/otel-collector/utils"
+	"github.com/hanzoai/otel-collector/utils/fingerprint"
+	"github.com/hanzoai/otel-collector/utils/flatten"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/ptrace"
@@ -267,7 +267,7 @@ func newStructuredSpanV3(bucketStart uint64, fingerprint string, otelSpan ptrace
 	})
 
 	resource.Attributes().Range(func(k string, v pcommon.Value) bool {
-		isBillable := !metering.ExcludeSigNozWorkspaceResourceAttrs.MatchString(k)
+		isBillable := !metering.ExcludeHanzo O11yWorkspaceResourceAttrs.MatchString(k)
 		if v.Type() == pcommon.ValueTypeMap {
 			result := flatten.FlattenJSON(v.Map().AsRaw(), k)
 			for tempKey, tempVal := range result {

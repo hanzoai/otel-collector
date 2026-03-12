@@ -12,7 +12,7 @@ import (
 	"go.opentelemetry.io/collector/config/confignet"
 	"go.opentelemetry.io/collector/extension"
 
-	"github.com/SigNoz/signoz-otel-collector/extension/healthcheckextension/internal/metadata"
+	"github.com/hanzoai/otel-collector/extension/healthcheckextension/internal/metadata"
 )
 
 const defaultPort = 13133

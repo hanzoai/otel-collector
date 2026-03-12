@@ -3,7 +3,7 @@ package v1
 import (
 	"testing"
 
-	"github.com/SigNoz/signoz-otel-collector/pkg/pdatagen/plogsgen"
+	"github.com/hanzoai/otel-collector/pkg/pdatagen/plogsgen"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 )
@@ -24,7 +24,7 @@ func TestLogsSize(t *testing.T) {
 	assert.Equal(t, 10*(8*(10+20+5)+7+2+2+100), size)
 }
 
-func TestLogsSizeWithExcludedSigNozResources(t *testing.T) {
+func TestLogsSizeWithExcludedHanzo O11yResources(t *testing.T) {
 	logs := plogsgen.Generate(
 		plogsgen.WithLogRecordCount(10),
 		plogsgen.WithResourceAttributeCount(8),
@@ -33,8 +33,8 @@ func TestLogsSizeWithExcludedSigNozResources(t *testing.T) {
 		// 20 bytes
 		plogsgen.WithResourceAttributeStringValue("Lorem ipsum euismod."),
 	)
-	// adding signoz resource shouldn't affect the calculation
-	logs.ResourceLogs().At(0).Resource().Attributes().PutStr("signoz.workspace.internal.test", "signoz-test")
+	// adding o11y resource shouldn't affect the calculation
+	logs.ResourceLogs().At(0).Resource().Attributes().PutStr("o11y.workspace.internal.test", "o11y-test")
 
 	meter := NewLogs(zap.NewNop())
 	size := meter.Size(logs)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/SigNoz/signoz-otel-collector/pkg/pdatagen/ptracesgen"
+	"github.com/hanzoai/otel-collector/pkg/pdatagen/ptracesgen"
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.uber.org/zap"
@@ -25,15 +25,15 @@ func TestTracesSizeWithNoEvents(t *testing.T) {
 	assert.Equal(t, 406, size)
 }
 
-func TestTracesSizeWithNoEventAndSigNozResource(t *testing.T) {
+func TestTracesSizeWithNoEventAndHanzo O11yResource(t *testing.T) {
 	traces := ptracesgen.Generate(
 		ptracesgen.WithSpanCount(1),
 		ptracesgen.WithResourceAttributeCount(1),
 		ptracesgen.WithSpanKind(ptrace.SpanKindProducer),
 		ptracesgen.WithResourceAttributeStringValue("test"),
 	)
-	// adding signoz resource attribute shouldn't affect the calculation
-	traces.ResourceSpans().At(0).Resource().Attributes().PutStr("signoz.workspace.internal.test", "signoz-test")
+	// adding o11y resource attribute shouldn't affect the calculation
+	traces.ResourceSpans().At(0).Resource().Attributes().PutStr("o11y.workspace.internal.test", "o11y-test")
 
 	meter := NewTraces(zap.NewNop())
 	size := meter.Size(traces)

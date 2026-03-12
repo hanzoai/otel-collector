@@ -10,7 +10,7 @@ import (
 
 	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/SigNoz/signoz-otel-collector/pkg/pdatagen/ptracesgen"
+	"github.com/hanzoai/otel-collector/pkg/pdatagen/ptracesgen"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
 	cmock "github.com/srikanthccv/ClickHouse-go-mock"
@@ -22,7 +22,7 @@ import (
 	"go.opentelemetry.io/otel/metric/noop"
 	"go.uber.org/zap"
 
-	"github.com/SigNoz/signoz-otel-collector/exporter/clickhousetracesexporter/internal/metadata"
+	"github.com/hanzoai/otel-collector/exporter/clickhousetracesexporter/internal/metadata"
 )
 
 func Test_attributesData_add(t *testing.T) {
@@ -400,7 +400,7 @@ func Test_newStructuredSpanV3(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "test_structured_span_with_signoz_resources",
+			name: "test_structured_span_with_o11y_resources",
 			args: args{
 				bucketStart: 0,
 				fingerprint: "test_fingerprint",
@@ -427,7 +427,7 @@ func Test_newStructuredSpanV3(t *testing.T) {
 					resource := pcommon.NewResource()
 					resource.Attributes().PutStr("service.name", "test_service")
 					// this resource shouldn't show up in the final generated span
-					resource.Attributes().PutStr("signoz.workspace.internal.test", "test_internal")
+					resource.Attributes().PutStr("o11y.workspace.internal.test", "test_internal")
 					resource.Attributes().PutInt("num", 10)
 					v := resource.Attributes().PutEmptyMap("mymap")
 					v.PutStr("map_key", "map_val")
@@ -461,7 +461,7 @@ func Test_newStructuredSpanV3(t *testing.T) {
 					"mymap.map_key":                  "map_val",
 					"service.name":                   "test_service",
 					"num":                            "10",
-					"signoz.workspace.internal.test": "test_internal",
+					"o11y.workspace.internal.test": "test_internal",
 				},
 				BillableResourcesString: map[string]string{
 					"mymap.map_double": "20.5",
@@ -613,11 +613,11 @@ func TestExporterPushTracesData(t *testing.T) {
 	mock.MatchExpectationsInOrder(false)
 
 	// expect prepare batch for 5 tables
-	indexV3Statement := mock.ExpectPrepareBatch("INSERT INTO signoz_traces.distributed_signoz_index_v3")
-	errorIndexV2Statement := mock.ExpectPrepareBatch("INSERT INTO signoz_traces.distributed_signoz_error_index_v2")
-	attributeKeysStmt := mock.ExpectPrepareBatch("INSERT INTO signoz_traces.distributed_span_attributes_keys")
-	tagAttributesV2Statement := mock.ExpectPrepareBatch("INSERT INTO signoz_traces.distributed_tag_attributes_v2")
-	resourceStatement := mock.ExpectPrepareBatch("INSERT INTO signoz_traces.distributed_traces_v3_resource")
+	indexV3Statement := mock.ExpectPrepareBatch("INSERT INTO o11y_traces.distributed_o11y_index_v3")
+	errorIndexV2Statement := mock.ExpectPrepareBatch("INSERT INTO o11y_traces.distributed_o11y_error_index_v2")
+	attributeKeysStmt := mock.ExpectPrepareBatch("INSERT INTO o11y_traces.distributed_span_attributes_keys")
+	tagAttributesV2Statement := mock.ExpectPrepareBatch("INSERT INTO o11y_traces.distributed_tag_attributes_v2")
+	resourceStatement := mock.ExpectPrepareBatch("INSERT INTO o11y_traces.distributed_traces_v3_resource")
 
 	indexV3Statement.ExpectAppend()
 	indexV3Statement.ExpectSend()
@@ -631,7 +631,7 @@ func TestExporterPushTracesData(t *testing.T) {
 	resourceStatement.ExpectSend()
 
 	// make sure usage is inserted on shutdown
-	mock.ExpectExec(".*insert into signoz_traces.distributed_usage.*").WithArgs()
+	mock.ExpectExec(".*insert into o11y_traces.distributed_usage.*").WithArgs()
 
 	exporter := setupTestExporter(t, mock)
 

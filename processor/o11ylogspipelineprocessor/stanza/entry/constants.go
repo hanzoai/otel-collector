@@ -1,0 +1,3 @@
+package o11ystanzaentry
+
+const InternalTempAttributePrefix = "__o11ylogspipelineprocessor_internal__"
