@@ -13,34 +13,34 @@ import (
 )
 
 const (
-	Hanzo O11ySentSpansKey      = "singoz_sent_spans"
-	Hanzo O11ySentSpansBytesKey = "singoz_sent_spans_bytes"
-	Hanzo O11ySpansCount        = "o11y_spans_count"
-	Hanzo O11ySpansBytes        = "o11y_spans_bytes"
+	HanzoO11ySentSpansKey      = "singoz_sent_spans"
+	HanzoO11ySentSpansBytesKey = "singoz_sent_spans_bytes"
+	HanzoO11ySpansCount        = "o11y_spans_count"
+	HanzoO11ySpansBytes        = "o11y_spans_bytes"
 )
 
 var (
 	// Measures for usage
-	ExporterHanzo O11ySentSpans = stats.Int64(
-		Hanzo O11ySentSpansKey,
+	ExporterHanzoO11ySentSpans = stats.Int64(
+		HanzoO11ySentSpansKey,
 		"Number of o11y log records successfully sent to destination.",
 		stats.UnitDimensionless)
-	ExporterHanzo O11ySentSpansBytes = stats.Int64(
-		Hanzo O11ySentSpansBytesKey,
+	ExporterHanzoO11ySentSpansBytes = stats.Int64(
+		HanzoO11ySentSpansBytesKey,
 		"Total size of o11y log records successfully sent to destination.",
 		stats.UnitDimensionless)
 
 	// Views for usage
 	SpansCountView = &view.View{
-		Name:        Hanzo O11ySpansCount,
-		Measure:     ExporterHanzo O11ySentSpans,
+		Name:        HanzoO11ySpansCount,
+		Measure:     ExporterHanzoO11ySentSpans,
 		Description: "The number of spans exported to o11y",
 		Aggregation: view.Sum(),
 		TagKeys:     []tag.Key{usage.TagTenantKey, usage.TagExporterIdKey},
 	}
 	SpansCountBytesView = &view.View{
-		Name:        Hanzo O11ySpansBytes,
-		Measure:     ExporterHanzo O11ySentSpansBytes,
+		Name:        HanzoO11ySpansBytes,
+		Measure:     ExporterHanzoO11ySentSpansBytes,
 		Description: "The size of spans exported to o11y",
 		Aggregation: view.Sum(),
 		TagKeys:     []tag.Key{usage.TagTenantKey, usage.TagExporterIdKey},
@@ -50,7 +50,7 @@ var (
 func UsageExporter(metrics []*metricdata.Metric, id uuid.UUID) (map[string]usage.Usage, error) {
 	data := map[string]usage.Usage{}
 	for _, metric := range metrics {
-		if !strings.Contains(metric.Descriptor.Name, Hanzo O11ySpansCount) && !strings.Contains(metric.Descriptor.Name, Hanzo O11ySpansBytes) {
+		if !strings.Contains(metric.Descriptor.Name, HanzoO11ySpansCount) && !strings.Contains(metric.Descriptor.Name, HanzoO11ySpansBytes) {
 			continue
 		}
 		exporterIndex := usage.GetIndexOfLabel(metric.Descriptor.LabelKeys, usage.ExporterIDKey)
@@ -58,7 +58,7 @@ func UsageExporter(metrics []*metricdata.Metric, id uuid.UUID) (map[string]usage
 		if exporterIndex == -1 || tenantIndex == -1 {
 			return nil, fmt.Errorf("usage: failed to get index of labels")
 		}
-		if strings.Contains(metric.Descriptor.Name, Hanzo O11ySpansCount) {
+		if strings.Contains(metric.Descriptor.Name, HanzoO11ySpansCount) {
 			for _, v := range metric.TimeSeries {
 				if v.LabelValues[exporterIndex].Value != id.String() {
 					continue
@@ -73,7 +73,7 @@ func UsageExporter(metrics []*metricdata.Metric, id uuid.UUID) (map[string]usage
 					}
 				}
 			}
-		} else if strings.Contains(metric.Descriptor.Name, Hanzo O11ySpansBytes) {
+		} else if strings.Contains(metric.Descriptor.Name, HanzoO11ySpansBytes) {
 			for _, v := range metric.TimeSeries {
 				if v.LabelValues[exporterIndex].Value != id.String() {
 					continue

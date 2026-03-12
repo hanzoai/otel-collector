@@ -16,34 +16,34 @@ import (
 )
 
 const (
-	Hanzo O11ySentLogRecordsKey      = "singoz_sent_log_records"
-	Hanzo O11ySentLogRecordsBytesKey = "singoz_sent_log_records_bytes"
-	Hanzo O11yLogsCount              = "o11y_logs_count"
-	Hanzo O11yLogsBytes              = "o11y_logs_bytes"
+	HanzoO11ySentLogRecordsKey      = "singoz_sent_log_records"
+	HanzoO11ySentLogRecordsBytesKey = "singoz_sent_log_records_bytes"
+	HanzoO11yLogsCount              = "o11y_logs_count"
+	HanzoO11yLogsBytes              = "o11y_logs_bytes"
 )
 
 var (
 	// Measures for usage
-	ExporterHanzo O11ySentLogRecords = stats.Int64(
-		Hanzo O11ySentLogRecordsKey,
+	ExporterHanzoO11ySentLogRecords = stats.Int64(
+		HanzoO11ySentLogRecordsKey,
 		"Number of o11y log records successfully sent to destination.",
 		stats.UnitDimensionless)
-	ExporterHanzo O11ySentLogRecordsBytes = stats.Int64(
-		Hanzo O11ySentLogRecordsBytesKey,
+	ExporterHanzoO11ySentLogRecordsBytes = stats.Int64(
+		HanzoO11ySentLogRecordsBytesKey,
 		"Total size of o11y log records successfully sent to destination.",
 		stats.UnitDimensionless)
 
 	// Views for usage
 	LogsCountView = &view.View{
-		Name:        Hanzo O11yLogsCount,
-		Measure:     ExporterHanzo O11ySentLogRecords,
+		Name:        HanzoO11yLogsCount,
+		Measure:     ExporterHanzoO11ySentLogRecords,
 		Description: "The number of logs exported to o11y",
 		Aggregation: view.Sum(),
 		TagKeys:     []tag.Key{usage.TagTenantKey, usage.TagExporterIdKey},
 	}
 	LogsSizeView = &view.View{
-		Name:        Hanzo O11yLogsBytes,
-		Measure:     ExporterHanzo O11ySentLogRecordsBytes,
+		Name:        HanzoO11yLogsBytes,
+		Measure:     ExporterHanzoO11ySentLogRecordsBytes,
 		Description: "The size of logs exported to o11y",
 		Aggregation: view.Sum(),
 		TagKeys:     []tag.Key{usage.TagTenantKey, usage.TagExporterIdKey},
@@ -53,7 +53,7 @@ var (
 func UsageExporter(metrics []*metricdata.Metric, id uuid.UUID) (map[string]usage.Usage, error) {
 	data := map[string]usage.Usage{}
 	for _, metric := range metrics {
-		if !strings.Contains(metric.Descriptor.Name, Hanzo O11yLogsCount) && !strings.Contains(metric.Descriptor.Name, Hanzo O11yLogsBytes) {
+		if !strings.Contains(metric.Descriptor.Name, HanzoO11yLogsCount) && !strings.Contains(metric.Descriptor.Name, HanzoO11yLogsBytes) {
 			continue
 		}
 		exporterIndex := usage.GetIndexOfLabel(metric.Descriptor.LabelKeys, usage.ExporterIDKey)
@@ -62,7 +62,7 @@ func UsageExporter(metrics []*metricdata.Metric, id uuid.UUID) (map[string]usage
 			return nil, fmt.Errorf("usage: failed to get index of labels")
 		}
 
-		if strings.Contains(metric.Descriptor.Name, Hanzo O11yLogsCount) {
+		if strings.Contains(metric.Descriptor.Name, HanzoO11yLogsCount) {
 			for _, v := range metric.TimeSeries {
 				if v.LabelValues[exporterIndex].Value != id.String() {
 					continue
@@ -77,7 +77,7 @@ func UsageExporter(metrics []*metricdata.Metric, id uuid.UUID) (map[string]usage
 					}
 				}
 			}
-		} else if strings.Contains(metric.Descriptor.Name, Hanzo O11yLogsBytes) {
+		} else if strings.Contains(metric.Descriptor.Name, HanzoO11yLogsBytes) {
 			for _, v := range metric.TimeSeries {
 				if v.LabelValues[exporterIndex].Value != id.String() {
 					continue
@@ -100,7 +100,7 @@ func UsageExporter(metrics []*metricdata.Metric, id uuid.UUID) (map[string]usage
 func getResourceAttributesByte(resource pcommon.Resource) ([]byte, error) {
 	filteredResources := map[string]any{}
 	resource.Attributes().Range(func(k string, v pcommon.Value) bool {
-		if !metering.ExcludeHanzo O11yWorkspaceResourceAttrs.MatchString(k) {
+		if !metering.ExcludeHanzoO11yWorkspaceResourceAttrs.MatchString(k) {
 			filteredResources[k] = v.AsRaw()
 		}
 		return true

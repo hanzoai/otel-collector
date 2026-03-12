@@ -1,4 +1,4 @@
-package o11yclickhousemetrics
+package o11ydatastoremetrics
 
 import (
 	"fmt"
@@ -12,34 +12,34 @@ import (
 )
 
 const (
-	Hanzo O11ySentMetricPointsKey      = "singoz_sent_metric_points"
-	Hanzo O11ySentMetricPointsBytesKey = "singoz_sent_metric_points_bytes"
-	Hanzo O11yMetricPointsCount        = "o11y_metric_points_count"
-	Hanzo O11yMetricPointsBytes        = "o11y_metric_points_bytes"
+	HanzoO11ySentMetricPointsKey      = "singoz_sent_metric_points"
+	HanzoO11ySentMetricPointsBytesKey = "singoz_sent_metric_points_bytes"
+	HanzoO11yMetricPointsCount        = "o11y_metric_points_count"
+	HanzoO11yMetricPointsBytes        = "o11y_metric_points_bytes"
 )
 
 var (
 	// Measures for usage
-	ExporterHanzo O11ySentMetricPoints = stats.Int64(
-		Hanzo O11ySentMetricPointsKey,
+	ExporterHanzoO11ySentMetricPoints = stats.Int64(
+		HanzoO11ySentMetricPointsKey,
 		"Number of o11y metric points successfully sent to destination.",
 		stats.UnitDimensionless)
-	ExporterHanzo O11ySentMetricPointsBytes = stats.Int64(
-		Hanzo O11ySentMetricPointsBytesKey,
+	ExporterHanzoO11ySentMetricPointsBytes = stats.Int64(
+		HanzoO11ySentMetricPointsBytesKey,
 		"Total size of o11y metric points successfully sent to destination.",
 		stats.UnitDimensionless)
 
 	// Views for usage
 	MetricPointsCountView = &view.View{
-		Name:        Hanzo O11yMetricPointsCount,
-		Measure:     ExporterHanzo O11ySentMetricPoints,
+		Name:        HanzoO11yMetricPointsCount,
+		Measure:     ExporterHanzoO11ySentMetricPoints,
 		Description: "The number of metric points exported to o11y",
 		Aggregation: view.Sum(),
 		TagKeys:     []tag.Key{usage.TagTenantKey, usage.TagExporterIdKey},
 	}
 	MetricPointsBytesView = &view.View{
-		Name:        Hanzo O11yMetricPointsBytes,
-		Measure:     ExporterHanzo O11ySentMetricPointsBytes,
+		Name:        HanzoO11yMetricPointsBytes,
+		Measure:     ExporterHanzoO11ySentMetricPointsBytes,
 		Description: "The size of metric points exported to o11y",
 		Aggregation: view.Sum(),
 		TagKeys:     []tag.Key{usage.TagTenantKey, usage.TagExporterIdKey},
@@ -49,7 +49,7 @@ var (
 func UsageExporter(metrics []*metricdata.Metric, id uuid.UUID) (map[string]usage.Usage, error) {
 	data := map[string]usage.Usage{}
 	for _, metric := range metrics {
-		if !strings.Contains(metric.Descriptor.Name, Hanzo O11yMetricPointsCount) && !strings.Contains(metric.Descriptor.Name, Hanzo O11yMetricPointsBytes) {
+		if !strings.Contains(metric.Descriptor.Name, HanzoO11yMetricPointsCount) && !strings.Contains(metric.Descriptor.Name, HanzoO11yMetricPointsBytes) {
 			continue
 		}
 		exporterIndex := usage.GetIndexOfLabel(metric.Descriptor.LabelKeys, usage.ExporterIDKey)
@@ -57,7 +57,7 @@ func UsageExporter(metrics []*metricdata.Metric, id uuid.UUID) (map[string]usage
 		if exporterIndex == -1 || tenantIndex == -1 {
 			return nil, fmt.Errorf("usage: failed to get index of labels")
 		}
-		if strings.Contains(metric.Descriptor.Name, Hanzo O11yMetricPointsCount) {
+		if strings.Contains(metric.Descriptor.Name, HanzoO11yMetricPointsCount) {
 			for _, v := range metric.TimeSeries {
 				if v.LabelValues[exporterIndex].Value != id.String() {
 					continue
@@ -72,7 +72,7 @@ func UsageExporter(metrics []*metricdata.Metric, id uuid.UUID) (map[string]usage
 					}
 				}
 			}
-		} else if strings.Contains(metric.Descriptor.Name, Hanzo O11yMetricPointsBytes) {
+		} else if strings.Contains(metric.Descriptor.Name, HanzoO11yMetricPointsBytes) {
 			for _, v := range metric.TimeSeries {
 				if v.LabelValues[exporterIndex].Value != id.String() {
 					continue

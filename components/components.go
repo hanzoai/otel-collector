@@ -6,8 +6,8 @@ import (
 	"github.com/hanzoai/otel-collector/exporter/clickhousetracesexporter"
 	"github.com/hanzoai/otel-collector/exporter/jsontypeexporter"
 	"github.com/hanzoai/otel-collector/exporter/metadataexporter"
-	"github.com/hanzoai/otel-collector/exporter/o11yclickhousemeter"
-	"github.com/hanzoai/otel-collector/exporter/o11yclickhousemetrics"
+	"github.com/hanzoai/otel-collector/exporter/o11ydatastoremeter"
+	"github.com/hanzoai/otel-collector/exporter/o11ydatastoremetrics"
 	"github.com/hanzoai/otel-collector/exporter/o11ykafkaexporter"
 	o11yhealthcheckextension "github.com/hanzoai/otel-collector/extension/healthcheckextension"
 	_ "github.com/hanzoai/otel-collector/pkg/parser/grok"
@@ -353,7 +353,7 @@ func Components() (otelcol.Factories, error) {
 		awss3exporter.NewFactory(),
 		cassandraexporter.NewFactory(),
 		clickhouselogsexporter.NewFactory(),
-		o11yclickhousemetrics.NewFactory(),
+		o11ydatastoremetrics.NewFactory(),
 		clickhousetracesexporter.NewFactory(),
 		debugexporter.NewFactory(),
 		fileexporter.NewFactory(),
@@ -370,7 +370,7 @@ func Components() (otelcol.Factories, error) {
 		syslogexporter.NewFactory(),
 		zipkinexporter.NewFactory(),
 		nopexporter.NewFactory(),
-		o11yclickhousemeter.NewFactory(),
+		o11ydatastoremeter.NewFactory(),
 	}
 
 	processors := []processor.Factory{

@@ -1,10 +1,10 @@
-package o11yclickhousemeter
+package o11ydatastoremeter
 
 import (
 	"context"
 	"errors"
 
-	internalmetadata "github.com/hanzoai/otel-collector/exporter/o11yclickhousemeter/internal/metadata"
+	internalmetadata "github.com/hanzoai/otel-collector/exporter/o11ydatastoremeter/internal/metadata"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/config/configoptional"
 	"go.opentelemetry.io/collector/config/configretry"

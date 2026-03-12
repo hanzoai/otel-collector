@@ -1,4 +1,4 @@
-package o11yclickhousemeter
+package o11ydatastoremeter
 
 import (
 	"errors"
