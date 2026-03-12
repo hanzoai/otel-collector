@@ -33,7 +33,7 @@ func WithNewUsageCollector(id uuid.UUID, db driver.Conn) LogExporterOption {
 			usage.Options{
 				ReportingInterval: usage.DefaultCollectionInterval,
 			},
-			"o11y_logs",
+			"signoz_logs",
 			UsageExporter,
 			e.logger,
 		)

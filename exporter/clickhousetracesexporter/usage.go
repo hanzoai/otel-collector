@@ -15,8 +15,8 @@ import (
 const (
 	HanzoO11ySentSpansKey      = "singoz_sent_spans"
 	HanzoO11ySentSpansBytesKey = "singoz_sent_spans_bytes"
-	HanzoO11ySpansCount        = "o11y_spans_count"
-	HanzoO11ySpansBytes        = "o11y_spans_bytes"
+	HanzoO11ySpansCount        = "signoz_spans_count"
+	HanzoO11ySpansBytes        = "signoz_spans_bytes"
 )
 
 var (

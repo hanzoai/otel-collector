@@ -5,7 +5,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 		MigrationID: 1000,
 		UpItems: []Operation{
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4",
 				Column: Column{
 					Name: "attrs",
@@ -18,7 +18,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4",
 				Column: Column{
 					Name: "scope_attrs",
@@ -31,7 +31,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4",
 				Column: Column{
 					Name: "resource_attrs",
@@ -44,7 +44,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4",
 				Column: Column{
 					Name: "attrs",
@@ -57,7 +57,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4",
 				Column: Column{
 					Name: "scope_attrs",
@@ -70,7 +70,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4",
 				Column: Column{
 					Name: "resource_attrs",
@@ -83,7 +83,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_6hrs",
 				Column: Column{
 					Name: "attrs",
@@ -96,7 +96,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_6hrs",
 				Column: Column{
 					Name: "scope_attrs",
@@ -109,7 +109,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_6hrs",
 				Column: Column{
 					Name: "resource_attrs",
@@ -122,7 +122,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4_6hrs",
 				Column: Column{
 					Name: "attrs",
@@ -135,7 +135,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4_6hrs",
 				Column: Column{
 					Name: "scope_attrs",
@@ -148,7 +148,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4_6hrs",
 				Column: Column{
 					Name: "resource_attrs",
@@ -161,7 +161,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_1day",
 				Column: Column{
 					Name: "attrs",
@@ -174,7 +174,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_1day",
 				Column: Column{
 					Name: "scope_attrs",
@@ -187,7 +187,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_1day",
 				Column: Column{
 					Name: "resource_attrs",
@@ -200,7 +200,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4_1day",
 				Column: Column{
 					Name: "attrs",
@@ -213,7 +213,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4_1day",
 				Column: Column{
 					Name: "scope_attrs",
@@ -226,7 +226,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4_1day",
 				Column: Column{
 					Name: "resource_attrs",
@@ -239,7 +239,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_1week",
 				Column: Column{
 					Name: "attrs",
@@ -252,7 +252,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_1week",
 				Column: Column{
 					Name: "scope_attrs",
@@ -265,7 +265,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_1week",
 				Column: Column{
 					Name: "resource_attrs",
@@ -278,7 +278,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4_1week",
 				Column: Column{
 					Name: "attrs",
@@ -291,7 +291,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4_1week",
 				Column: Column{
 					Name: "scope_attrs",
@@ -304,7 +304,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4_1week",
 				Column: Column{
 					Name: "resource_attrs",
@@ -317,7 +317,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "metadata",
 				Columns: []Column{
 					{Name: "temporality", Type: LowCardinalityColumnType{ColumnTypeString}, Codec: "ZSTD(1)"},
@@ -345,7 +345,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_metadata",
 				Columns: []Column{
 					{Name: "temporality", Type: LowCardinalityColumnType{ColumnTypeString}, Codec: "ZSTD(1)"},
@@ -362,13 +362,13 @@ var MetricsMigrations = []SchemaMigrationRecord{
 					{Name: "last_reported_unix_milli", Type: SimpleAggregateFunction{FunctionName: "max", Arguments: []ColumnType{ColumnTypeUInt64}}, Codec: "ZSTD(1)"},
 				},
 				Engine: Distributed{
-					Database:    "o11y_metrics",
+					Database:    "signoz_metrics",
 					Table:       "metadata",
 					ShardingKey: "rand()",
 				},
 			},
 			CreateMaterializedViewOperation{
-				Database:  "o11y_metrics",
+				Database:  "signoz_metrics",
 				ViewName:  "time_series_v4_6hrs_mv_separate_attrs",
 				DestTable: "time_series_v4_6hrs",
 				Columns: []Column{
@@ -400,10 +400,10 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							attrs,
 							scope_attrs,
 							resource_attrs
-						FROM o11y_metrics.time_series_v4`,
+						FROM signoz_metrics.time_series_v4`,
 			},
 			CreateMaterializedViewOperation{
-				Database:  "o11y_metrics",
+				Database:  "signoz_metrics",
 				ViewName:  "time_series_v4_1day_mv_separate_attrs",
 				DestTable: "time_series_v4_1day",
 				Columns: []Column{
@@ -435,10 +435,10 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							attrs,
 							scope_attrs,
 							resource_attrs
-						FROM o11y_metrics.time_series_v4_6hrs`,
+						FROM signoz_metrics.time_series_v4_6hrs`,
 			},
 			CreateMaterializedViewOperation{
-				Database:  "o11y_metrics",
+				Database:  "signoz_metrics",
 				ViewName:  "time_series_v4_1week_mv_separate_attrs",
 				DestTable: "time_series_v4_1week",
 				Columns: []Column{
@@ -470,7 +470,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							attrs,
 							scope_attrs,
 							resource_attrs
-						FROM o11y_metrics.time_series_v4_1day`,
+						FROM signoz_metrics.time_series_v4_1day`,
 			},
 		},
 	},
@@ -478,7 +478,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 		MigrationID: 1001,
 		UpItems: []Operation{
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4",
 				Column: Column{
 					Name:    "__normalized",
@@ -488,7 +488,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4",
 				Column: Column{
 					Name:    "__normalized",
@@ -498,7 +498,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_6hrs",
 				Column: Column{
 					Name:    "__normalized",
@@ -508,7 +508,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4_6hrs",
 				Column: Column{
 					Name:    "__normalized",
@@ -518,7 +518,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_1day",
 				Column: Column{
 					Name:    "__normalized",
@@ -528,7 +528,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4_1day",
 				Column: Column{
 					Name:    "__normalized",
@@ -538,7 +538,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_1week",
 				Column: Column{
 					Name:    "__normalized",
@@ -548,7 +548,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4_1week",
 				Column: Column{
 					Name:    "__normalized",
@@ -558,7 +558,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				ViewName: "time_series_v4_6hrs_mv",
 				Query: `SELECT
 							env,
@@ -572,10 +572,10 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							floor(unix_milli / 21600000) * 21600000 AS unix_milli,
 							labels,
 							__normalized
-						FROM o11y_metrics.time_series_v4`,
+						FROM signoz_metrics.time_series_v4`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				ViewName: "time_series_v4_1day_mv",
 				Query: `SELECT
 							env,
@@ -589,10 +589,10 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							floor(unix_milli / 86400000) * 86400000 AS unix_milli,
 							labels,
 							__normalized
-						FROM o11y_metrics.time_series_v4_6hrs`,
+						FROM signoz_metrics.time_series_v4_6hrs`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				ViewName: "time_series_v4_1week_mv",
 				Query: `SELECT
 							env,
@@ -606,10 +606,10 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							floor(unix_milli / 604800000) * 604800000 AS unix_milli,
 							labels,
 							__normalized
-						FROM o11y_metrics.time_series_v4_1day`,
+						FROM signoz_metrics.time_series_v4_1day`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				ViewName: "time_series_v4_6hrs_mv_separate_attrs",
 				Query: `SELECT
 							env,
@@ -626,10 +626,10 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							scope_attrs,
 							resource_attrs,
 							__normalized
-						FROM o11y_metrics.time_series_v4`,
+						FROM signoz_metrics.time_series_v4`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				ViewName: "time_series_v4_1day_mv_separate_attrs",
 				Query: `SELECT
 							env,
@@ -646,10 +646,10 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							scope_attrs,
 							resource_attrs,
 							__normalized
-						FROM o11y_metrics.time_series_v4_6hrs`,
+						FROM signoz_metrics.time_series_v4_6hrs`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				ViewName: "time_series_v4_1week_mv_separate_attrs",
 				Query: `SELECT
 							env,
@@ -666,7 +666,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							scope_attrs,
 							resource_attrs,
 							__normalized
-						FROM o11y_metrics.time_series_v4_1day`,
+						FROM signoz_metrics.time_series_v4_1day`,
 			},
 		},
 		// no need for down items, and there is a default value for the column
@@ -676,7 +676,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 		MigrationID: 1002,
 		UpItems: []Operation{
 			CreateTableOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "updated_metadata",
 				Columns: []Column{
 					{Name: "metric_name", Type: LowCardinalityColumnType{ColumnTypeString}, Codec: "ZSTD(1)"},
@@ -692,7 +692,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_updated_metadata",
 				Columns: []Column{
 					{Name: "metric_name", Type: LowCardinalityColumnType{ColumnTypeString}, Codec: "ZSTD(1)"},
@@ -704,7 +704,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 					{Name: "created_at", Type: ColumnTypeInt64, Codec: "ZSTD(1)"},
 				},
 				Engine: Distributed{
-					Database:    "o11y_metrics",
+					Database:    "signoz_metrics",
 					Table:       "updated_metadata",
 					ShardingKey: "cityHash64(metric_name)",
 				},
@@ -715,7 +715,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 		MigrationID: 1003,
 		UpItems: []Operation{
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "samples_v4",
 				Column: Column{
 					Name:    "flags",
@@ -725,7 +725,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_samples_v4",
 				Column: Column{
 					Name:    "flags",
@@ -735,7 +735,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "exp_hist",
 				Column: Column{
 					Name:    "flags",
@@ -745,7 +745,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_exp_hist",
 				Column: Column{
 					Name:    "flags",
@@ -755,7 +755,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				ViewName: "samples_v4_agg_5m_mv",
 				Query: `SELECT
 							env,
@@ -768,7 +768,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							max(value) as max,
 							sum(value) as sum,
 							count(*) as count
-						FROM o11y_metrics.samples_v4
+						FROM signoz_metrics.samples_v4
 						WHERE bitAnd(flags, 1) = 0
 						GROUP BY
 							env,
@@ -778,7 +778,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							unix_milli;`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				ViewName: "samples_v4_agg_30m_mv",
 				Query: `SELECT
 							env,
@@ -791,7 +791,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							max(max) AS max,
 							sum(sum) AS sum,
 							sum(count) AS count
-						FROM o11y_metrics.samples_v4_agg_5m
+						FROM signoz_metrics.samples_v4_agg_5m
 						GROUP BY
 							env,
 							temporality,
@@ -805,7 +805,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 		MigrationID: 1004,
 		UpItems: []Operation{
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				ViewName: "time_series_v4_6hrs_mv",
 				Query: `SELECT
 							env,
@@ -822,10 +822,10 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							scope_attrs,
 							resource_attrs,
 							__normalized
-						FROM o11y_metrics.time_series_v4`,
+						FROM signoz_metrics.time_series_v4`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				ViewName: "time_series_v4_1day_mv",
 				Query: `SELECT
 							env,
@@ -842,10 +842,10 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							scope_attrs,
 							resource_attrs,
 							__normalized
-						FROM o11y_metrics.time_series_v4_6hrs`,
+						FROM signoz_metrics.time_series_v4_6hrs`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				ViewName: "time_series_v4_1week_mv",
 				Query: `SELECT
 							env,
@@ -862,7 +862,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 							scope_attrs,
 							resource_attrs,
 							__normalized
-						FROM o11y_metrics.time_series_v4_1day`,
+						FROM signoz_metrics.time_series_v4_1day`,
 			},
 		},
 	},
@@ -870,15 +870,15 @@ var MetricsMigrations = []SchemaMigrationRecord{
 		MigrationID: 1005,
 		UpItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_6hrs_mv_separate_attrs",
 			},
 			DropTableOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_1day_mv_separate_attrs",
 			},
 			DropTableOperation{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_1week_mv_separate_attrs",
 			},
 		},
@@ -887,28 +887,28 @@ var MetricsMigrations = []SchemaMigrationRecord{
 		MigrationID: 1006,
 		UpItems: []Operation{
 			AlterTableDropIndex{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4",
 				Index: Index{
 					Name: "idx_labels",
 				},
 			},
 			AlterTableDropIndex{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_6hrs",
 				Index: Index{
 					Name: "idx_labels",
 				},
 			},
 			AlterTableDropIndex{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_1day",
 				Index: Index{
 					Name: "idx_labels",
 				},
 			},
 			AlterTableDropIndex{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4_1week",
 				Index: Index{
 					Name: "idx_labels",
@@ -920,7 +920,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 		MigrationID: 1007,
 		UpItems: []Operation{
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "samples_v4",
 				Column: Column{
 					Name:  "inserted_at_unix_milli",
@@ -929,7 +929,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_samples_v4",
 				Column: Column{
 					Name:  "inserted_at_unix_milli",
@@ -938,7 +938,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "time_series_v4",
 				Column: Column{
 					Name:  "inserted_at_unix_milli",
@@ -947,7 +947,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_time_series_v4",
 				Column: Column{
 					Name:  "inserted_at_unix_milli",
@@ -956,7 +956,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "exp_hist",
 				Column: Column{
 					Name:  "inserted_at_unix_milli",
@@ -965,7 +965,7 @@ var MetricsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_metrics",
+				Database: "signoz_metrics",
 				Table:    "distributed_exp_hist",
 				Column: Column{
 					Name:  "inserted_at_unix_milli",

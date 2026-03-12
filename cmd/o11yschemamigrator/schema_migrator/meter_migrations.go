@@ -5,7 +5,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 		MigrationID: 1,
 		UpItems: []Operation{
 			CreateTableOperation{
-				Database: "o11y_meter",
+				Database: "signoz_meter",
 				Table:    "samples",
 				Columns: []Column{
 					{Name: "temporality", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'Unspecified'"},
@@ -32,7 +32,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 		},
 		DownItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_meter",
+				Database: "signoz_meter",
 				Table:    "samples",
 			},
 		},
@@ -41,7 +41,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 		MigrationID: 2,
 		UpItems: []Operation{
 			CreateTableOperation{
-				Database: "o11y_meter",
+				Database: "signoz_meter",
 				Table:    "distributed_samples",
 				Columns: []Column{
 					{Name: "temporality", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'Unspecified'"},
@@ -56,7 +56,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 					{Name: "value", Type: ColumnTypeFloat64, Codec: "Gorilla, ZSTD(1)"},
 				},
 				Engine: Distributed{
-					Database:    "o11y_meter",
+					Database:    "signoz_meter",
 					Table:       "samples",
 					ShardingKey: "cityHash64(temporality, metric_name, fingerprint)",
 				},
@@ -64,7 +64,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 		},
 		DownItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_meter",
+				Database: "signoz_meter",
 				Table:    "distributed_samples",
 			},
 		},
@@ -73,7 +73,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 		MigrationID: 3,
 		UpItems: []Operation{
 			CreateTableOperation{
-				Database: "o11y_meter",
+				Database: "signoz_meter",
 				Table:    "samples_agg_1d",
 				Columns: []Column{
 					{Name: "temporality", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'Unspecified'"},
@@ -106,7 +106,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 		},
 		DownItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_meter",
+				Database: "signoz_meter",
 				Table:    "samples_agg_1d",
 			},
 		},
@@ -115,7 +115,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 		MigrationID: 4,
 		UpItems: []Operation{
 			CreateTableOperation{
-				Database: "o11y_meter",
+				Database: "signoz_meter",
 				Table:    "distributed_samples_agg_1d",
 				Columns: []Column{
 					{Name: "temporality", Type: LowCardinalityColumnType{ColumnTypeString}, Default: "'Unspecified'"},
@@ -134,7 +134,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 					{Name: "count", Type: SimpleAggregateFunction{FunctionName: "sum", Arguments: []ColumnType{ColumnTypeUInt64}}, Codec: "ZSTD(1)"},
 				},
 				Engine: Distributed{
-					Database:    "o11y_meter",
+					Database:    "signoz_meter",
 					Table:       "samples_agg_1d",
 					ShardingKey: "cityHash64(temporality, metric_name, fingerprint)",
 				},
@@ -142,7 +142,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 		},
 		DownItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_meter",
+				Database: "signoz_meter",
 				Table:    "distributed_samples_agg_1d",
 			},
 		},
@@ -151,7 +151,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 		MigrationID: 5,
 		UpItems: []Operation{
 			CreateMaterializedViewOperation{
-				Database:  "o11y_meter",
+				Database:  "signoz_meter",
 				ViewName:  "samples_agg_1d_mv",
 				DestTable: "samples_agg_1d",
 				Columns: []Column{
@@ -185,7 +185,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 							max(value) as max,
 							sum(value) as sum,
 							count(*) as count
-						FROM o11y_meter.samples
+						FROM signoz_meter.samples
 						GROUP BY
 							temporality,
 							metric_name,
@@ -200,7 +200,7 @@ var MeterMigrations = []SchemaMigrationRecord{
 		},
 		DownItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_meter",
+				Database: "signoz_meter",
 				Table:    "samples_agg_1d_mv",
 			},
 		},

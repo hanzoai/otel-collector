@@ -18,8 +18,8 @@ import (
 const (
 	HanzoO11ySentLogRecordsKey      = "singoz_sent_log_records"
 	HanzoO11ySentLogRecordsBytesKey = "singoz_sent_log_records_bytes"
-	HanzoO11yLogsCount              = "o11y_logs_count"
-	HanzoO11yLogsBytes              = "o11y_logs_bytes"
+	HanzoO11yLogsCount              = "signoz_logs_count"
+	HanzoO11yLogsBytes              = "signoz_logs_bytes"
 )
 
 var (
