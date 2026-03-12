@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	signozlogspipelinestanzaoperator "github.com/SigNoz/signoz-otel-collector/processor/signozlogspipelineprocessor/stanza/operator"
-	signozstanzahelper "github.com/SigNoz/signoz-otel-collector/processor/signozlogspipelineprocessor/stanza/operator/helper"
+	o11ylogspipelinestanzaoperator "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator"
+	o11ystanzahelper "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator/helper"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza/entry"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza/operator"
 	"github.com/vjeantet/grok"
@@ -16,7 +16,7 @@ const operatorType = "grok_parser"
 
 func init() {
 	operator.Register(operatorType, func() operator.Builder { return NewConfig() })
-	signozlogspipelinestanzaoperator.Register(operatorType, func() operator.Builder { return NewConfig() })
+	o11ylogspipelinestanzaoperator.Register(operatorType, func() operator.Builder { return NewConfig() })
 }
 
 // NewConfig creates a new grok parser config with default values
@@ -27,13 +27,13 @@ func NewConfig() *Config {
 // NewConfigWithID creates a new grok parser config with default values
 func NewConfigWithID(operatorID string) *Config {
 	return &Config{
-		ParserConfig: signozstanzahelper.NewParserConfig(operatorID, operatorType),
+		ParserConfig: o11ystanzahelper.NewParserConfig(operatorID, operatorType),
 	}
 }
 
 // Config is the configuration of a grok parser operator.
 type Config struct {
-	signozstanzahelper.ParserConfig `mapstructure:",squash"`
+	o11ystanzahelper.ParserConfig `mapstructure:",squash"`
 
 	// grok pattern
 	Pattern string `mapstructure:"pattern"`
@@ -102,7 +102,7 @@ func (c Config) Build(set component.TelemetrySettings) (operator.Operator, error
 
 // Parser is an operator that parses grok in an entry.
 type Parser struct {
-	signozstanzahelper.ParserOperator
+	o11ystanzahelper.ParserOperator
 	grok               *grok.Grok
 	pattern            string
 	cache              cache

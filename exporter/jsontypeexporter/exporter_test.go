@@ -8,7 +8,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/SigNoz/signoz-otel-collector/utils"
+	"github.com/hanzoai/otel-collector/utils"
 	lru "github.com/hashicorp/golang-lru/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

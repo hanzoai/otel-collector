@@ -10,7 +10,7 @@ import (
 
 var (
 	// Pools of possible values for randomization
-	podNames       = []string{"aws-integration-agent-00-1", "aws-network-flow-monitor-agent-qdrt2", "gkwk-ncde-prod-auth-v4-84c96ffcc5-fzlx2", "civil-eagle-us-signoz-otel-collector-975668fb8-n28mc", "civil-eagle-us-clickhouse-operator-7cff467cc7-lhrqv"}
+	podNames       = []string{"aws-integration-agent-00-1", "aws-network-flow-monitor-agent-qdrt2", "gkwk-ncde-prod-auth-v4-84c96ffcc5-fzlx2", "civil-eagle-us-hanzo-otel-collector-975668fb8-n28mc", "civil-eagle-us-clickhouse-operator-7cff467cc7-lhrqv"}
 	namespaceNames = []string{"amazon-network-flow-monitor", "prod", "dev", "test"}
 	containerNames = []string{"aws-network-flow-monitor-agent", "gkwk-ncde-prod-auth-v4", "aws-network-runner-0000-01", "witcher2-0000-01"}
 	levels         = []string{"INFO", "WARN", "ERROR", "DEBUG"}
@@ -422,10 +422,10 @@ func (dg *DataGenerator) randomMap() map[string]interface{} {
 		delete(body, "uninstall")
 	}
 	if dg.randomBool() {
-		body["created_by"] = dg.randomFromPool([]string{"piyushsingariya", "srikanth", "nitya", "ekansh", "signoz"})
+		body["created_by"] = dg.randomFromPool([]string{"piyushsingariya", "srikanth", "nitya", "ekansh", "o11y"})
 	}
 	if dg.randomBool() {
-		body["project_name"] = dg.randomFromPool([]string{"signoz.io", "signoz", "signoz-otel-collector", "clickhouse", "opentelemetry"})
+		body["project_name"] = dg.randomFromPool([]string{"o11y.hanzo.ai", "o11y", "hanzo-otel-collector", "clickhouse", "opentelemetry"})
 	}
 
 	return body

@@ -8,7 +8,7 @@ import (
 
 var (
 	Type      = component.MustNewType("clickhousesystemtablesreceiver")
-	ScopeName = "github.com/SigNoz/signoz-otel-collector/receiver/clickhousesystemtablesreceiver"
+	ScopeName = "github.com/hanzoai/otel-collector/receiver/clickhousesystemtablesreceiver"
 )
 
 const (

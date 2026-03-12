@@ -25,9 +25,9 @@ import (
 
 	"github.com/ClickHouse/clickhouse-go/v2"
 	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/SigNoz/signoz-otel-collector/internal/common"
-	"github.com/SigNoz/signoz-otel-collector/usage"
-	"github.com/SigNoz/signoz-otel-collector/utils"
+	"github.com/hanzoai/otel-collector/internal/common"
+	"github.com/hanzoai/otel-collector/usage"
+	"github.com/hanzoai/otel-collector/utils"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
 	"go.opencensus.io/stats"
@@ -481,7 +481,7 @@ func (w *SpanWriter) WriteBatchOfSpansV3(ctx context.Context, batch []*SpanV3, m
 	wg.Wait()
 
 	for k, v := range metrics {
-		err := stats.RecordWithTags(ctx, []tag.Mutator{tag.Upsert(usage.TagTenantKey, k), tag.Upsert(usage.TagExporterIdKey, w.exporterId.String())}, ExporterSigNozSentSpans.M(int64(v.Count)), ExporterSigNozSentSpansBytes.M(int64(v.Size)))
+		err := stats.RecordWithTags(ctx, []tag.Mutator{tag.Upsert(usage.TagTenantKey, k), tag.Upsert(usage.TagExporterIdKey, w.exporterId.String())}, ExporterHanzo O11ySentSpans.M(int64(v.Count)), ExporterHanzo O11ySentSpansBytes.M(int64(v.Size)))
 		if err != nil {
 			w.logger.Error("WriteBatchOfSpansV3 usage metric error", zap.Error(err))
 		}

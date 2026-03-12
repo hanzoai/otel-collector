@@ -8,9 +8,9 @@ import (
 
 	clickhouse "github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/SigNoz/signoz-otel-collector/utils"
-	"github.com/SigNoz/signoz-otel-collector/utils/fingerprint"
-	"github.com/SigNoz/signoz-otel-collector/utils/flatten"
+	"github.com/hanzoai/otel-collector/utils"
+	"github.com/hanzoai/otel-collector/utils/fingerprint"
+	"github.com/hanzoai/otel-collector/utils/flatten"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/exporter"
@@ -21,14 +21,14 @@ import (
 	"go.opentelemetry.io/collector/pipeline"
 	"go.uber.org/zap"
 
-	kash "github.com/SigNoz/signoz-otel-collector/exporter/metadataexporter/cache"
+	kash "github.com/hanzoai/otel-collector/exporter/metadataexporter/cache"
 )
 
 const (
 	sixHours           = 6 * time.Hour                      // window size for attributes aggregation
 	sixHoursInMs       = int64(sixHours / time.Millisecond) // window size in ms
 	valuTrackerKeysTTL = 45 * time.Minute                   // ttl for keys in value tracker
-	insertStmtQuery    = "INSERT INTO signoz_metadata.distributed_attributes_metadata"
+	insertStmtQuery    = "INSERT INTO o11y_metadata.distributed_attributes_metadata"
 )
 
 type tagValueCountFromDB struct {
@@ -227,7 +227,7 @@ func (e *metadataExporter) Start(_ context.Context, host component.Host) error {
 			logger: e.set.Logger,
 			conn:   e.conn,
 			query: `SELECT tag_key, tag_data_type, countDistinct(string_value) as string_value_count, countDistinct(number_value) as number_value_count
-						 FROM signoz_logs.distributed_tag_attributes_v2
+						 FROM o11y_logs.distributed_tag_attributes_v2
 						 WHERE unix_milli >= toUnixTimestamp(now() - INTERVAL 6 HOUR) * 1000
 						 GROUP BY tag_key, tag_data_type
 						 ORDER BY number_value_count DESC, string_value_count DESC, tag_key
@@ -245,7 +245,7 @@ func (e *metadataExporter) Start(_ context.Context, host component.Host) error {
 			logger: e.set.Logger,
 			conn:   e.conn,
 			query: `SELECT tag_key, tag_data_type, countDistinct(string_value) as string_value_count, countDistinct(number_value) as number_value_count
-						 FROM signoz_traces.distributed_tag_attributes_v2
+						 FROM o11y_traces.distributed_tag_attributes_v2
 						 WHERE unix_milli >= toUnixTimestamp(now() - INTERVAL 6 HOUR) * 1000
 						 GROUP BY tag_key, tag_data_type
 						 ORDER BY number_value_count DESC, string_value_count DESC, tag_key

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/SigNoz/signoz-otel-collector/signozcol"
+	"github.com/hanzoai/otel-collector/o11ycol"
 	"github.com/gorilla/websocket"
 	"github.com/open-telemetry/opamp-go/protobufs"
 	"github.com/stretchr/testify/assert"
@@ -68,7 +68,7 @@ func TestNewClient(t *testing.T) {
 		require.NoError(t, err)
 	}()
 
-	coll := signozcol.New(signozcol.WrappedCollectorSettings{
+	coll := o11ycol.New(o11ycol.WrappedCollectorSettings{
 		ConfigPaths: []string{"./testdata/coll-config-path.yaml"},
 		Version:     "0.0.1-server-client-test",
 	})

@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"github.com/SigNoz/signoz-otel-collector/pkg/metering"
+	"github.com/hanzoai/otel-collector/pkg/metering"
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.uber.org/zap"
 )
@@ -14,7 +14,7 @@ type logs struct {
 func NewLogs(logger *zap.Logger) metering.Logs {
 	return &logs{
 		Logger: logger,
-		Sizer:  metering.NewJSONSizer(logger, metering.WithExcludePattern(metering.ExcludeSigNozWorkspaceResourceAttrs)),
+		Sizer:  metering.NewJSONSizer(logger, metering.WithExcludePattern(metering.ExcludeHanzo O11yWorkspaceResourceAttrs)),
 	}
 }
 
