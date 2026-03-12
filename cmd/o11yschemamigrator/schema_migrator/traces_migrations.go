@@ -8,8 +8,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 		MigrationID: 1000,
 		UpItems: []Operation{
 			CreateTableOperation{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Columns: []Column{
 					{Name: "ts_bucket_start", Type: ColumnTypeUInt64, Codec: "DoubleDelta, LZ4"},
 					{Name: "resource_fingerprint", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -63,7 +63,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 					// ----- ALIAS for backward compatibility ------------
 					// ---------------------------------------------------
 
-					// ALIAS columns to maintain compatibility with o11y_index_v2
+					// ALIAS columns to maintain compatibility with signoz_index_v2
 					{Name: "traceID", Type: FixedStringColumnType{Length: 32}, Alias: "trace_id"},
 					{Name: "spanID", Type: ColumnTypeString, Alias: "span_id"},
 					{Name: "parentSpanID", Type: ColumnTypeString, Alias: "parent_span_id"},
@@ -133,8 +133,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Columns: []Column{
 					{Name: "ts_bucket_start", Type: ColumnTypeUInt64, Codec: "DoubleDelta, LZ4"},
 					{Name: "resource_fingerprint", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -188,7 +188,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 					// ----- ALIAS for backward compatibility ------------
 					// ---------------------------------------------------
 
-					// ALIAS columns to maintain compatibility with o11y_index_v2
+					// ALIAS columns to maintain compatibility with signoz_index_v2
 					{Name: "traceID", Type: FixedStringColumnType{Length: 32}, Alias: "trace_id"},
 					{Name: "spanID", Type: ColumnTypeString, Alias: "span_id"},
 					{Name: "parentSpanID", Type: ColumnTypeString, Alias: "parent_span_id"},
@@ -225,13 +225,13 @@ var TracesMigrations = []SchemaMigrationRecord{
 					{Name: "peerService", Type: LowCardinalityColumnType{ColumnTypeString}, Alias: "attribute_string_peer$$service"},
 				},
 				Engine: Distributed{
-					Database:    "o11y_traces",
-					Table:       "o11y_index_v3",
+					Database:    "signoz_traces",
+					Table:       "signoz_index_v3",
 					ShardingKey: "cityHash64(trace_id)",
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "traces_v3_resource",
 				Columns: []Column{
 					{Name: "labels", Type: ColumnTypeString, Codec: "ZSTD(5)"},
@@ -255,7 +255,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "distributed_traces_v3_resource",
 				Columns: []Column{
 					{Name: "labels", Type: ColumnTypeString, Codec: "ZSTD(5)"},
@@ -263,13 +263,13 @@ var TracesMigrations = []SchemaMigrationRecord{
 					{Name: "seen_at_ts_bucket_start", Type: ColumnTypeInt64, Codec: "Delta(8), ZSTD(1)"},
 				},
 				Engine: Distributed{
-					Database:    "o11y_traces",
+					Database:    "signoz_traces",
 					Table:       "traces_v3_resource",
 					ShardingKey: "cityHash64(labels, fingerprint)",
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "trace_summary",
 				Columns: []Column{
 					{Name: "trace_id", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -305,7 +305,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "distributed_trace_summary",
 				Columns: []Column{
 					{Name: "trace_id", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -329,13 +329,13 @@ var TracesMigrations = []SchemaMigrationRecord{
 						Codec: "ZSTD(1)"},
 				},
 				Engine: Distributed{
-					Database:    "o11y_traces",
+					Database:    "signoz_traces",
 					Table:       "trace_summary",
 					ShardingKey: "cityHash64(trace_id)",
 				},
 			},
 			CreateMaterializedViewOperation{
-				Database:  "o11y_traces",
+				Database:  "signoz_traces",
 				ViewName:  "trace_summary_mv",
 				DestTable: "trace_summary",
 				Query: `SELECT
@@ -343,73 +343,73 @@ var TracesMigrations = []SchemaMigrationRecord{
 							min(timestamp) AS start,
 							max(timestamp) AS end,
 							toUInt64(count()) AS num_spans
-						FROM o11y_traces.o11y_index_v3
+						FROM signoz_traces.signoz_index_v3
 						GROUP BY trace_id;`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				ViewName: "root_operations",
 				Query: `SELECT DISTINCT
 							name,
 							resource_string_service$$name as serviceName
-						FROM o11y_traces.o11y_index_v3
+						FROM signoz_traces.signoz_index_v3
 						WHERE parent_span_id = ''`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				ViewName: "sub_root_operations",
 				Query: `SELECT DISTINCT
 							name,
 							resource_string_service$$name as serviceName
-						FROM o11y_traces.o11y_index_v3 AS A, o11y_traces.o11y_index_v3 AS B
+						FROM signoz_traces.signoz_index_v3 AS A, signoz_traces.signoz_index_v3 AS B
 						WHERE (A.resource_string_service$$name != B.resource_string_service$$name) AND (A.parent_span_id = B.span_id)`,
 			},
 		},
 		DownItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 			},
 			DropTableOperation{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 			},
 			DropTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "traces_v3_resource",
 			},
 			DropTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "distributed_traces_v3_resource",
 			},
 			DropTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "trace_summary",
 			},
 			DropTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "distributed_trace_summary",
 			},
 			DropTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "trace_summary_mv",
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				ViewName: "root_operations",
 				Query: `SELECT DISTINCT
 							name,
 							serviceName
-						FROM o11y_traces.o11y_index_v2
+						FROM signoz_traces.signoz_index_v2
 						WHERE parentSpanID = ''`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				ViewName: "sub_root_operations",
 				Query: `SELECT DISTINCT
 							name,
 							serviceName
-						FROM o11y_traces.o11y_index_v2 AS A, o11y_traces.o11y_index_v2 AS B
+						FROM signoz_traces.signoz_index_v2 AS A, signoz_traces.signoz_index_v2 AS B
 						WHERE (A.serviceName != B.serviceName) AND (A.parentSpanID = B.spanID)`,
 			},
 		},
@@ -418,15 +418,15 @@ var TracesMigrations = []SchemaMigrationRecord{
 		MigrationID: 1001,
 		UpItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "durationSortMV",
 			},
 			DropTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "distributed_durationSort",
 			},
 			// DropTableOperation{
-			// 	Database: "o11y_traces",
+			// 	Database: "signoz_traces",
 			// 	Table:    "durationSort",
 			// 	// this is added so that we can avoid the following error
 			// 	//1. Size (453.51 GB) is greater than max_[table/partition]_size_to_drop (50.00 GB)
@@ -440,7 +440,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 		MigrationID: 1002,
 		UpItems: []Operation{
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				ViewName: "dependency_graph_minutes_db_calls_mv_v2",
 				Query: `SELECT
 							resource_string_service$$name AS src,
@@ -452,7 +452,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 							resources_string['deployment.environment'] AS deployment_environment,
 							resources_string['k8s.cluster.name'] AS k8s_cluster_name,
 							resources_string['k8s.namespace.name'] AS k8s_namespace_name
-						FROM o11y_traces.o11y_index_v3
+						FROM signoz_traces.signoz_index_v3
 						WHERE (dest != '') AND (kind != 2)
 						GROUP BY
 							timestamp,
@@ -463,7 +463,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 							k8s_namespace_name`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				ViewName: "dependency_graph_minutes_messaging_calls_mv_v2",
 				Query: `SELECT
 							resource_string_service$$name  AS src,
@@ -475,7 +475,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 							resources_string['deployment.environment'] AS deployment_environment,
 							resources_string['k8s.cluster.name'] AS k8s_cluster_name,
 							resources_string['k8s.namespace.name'] AS k8s_namespace_name
-						FROM o11y_traces.o11y_index_v3
+						FROM signoz_traces.signoz_index_v3
 						WHERE (dest != '') AND (kind != 2)
 						GROUP BY
 							timestamp,
@@ -486,7 +486,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 							k8s_namespace_name`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				ViewName: "dependency_graph_minutes_service_calls_mv_v2",
 				Query: `SELECT
 							A.resource_string_service$$name AS src,
@@ -498,7 +498,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 							B.resources_string['deployment.environment'] AS deployment_environment,
 							B.resources_string['k8s.cluster.name'] AS k8s_cluster_name,
 							B.resources_string['k8s.namespace.name'] AS k8s_namespace_name
-						FROM o11y_traces.o11y_index_v3 AS A, o11y_traces.o11y_index_v3 AS B
+						FROM signoz_traces.signoz_index_v3 AS A, signoz_traces.signoz_index_v3 AS B
 						WHERE (A.resource_string_service$$name != B.resource_string_service$$name) AND (A.span_id = B.parent_span_id)
 						GROUP BY
 							timestamp,
@@ -517,19 +517,19 @@ var TracesMigrations = []SchemaMigrationRecord{
 		MigrationID: 1003,
 		UpItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "dependency_graph_minutes_db_calls_mv",
 			},
 			DropTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "dependency_graph_minutes_messaging_calls_mv",
 			},
 			DropTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "dependency_graph_minutes_service_calls_mv",
 			},
 			DropTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "distributed_dependency_graph_minutes",
 			},
 			// remove dependency_graph_minutes later
@@ -542,7 +542,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 		MigrationID: 1004,
 		UpItems: []Operation{
 			CreateTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "tag_attributes_v2",
 				Columns: []Column{
 					{Name: "unix_milli", Type: ColumnTypeInt64, Codec: "Delta(8), ZSTD(1)"},
@@ -570,7 +570,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "distributed_tag_attributes_v2",
 				Columns: []Column{
 					{Name: "unix_milli", Type: ColumnTypeInt64, Codec: "Delta(8), ZSTD(1)"},
@@ -581,7 +581,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 					{Name: "number_value", Type: NullableColumnType{ColumnTypeFloat64}, Codec: "ZSTD(1)"},
 				},
 				Engine: Distributed{
-					Database:    "o11y_traces",
+					Database:    "signoz_traces",
 					Table:       "tag_attributes_v2",
 					ShardingKey: "cityHash64(rand())",
 				},
@@ -594,8 +594,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 		UpItems: []Operation{
 			// Local Table
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name:    "resource_string_service$$name_exists",
 					Type:    ColumnTypeBool,
@@ -604,8 +604,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_http$$route_exists",
 					Type:    ColumnTypeBool,
@@ -614,8 +614,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_messaging$$system_exists",
 					Type:    ColumnTypeBool,
@@ -624,8 +624,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_messaging$$operation_exists",
 					Type:    ColumnTypeBool,
@@ -634,8 +634,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_db$$system_exists",
 					Type:    ColumnTypeBool,
@@ -644,8 +644,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_rpc$$system_exists",
 					Type:    ColumnTypeBool,
@@ -654,8 +654,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_rpc$$service_exists",
 					Type:    ColumnTypeBool,
@@ -664,8 +664,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_rpc$$method_exists",
 					Type:    ColumnTypeBool,
@@ -674,8 +674,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_peer$$service_exists",
 					Type:    ColumnTypeBool,
@@ -686,8 +686,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 
 			// Distributed Table
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name:    "resource_string_service$$name_exists",
 					Type:    ColumnTypeBool,
@@ -696,8 +696,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_http$$route_exists",
 					Type:    ColumnTypeBool,
@@ -706,8 +706,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_messaging$$system_exists",
 					Type:    ColumnTypeBool,
@@ -716,8 +716,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_messaging$$operation_exists",
 					Type:    ColumnTypeBool,
@@ -726,8 +726,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_db$$system_exists",
 					Type:    ColumnTypeBool,
@@ -736,8 +736,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_rpc$$system_exists",
 					Type:    ColumnTypeBool,
@@ -746,8 +746,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_rpc$$service_exists",
 					Type:    ColumnTypeBool,
@@ -756,8 +756,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_rpc$$method_exists",
 					Type:    ColumnTypeBool,
@@ -766,8 +766,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name:    "attribute_string_peer$$service_exists",
 					Type:    ColumnTypeBool,
@@ -779,64 +779,64 @@ var TracesMigrations = []SchemaMigrationRecord{
 		DownItems: []Operation{
 			// Distributed table
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name: "resource_string_service$$name_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_http$$route_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_messaging$$system_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_messaging$$operation_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_db$$system_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_rpc$$system_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_rpc$$service_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_rpc$$method_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_peer$$service_exists",
 				},
@@ -844,64 +844,64 @@ var TracesMigrations = []SchemaMigrationRecord{
 
 			// Local table
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name: "resource_string_service$$name_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_http$$route_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_messaging$$system_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_messaging$$operation_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_db$$system_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_rpc$$system_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_rpc$$service_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_rpc$$method_exists",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name: "attribute_string_peer$$service_exists",
 				},
@@ -912,8 +912,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 		MigrationID: 1006,
 		UpItems: []Operation{
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name:  "resource",
 					Type:  JSONColumnType{MaxDynamicPaths: utils.ToPointer(uint(100))},
@@ -921,8 +921,8 @@ var TracesMigrations = []SchemaMigrationRecord{
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name:  "resource",
 					Type:  JSONColumnType{MaxDynamicPaths: utils.ToPointer(uint(100))},
@@ -932,15 +932,15 @@ var TracesMigrations = []SchemaMigrationRecord{
 		},
 		DownItems: []Operation{
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "distributed_o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "distributed_signoz_index_v3",
 				Column: Column{
 					Name: "resource",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_traces",
-				Table:    "o11y_index_v3",
+				Database: "signoz_traces",
+				Table:    "signoz_index_v3",
 				Column: Column{
 					Name: "resource",
 				},
@@ -951,7 +951,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 		MigrationID: 1007,
 		UpItems: []Operation{
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				ViewName: "dependency_graph_minutes_service_calls_mv_v2",
 				Query: `SELECT
 							A.resource_string_service$$name AS src,
@@ -963,7 +963,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 							B.resources_string['deployment.environment'] AS deployment_environment,
 							B.resources_string['k8s.cluster.name'] AS k8s_cluster_name,
 							B.resources_string['k8s.namespace.name'] AS k8s_namespace_name
-						FROM o11y_traces.o11y_index_v3 AS A, o11y_traces.o11y_index_v3 AS B
+						FROM signoz_traces.signoz_index_v3 AS A, signoz_traces.signoz_index_v3 AS B
 						WHERE (A.resource_string_service$$name != B.resource_string_service$$name) AND (A.span_id = B.parent_span_id)
 							AND B.span_id != '' AND A.span_id != ''
 						GROUP BY
@@ -975,18 +975,18 @@ var TracesMigrations = []SchemaMigrationRecord{
 							k8s_namespace_name;`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				ViewName: "sub_root_operations",
 				Query: `SELECT DISTINCT
 							name,
 							resource_string_service$$name AS serviceName
-						FROM o11y_traces.o11y_index_v3 AS A, o11y_traces.o11y_index_v3 AS B
+						FROM signoz_traces.signoz_index_v3 AS A, signoz_traces.signoz_index_v3 AS B
 						WHERE (A.resource_string_service$$name != B.resource_string_service$$name) AND (A.parent_span_id = B.span_id) AND B.span_id != '' AND A.span_id != ''`,
 			},
 		},
 		DownItems: []Operation{
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				ViewName: "dependency_graph_minutes_service_calls_mv_v2",
 				Query: `SELECT
 							A.resource_string_service$$name AS src,
@@ -998,7 +998,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 							B.resources_string['deployment.environment'] AS deployment_environment,
 							B.resources_string['k8s.cluster.name'] AS k8s_cluster_name,
 							B.resources_string['k8s.namespace.name'] AS k8s_namespace_name
-						FROM o11y_traces.o11y_index_v3 AS A, o11y_traces.o11y_index_v3 AS B
+						FROM signoz_traces.signoz_index_v3 AS A, signoz_traces.signoz_index_v3 AS B
 						WHERE (A.resource_string_service$$name != B.resource_string_service$$name) AND (A.span_id = B.parent_span_id)
 						GROUP BY
 							timestamp,
@@ -1009,12 +1009,12 @@ var TracesMigrations = []SchemaMigrationRecord{
 							k8s_namespace_name;`,
 			},
 			ModifyQueryMaterializedViewOperation{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				ViewName: "sub_root_operations",
 				Query: `SELECT DISTINCT
 							name,
 							resource_string_service$$name AS serviceName
-						FROM o11y_traces.o11y_index_v3 AS A, o11y_traces.o11y_index_v3 AS B
+						FROM signoz_traces.signoz_index_v3 AS A, signoz_traces.signoz_index_v3 AS B
 						WHERE (A.resource_string_service$$name != B.resource_string_service$$name) AND (A.parent_span_id = B.span_id)`,
 			},
 		},
@@ -1024,7 +1024,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 		UpItems: []Operation{
 			// Add timestamp column to span_attributes_keys table
 			AlterTableAddColumn{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "span_attributes_keys",
 				Column: Column{
 					Name:    "timestamp",
@@ -1032,9 +1032,9 @@ var TracesMigrations = []SchemaMigrationRecord{
 					Default: "toDateTime(now())",
 				},
 			},
-			// Set TTL on span_attributes_keys to match o11y_spans table (15 days)
+			// Set TTL on span_attributes_keys to match signoz_spans table (15 days)
 			AlterTableModifyTTL{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "span_attributes_keys",
 				TTL:      "timestamp + INTERVAL 15 DAY",
 				Settings: ModifyTTLSettings{
@@ -1044,14 +1044,14 @@ var TracesMigrations = []SchemaMigrationRecord{
 		},
 		DownItems: []Operation{
 			AlterTableDropColumn{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "span_attributes_keys",
 				Column: Column{
 					Name: "timestamp",
 				},
 			},
 			AlterTableDropTTL{
-				Database: "o11y_traces",
+				Database: "signoz_traces",
 				Table:    "span_attributes_keys",
 			},
 		},

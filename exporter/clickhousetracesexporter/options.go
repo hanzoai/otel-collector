@@ -50,7 +50,7 @@ func WithNewUsageCollector(id uuid.UUID, db driver.Conn, logger *zap.Logger) Tra
 			usage.Options{
 				ReportingInterval: usage.DefaultCollectionInterval,
 			},
-			"o11y_traces",
+			"signoz_traces",
 			UsageExporter,
 			logger,
 		)
