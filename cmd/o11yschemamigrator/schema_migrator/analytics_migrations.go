@@ -5,7 +5,7 @@ var AnalyticsMigrations = []SchemaMigrationRecord{
 		MigrationID: 1,
 		UpItems: []Operation{
 			CreateTableOperation{
-				Database: "o11y_analytics",
+				Database: "signoz_analytics",
 				Table:    "rule_state_history_v0",
 				Columns: []Column{
 					{Name: "_retention_days", Type: ColumnTypeUInt32, Default: "180"},
@@ -31,7 +31,7 @@ var AnalyticsMigrations = []SchemaMigrationRecord{
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_analytics",
+				Database: "signoz_analytics",
 				Table:    "distributed_rule_state_history_v0",
 				Columns: []Column{
 					{Name: "rule_id", Type: LowCardinalityColumnType{ElementType: ColumnTypeString}},
@@ -46,7 +46,7 @@ var AnalyticsMigrations = []SchemaMigrationRecord{
 					{Name: "labels", Type: ColumnTypeString, Codec: "ZSTD(5)"},
 				},
 				Engine: Distributed{
-					Database:    "o11y_analytics",
+					Database:    "signoz_analytics",
 					Table:       "rule_state_history_v0",
 					ShardingKey: "cityHash64(rule_id, rule_name, fingerprint)",
 				},
@@ -54,11 +54,11 @@ var AnalyticsMigrations = []SchemaMigrationRecord{
 		},
 		DownItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_analytics",
+				Database: "signoz_analytics",
 				Table:    "distributed_rule_state_history_v0",
 			},
 			DropTableOperation{
-				Database: "o11y_analytics",
+				Database: "signoz_analytics",
 				Table:    "rule_state_history_v0",
 			},
 		},

@@ -6,7 +6,7 @@ var (
 			MigrationID: 1,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs",
 					Columns: []Column{
 						{Name: "timestamp", Type: ColumnTypeUInt64, Codec: "DoubleDelta, LZ4"},
@@ -54,7 +54,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs",
 				},
 			},
@@ -63,7 +63,7 @@ var (
 			MigrationID: 2,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs",
 					Columns: []Column{
 						{Name: "timestamp", Type: ColumnTypeUInt64, Codec: "DoubleDelta, LZ4"},
@@ -91,7 +91,7 @@ var (
 						{Name: "scope_string_value", Type: ArrayColumnType{ColumnTypeString}, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_logs",
+						Database:    "signoz_logs",
 						Table:       "logs",
 						ShardingKey: "cityHash64(id)",
 					},
@@ -99,7 +99,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs",
 				},
 			},
@@ -108,7 +108,7 @@ var (
 			MigrationID: 3,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_attribute_keys",
 					Columns: []Column{
 						{Name: "name", Type: ColumnTypeString},
@@ -126,7 +126,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_attribute_keys",
 				},
 			},
@@ -135,14 +135,14 @@ var (
 			MigrationID: 4,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_attribute_keys",
 					Columns: []Column{
 						{Name: "name", Type: ColumnTypeString},
 						{Name: "datatype", Type: ColumnTypeString},
 					},
 					Engine: Distributed{
-						Database:    "o11y_logs",
+						Database:    "signoz_logs",
 						Table:       "logs_attribute_keys",
 						ShardingKey: "cityHash64(datatype)",
 					},
@@ -150,7 +150,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_attribute_keys",
 				},
 			},
@@ -159,7 +159,7 @@ var (
 			MigrationID: 5,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_logs",
+					Database:  "signoz_logs",
 					ViewName:  "attribute_keys_bool_final_mv",
 					DestTable: "logs_attribute_keys",
 					Columns: []Column{
@@ -169,13 +169,13 @@ var (
 					Query: `SELECT DISTINCT
     arrayJoin(attributes_bool_key) AS name,
     'Bool' AS datatype
-FROM o11y_logs.logs
+FROM signoz_logs.logs
 ORDER BY name ASC`,
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "attribute_keys_bool_final_mv",
 				},
 			},
@@ -184,7 +184,7 @@ ORDER BY name ASC`,
 			MigrationID: 6,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_logs",
+					Database:  "signoz_logs",
 					ViewName:  "attribute_keys_float64_final_mv",
 					DestTable: "logs_attribute_keys",
 					Columns: []Column{
@@ -194,13 +194,13 @@ ORDER BY name ASC`,
 					Query: `SELECT DISTINCT
     arrayJoin(attributes_float64_key) AS name,
     'Float64' AS datatype
-FROM o11y_logs.logs
+FROM signoz_logs.logs
 ORDER BY name ASC`,
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "attribute_keys_float64_final_mv",
 				},
 			},
@@ -209,7 +209,7 @@ ORDER BY name ASC`,
 			MigrationID: 7,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_logs",
+					Database:  "signoz_logs",
 					ViewName:  "attribute_keys_int64_final_mv",
 					DestTable: "logs_attribute_keys",
 					Columns: []Column{
@@ -219,13 +219,13 @@ ORDER BY name ASC`,
 					Query: `SELECT DISTINCT
     arrayJoin(attributes_int64_key) AS name,
     'Int64' AS datatype
-FROM o11y_logs.logs
+FROM signoz_logs.logs
 ORDER BY name ASC`,
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "attribute_keys_int64_final_mv",
 				},
 			},
@@ -234,7 +234,7 @@ ORDER BY name ASC`,
 			MigrationID: 8,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_logs",
+					Database:  "signoz_logs",
 					ViewName:  "attribute_keys_string_final_mv",
 					DestTable: "logs_attribute_keys",
 					Columns: []Column{
@@ -244,13 +244,13 @@ ORDER BY name ASC`,
 					Query: `SELECT DISTINCT
     arrayJoin(attributes_string_key) AS name,
     'String' AS datatype
-FROM o11y_logs.logs
+FROM signoz_logs.logs
 ORDER BY name ASC`,
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "attribute_keys_string_final_mv",
 				},
 			},
@@ -259,7 +259,7 @@ ORDER BY name ASC`,
 			MigrationID: 9,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_resource_keys",
 					Columns: []Column{
 						{Name: "name", Type: ColumnTypeString},
@@ -277,7 +277,7 @@ ORDER BY name ASC`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_resource_keys",
 				},
 			},
@@ -286,14 +286,14 @@ ORDER BY name ASC`,
 			MigrationID: 10,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_resource_keys",
 					Columns: []Column{
 						{Name: "name", Type: ColumnTypeString},
 						{Name: "datatype", Type: ColumnTypeString},
 					},
 					Engine: Distributed{
-						Database:    "o11y_logs",
+						Database:    "signoz_logs",
 						Table:       "logs_resource_keys",
 						ShardingKey: "cityHash64(datatype)",
 					},
@@ -304,7 +304,7 @@ ORDER BY name ASC`,
 			MigrationID: 11,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_logs",
+					Database:  "signoz_logs",
 					ViewName:  "resource_keys_string_final_mv",
 					DestTable: "logs_resource_keys",
 					Columns: []Column{
@@ -314,13 +314,13 @@ ORDER BY name ASC`,
 					Query: `SELECT DISTINCT
     arrayJoin(resources_string_key) AS name,
     'String' AS datatype
-FROM o11y_logs.logs
+FROM signoz_logs.logs
 ORDER BY name ASC`,
 				},
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "resource_keys_string_final_mv",
 				},
 			},
@@ -329,7 +329,7 @@ ORDER BY name ASC`,
 			MigrationID: 12,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "tag_attributes",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTimeColumnType{}, Codec: "ZSTD(1)"},
@@ -355,7 +355,7 @@ ORDER BY name ASC`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "tag_attributes",
 				},
 			},
@@ -364,7 +364,7 @@ ORDER BY name ASC`,
 			MigrationID: 13,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_tag_attributes",
 					Columns: []Column{
 						{Name: "timestamp", Type: DateTimeColumnType{}, Codec: "ZSTD(1)"},
@@ -376,7 +376,7 @@ ORDER BY name ASC`,
 						{Name: "float64TagValue", Type: NullableColumnType{ColumnTypeFloat64}, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_logs",
+						Database:    "signoz_logs",
 						Table:       "tag_attributes",
 						ShardingKey: "rand()",
 					},
@@ -384,7 +384,7 @@ ORDER BY name ASC`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_tag_attributes",
 				},
 			},
@@ -393,7 +393,7 @@ ORDER BY name ASC`,
 			MigrationID: 14,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "usage",
 					Columns: []Column{
 						{Name: "tenant", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -413,7 +413,7 @@ ORDER BY name ASC`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "usage",
 				},
 			},
@@ -422,7 +422,7 @@ ORDER BY name ASC`,
 			MigrationID: 15,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_usage",
 					Columns: []Column{
 						{Name: "tenant", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -432,7 +432,7 @@ ORDER BY name ASC`,
 						{Name: "data", Type: ColumnTypeString, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_logs",
+						Database:    "signoz_logs",
 						Table:       "usage",
 						ShardingKey: "cityHash64(rand())",
 					},
@@ -440,7 +440,7 @@ ORDER BY name ASC`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_usage",
 				},
 			},
@@ -449,7 +449,7 @@ ORDER BY name ASC`,
 			MigrationID: 16,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_v2",
 					Columns: []Column{
 						{Name: "ts_bucket_start", Type: ColumnTypeUInt64, Codec: "DoubleDelta, LZ4"},
@@ -497,7 +497,7 @@ ORDER BY name ASC`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_v2",
 				},
 			},
@@ -506,7 +506,7 @@ ORDER BY name ASC`,
 			MigrationID: 17,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_v2",
 					Columns: []Column{
 						{Name: "ts_bucket_start", Type: ColumnTypeUInt64, Codec: "DoubleDelta, LZ4"},
@@ -529,7 +529,7 @@ ORDER BY name ASC`,
 						{Name: "scope_string", Type: MapColumnType{LowCardinalityColumnType{ColumnTypeString}, ColumnTypeString}, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_logs",
+						Database:    "signoz_logs",
 						Table:       "logs_v2",
 						ShardingKey: "cityHash64(id)",
 					},
@@ -537,7 +537,7 @@ ORDER BY name ASC`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_v2",
 				},
 			},
@@ -546,23 +546,23 @@ ORDER BY name ASC`,
 			MigrationID: 18,
 			UpItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "resource_keys_string_final_mv",
 				},
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "attribute_keys_float64_final_mv",
 				},
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "attribute_keys_int64_final_mv",
 				},
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "attribute_keys_string_final_mv",
 				},
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "attribute_keys_bool_final_mv",
 				},
 			},
@@ -571,7 +571,7 @@ ORDER BY name ASC`,
 			MigrationID: 19,
 			UpItems: []Operation{
 				CreateMaterializedViewOperation{
-					Database:  "o11y_logs",
+					Database:  "signoz_logs",
 					ViewName:  "attribute_keys_string_final_mv",
 					DestTable: "logs_attribute_keys",
 					Columns: []Column{
@@ -581,11 +581,11 @@ ORDER BY name ASC`,
 					Query: `SELECT DISTINCT
     arrayJoin(mapKeys(attributes_string)) AS name,
     'String' AS datatype
-FROM o11y_logs.logs_v2
+FROM signoz_logs.logs_v2
 ORDER BY name ASC`,
 				},
 				CreateMaterializedViewOperation{
-					Database:  "o11y_logs",
+					Database:  "signoz_logs",
 					ViewName:  "attribute_keys_float64_final_mv",
 					DestTable: "logs_attribute_keys",
 					Columns: []Column{
@@ -595,11 +595,11 @@ ORDER BY name ASC`,
 					Query: `SELECT DISTINCT
     arrayJoin(mapKeys(attributes_number)) AS name,
     'Float64' AS datatype
-FROM o11y_logs.logs_v2
+FROM signoz_logs.logs_v2
 ORDER BY name ASC`,
 				},
 				CreateMaterializedViewOperation{
-					Database:  "o11y_logs",
+					Database:  "signoz_logs",
 					ViewName:  "attribute_keys_bool_final_mv",
 					DestTable: "logs_attribute_keys",
 					Columns: []Column{
@@ -609,11 +609,11 @@ ORDER BY name ASC`,
 					Query: `SELECT DISTINCT
     arrayJoin(mapKeys(attributes_bool)) AS name,
     'Bool' AS datatype
-FROM o11y_logs.logs_v2
+FROM signoz_logs.logs_v2
 ORDER BY name ASC`,
 				},
 				CreateMaterializedViewOperation{
-					Database:  "o11y_logs",
+					Database:  "signoz_logs",
 					ViewName:  "resource_keys_string_final_mv",
 					DestTable: "logs_resource_keys",
 					Columns: []Column{
@@ -623,7 +623,7 @@ ORDER BY name ASC`,
 					Query: `SELECT DISTINCT
     arrayJoin(mapKeys(resources_string)) AS name,
     'String' AS datatype
-FROM o11y_logs.logs_v2
+FROM signoz_logs.logs_v2
 ORDER BY name ASC`,
 				},
 			},
@@ -632,7 +632,7 @@ ORDER BY name ASC`,
 			MigrationID: 20,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_v2_resource",
 					Columns: []Column{
 						{Name: "labels", Type: ColumnTypeString, Codec: "ZSTD(5)"},
@@ -656,7 +656,7 @@ ORDER BY name ASC`,
 					},
 				},
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_v2_resource",
 					Columns: []Column{
 						{Name: "labels", Type: ColumnTypeString, Codec: "ZSTD(5)"},
@@ -664,7 +664,7 @@ ORDER BY name ASC`,
 						{Name: "seen_at_ts_bucket_start", Type: ColumnTypeInt64, Codec: "Delta(8), ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_logs",
+						Database:    "signoz_logs",
 						Table:       "logs_v2_resource",
 						ShardingKey: "cityHash64(labels, fingerprint)",
 					},
@@ -672,11 +672,11 @@ ORDER BY name ASC`,
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_v2_resource",
 				},
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_v2_resource",
 				},
 			},

@@ -10,7 +10,7 @@ var MetadataMigrations = []SchemaMigrationRecord{
 		MigrationID: 1000,
 		UpItems: []Operation{
 			CreateTableOperation{
-				Database: "o11y_metadata",
+				Database: "signoz_metadata",
 				Table:    "attributes_metadata",
 				Columns: []Column{
 					{Name: "unix_milli", Type: ColumnTypeUInt64},
@@ -39,7 +39,7 @@ var MetadataMigrations = []SchemaMigrationRecord{
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_metadata",
+				Database: "signoz_metadata",
 				Table:    "distributed_attributes_metadata",
 				Columns: []Column{
 					{Name: "unix_milli", Type: ColumnTypeUInt64},
@@ -50,7 +50,7 @@ var MetadataMigrations = []SchemaMigrationRecord{
 					{Name: "attributes", Type: MapColumnType{KeyType: LowCardinalityColumnType{ColumnTypeString}, ValueType: ColumnTypeString}},
 				},
 				Engine: Distributed{
-					Database:    "o11y_metadata",
+					Database:    "signoz_metadata",
 					Table:       "attributes_metadata",
 					ShardingKey: "cityHash64(data_source, resource_fingerprint, attrs_fingerprint)",
 				},
@@ -58,11 +58,11 @@ var MetadataMigrations = []SchemaMigrationRecord{
 		},
 		DownItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_metadata",
+				Database: "signoz_metadata",
 				Table:    "distributed_attributes_metadata",
 			},
 			DropTableOperation{
-				Database: "o11y_metadata",
+				Database: "signoz_metadata",
 				Table:    "attributes_metadata",
 			},
 		},
@@ -71,7 +71,7 @@ var MetadataMigrations = []SchemaMigrationRecord{
 		MigrationID: 1001,
 		UpItems: []Operation{
 			CreateTableOperation{
-				Database: "o11y_metadata",
+				Database: "signoz_metadata",
 				Table:    "column_evolution_metadata",
 				Columns: []Column{
 					{Name: "signal", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -90,7 +90,7 @@ var MetadataMigrations = []SchemaMigrationRecord{
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_metadata",
+				Database: "signoz_metadata",
 				Table:    "distributed_column_evolution_metadata",
 				Columns: []Column{
 					{Name: "signal", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -102,13 +102,13 @@ var MetadataMigrations = []SchemaMigrationRecord{
 					{Name: "release_time", Type: SimpleAggregateFunction{FunctionName: "min", Arguments: []ColumnType{ColumnTypeFloat64}}, Codec: "ZSTD(1)"},
 				},
 				Engine: Distributed{
-					Database:    "o11y_metadata",
+					Database:    "signoz_metadata",
 					Table:       "column_evolution_metadata",
 					ShardingKey: "cityHash64(signal,column_name)",
 				},
 			},
 			InsertIntoTable{
-				Database:    "o11y_metadata",
+				Database:    "signoz_metadata",
 				Table:       "distributed_column_evolution_metadata",
 				LightWeight: true,
 				Synchronous: true,
@@ -116,7 +116,7 @@ var MetadataMigrations = []SchemaMigrationRecord{
 				Values:      "('logs', 'resources_string', 'Map(LowCardinality(String), Float64)', 'resource', '__all__', 0, 0)",
 			},
 			InsertIntoTable{
-				Database:    "o11y_metadata",
+				Database:    "signoz_metadata",
 				Table:       "distributed_column_evolution_metadata",
 				LightWeight: true,
 				Synchronous: true,
@@ -124,7 +124,7 @@ var MetadataMigrations = []SchemaMigrationRecord{
 				Values:      fmt.Sprintf("('logs', 'resource', 'JSON()', 'resource', '__all__', 1, %d)", time.Now().UnixNano()),
 			},
 			InsertIntoTable{
-				Database:    "o11y_metadata",
+				Database:    "signoz_metadata",
 				Table:       "distributed_column_evolution_metadata",
 				LightWeight: true,
 				Synchronous: true,
@@ -132,7 +132,7 @@ var MetadataMigrations = []SchemaMigrationRecord{
 				Values:      "('traces', 'resources_string', 'Map(LowCardinality(String), Float64)', 'resource', '__all__', 0, 0)",
 			},
 			InsertIntoTable{
-				Database:    "o11y_metadata",
+				Database:    "signoz_metadata",
 				Table:       "distributed_column_evolution_metadata",
 				LightWeight: true,
 				Synchronous: true,
@@ -142,11 +142,11 @@ var MetadataMigrations = []SchemaMigrationRecord{
 		},
 		DownItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_metadata",
+				Database: "signoz_metadata",
 				Table:    "distributed_column_evolution_metadata",
 			},
 			DropTableOperation{
-				Database: "o11y_metadata",
+				Database: "signoz_metadata",
 				Table:    "column_evolution_metadata",
 			},
 		},

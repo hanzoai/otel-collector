@@ -7,7 +7,7 @@ var (
 			MigrationID: 1,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_attribute_keys",
 					Columns: []Column{
 						{Name: "name", Type: ColumnTypeString},
@@ -25,7 +25,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_attribute_keys",
 				},
 			},
@@ -34,14 +34,14 @@ var (
 			MigrationID: 2,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_attribute_keys",
 					Columns: []Column{
 						{Name: "name", Type: ColumnTypeString},
 						{Name: "datatype", Type: ColumnTypeString},
 					},
 					Engine: Distributed{
-						Database:    "o11y_logs",
+						Database:    "signoz_logs",
 						Table:       "logs_attribute_keys",
 						ShardingKey: "cityHash64(datatype)",
 					},
@@ -49,7 +49,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_attribute_keys",
 				},
 			},
@@ -58,7 +58,7 @@ var (
 			MigrationID: 3,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_resource_keys",
 					Columns: []Column{
 						{Name: "name", Type: ColumnTypeString},
@@ -76,7 +76,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_resource_keys",
 				},
 			},
@@ -85,14 +85,14 @@ var (
 			MigrationID: 4,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_resource_keys",
 					Columns: []Column{
 						{Name: "name", Type: ColumnTypeString},
 						{Name: "datatype", Type: ColumnTypeString},
 					},
 					Engine: Distributed{
-						Database:    "o11y_logs",
+						Database:    "signoz_logs",
 						Table:       "logs_resource_keys",
 						ShardingKey: "cityHash64(datatype)",
 					},
@@ -103,7 +103,7 @@ var (
 			MigrationID: 5,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "usage",
 					Columns: []Column{
 						{Name: "tenant", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -123,7 +123,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "usage",
 				},
 			},
@@ -132,7 +132,7 @@ var (
 			MigrationID: 6,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_usage",
 					Columns: []Column{
 						{Name: "tenant", Type: ColumnTypeString, Codec: "ZSTD(1)"},
@@ -142,7 +142,7 @@ var (
 						{Name: "data", Type: ColumnTypeString, Codec: "ZSTD(1)"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_logs",
+						Database:    "signoz_logs",
 						Table:       "usage",
 						ShardingKey: "cityHash64(rand())",
 					},
@@ -150,7 +150,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_usage",
 				},
 			},
@@ -159,7 +159,7 @@ var (
 			MigrationID: 7,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_v2",
 					Columns: []Column{
 						{Name: "ts_bucket_start", Type: ColumnTypeUInt64, Codec: "DoubleDelta, LZ4"},
@@ -210,7 +210,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_v2",
 				},
 			},
@@ -219,7 +219,7 @@ var (
 			MigrationID: 8,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_v2",
 					Columns: []Column{
 						{Name: "ts_bucket_start", Type: ColumnTypeUInt64, Codec: "DoubleDelta, LZ4"},
@@ -244,7 +244,7 @@ var (
 						{Name: "_retention_days_cold", Type: ColumnTypeUInt16, Default: "0"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_logs",
+						Database:    "signoz_logs",
 						Table:       "logs_v2",
 						ShardingKey: "cityHash64(id)",
 					},
@@ -252,7 +252,7 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_v2",
 				},
 			},
@@ -261,7 +261,7 @@ var (
 			MigrationID: 9,
 			UpItems: []Operation{
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_v2_resource",
 					Columns: []Column{
 						{Name: "labels", Type: ColumnTypeString, Codec: "ZSTD(5)"},
@@ -287,7 +287,7 @@ var (
 					},
 				},
 				CreateTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_v2_resource",
 					Columns: []Column{
 						{Name: "labels", Type: ColumnTypeString, Codec: "ZSTD(5)"},
@@ -297,7 +297,7 @@ var (
 						{Name: "_retention_days_cold", Type: ColumnTypeUInt16, Default: "0"},
 					},
 					Engine: Distributed{
-						Database:    "o11y_logs",
+						Database:    "signoz_logs",
 						Table:       "logs_v2_resource",
 						ShardingKey: "cityHash64(labels, fingerprint)",
 					},
@@ -305,11 +305,11 @@ var (
 			},
 			DownItems: []Operation{
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "logs_v2_resource",
 				},
 				DropTableOperation{
-					Database: "o11y_logs",
+					Database: "signoz_logs",
 					Table:    "distributed_logs_v2_resource",
 				},
 			},

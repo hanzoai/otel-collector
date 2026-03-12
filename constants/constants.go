@@ -6,7 +6,7 @@ const (
 	BodyPromotedColumn       = "body_promoted"
 	BodyPromotedColumnPrefix = "body_promoted."
 
-	O11yMetadataDB             = "o11y_metadata"
+	O11yMetadataDB             = "signoz_metadata"
 	LocalPathTypesTable          = "json_path_types"
 	DistributedPathTypesTable    = "distributed_json_path_types"
 	PathTypesTablePathColumn     = "path"

@@ -80,7 +80,7 @@ extensions:
   zpages: {}
 exporters:
   clickhousetraces:
-    datasource: tcp://localhost:9000/o11y_traces
+    datasource: tcp://localhost:9000/signoz_traces
     retry_on_failure:
       enabled: true
       initial_interval: 5s
@@ -93,9 +93,9 @@ exporters:
   o11ydatastoremetrics:
     sending_queue:
       enabled: false
-    dsn: tcp://localhost:9000/o11y_metrics
+    dsn: tcp://localhost:9000/signoz_metrics
   clickhouselogsexporter:
-    dsn: tcp://localhost:9000/o11y_logs
+    dsn: tcp://localhost:9000/signoz_logs
     timeout: 10s
     sending_queue:
       enabled: false

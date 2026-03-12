@@ -12,25 +12,25 @@ var LogsMigrationsV2 = []SchemaMigrationRecord{
 		MigrationID: 1000,
 		UpItems: []Operation{
 			DropTableOperation{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "attribute_keys_bool_final_mv",
 			},
 			DropTableOperation{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "attribute_keys_float64_final_mv",
 			},
 			DropTableOperation{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "attribute_keys_string_final_mv",
 			},
 			DropTableOperation{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "resource_keys_string_final_mv",
 			},
 		},
 		DownItems: []Operation{
 			CreateMaterializedViewOperation{
-				Database:  "o11y_logs",
+				Database:  "signoz_logs",
 				ViewName:  "attribute_keys_bool_final_mv",
 				DestTable: "logs_attribute_keys",
 				Columns: []Column{
@@ -40,11 +40,11 @@ var LogsMigrationsV2 = []SchemaMigrationRecord{
 				Query: `SELECT DISTINCT
 arrayJoin(mapKeys(attributes_bool)) AS name,
 'Bool' AS datatype
-FROM o11y_logs.logs_v2
+FROM signoz_logs.logs_v2
 ORDER BY name ASC`,
 			},
 			CreateMaterializedViewOperation{
-				Database:  "o11y_logs",
+				Database:  "signoz_logs",
 				ViewName:  "attribute_keys_float64_final_mv",
 				DestTable: "logs_attribute_keys",
 				Columns: []Column{
@@ -54,11 +54,11 @@ ORDER BY name ASC`,
 				Query: `SELECT DISTINCT
 arrayJoin(mapKeys(attributes_number)) AS name,
 'Float64' AS datatype
-FROM o11y_logs.logs_v2
+FROM signoz_logs.logs_v2
 ORDER BY name ASC`,
 			},
 			CreateMaterializedViewOperation{
-				Database:  "o11y_logs",
+				Database:  "signoz_logs",
 				ViewName:  "attribute_keys_string_final_mv",
 				DestTable: "logs_attribute_keys",
 				Columns: []Column{
@@ -68,11 +68,11 @@ ORDER BY name ASC`,
 				Query: `SELECT DISTINCT
 arrayJoin(mapKeys(attributes_string)) AS name,
 'String' AS datatype
-FROM o11y_logs.logs_v2
+FROM signoz_logs.logs_v2
 ORDER BY name ASC`,
 			},
 			CreateMaterializedViewOperation{
-				Database:  "o11y_logs",
+				Database:  "signoz_logs",
 				ViewName:  "resource_keys_string_final_mv",
 				DestTable: "logs_resource_keys",
 				Columns: []Column{
@@ -82,7 +82,7 @@ ORDER BY name ASC`,
 				Query: `SELECT DISTINCT
 arrayJoin(mapKeys(resources_string)) AS name,
 'String' AS datatype
-FROM o11y_logs.logs_v2
+FROM signoz_logs.logs_v2
 ORDER BY name ASC`,
 			},
 		},
@@ -91,7 +91,7 @@ ORDER BY name ASC`,
 		MigrationID: 1001,
 		UpItems: []Operation{
 			CreateTableOperation{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "tag_attributes_v2",
 				Columns: []Column{
 					{Name: "unix_milli", Type: ColumnTypeInt64, Codec: "Delta(8), ZSTD(1)"},
@@ -119,7 +119,7 @@ ORDER BY name ASC`,
 				},
 			},
 			CreateTableOperation{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "distributed_tag_attributes_v2",
 				Columns: []Column{
 					{Name: "unix_milli", Type: ColumnTypeInt64, Codec: "Delta(8), ZSTD(1)"},
@@ -130,7 +130,7 @@ ORDER BY name ASC`,
 					{Name: "number_value", Type: NullableColumnType{ColumnTypeFloat64}, Codec: "ZSTD(1)"},
 				},
 				Engine: Distributed{
-					Database:    "o11y_logs",
+					Database:    "signoz_logs",
 					Table:       "tag_attributes_v2",
 					ShardingKey: "cityHash64(rand())",
 				},
@@ -142,7 +142,7 @@ ORDER BY name ASC`,
 		MigrationID: 1002,
 		UpItems: []Operation{
 			AlterTableAddColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_attribute_keys",
 				Column: Column{
 					Name:    "timestamp",
@@ -151,7 +151,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_resource_keys",
 				Column: Column{
 					Name:    "timestamp",
@@ -160,7 +160,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableModifyTTL{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_attribute_keys",
 				TTL:      "timestamp + INTERVAL 15 DAY",
 				Settings: ModifyTTLSettings{
@@ -168,7 +168,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableModifyTTL{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_resource_keys",
 				TTL:      "timestamp + INTERVAL 15 DAY",
 				Settings: ModifyTTLSettings{
@@ -182,14 +182,14 @@ ORDER BY name ASC`,
 		MigrationID: 1003,
 		UpItems: []Operation{
 			AlterTableMaterializeColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_attribute_keys",
 				Column: Column{
 					Name: "timestamp",
 				},
 			},
 			AlterTableMaterializeColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_resource_keys",
 				Column: Column{
 					Name: "timestamp",
@@ -202,7 +202,7 @@ ORDER BY name ASC`,
 		MigrationID: 1004,
 		UpItems: []Operation{
 			AlterTableAddColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Column: Column{
 					Name:  "resource",
@@ -211,7 +211,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "distributed_logs_v2",
 				Column: Column{
 					Name:  "resource",
@@ -222,14 +222,14 @@ ORDER BY name ASC`,
 		},
 		DownItems: []Operation{
 			AlterTableDropColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "distributed_logs_v2",
 				Column: Column{
 					Name: "resource",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Column: Column{
 					Name: "resource",
@@ -241,24 +241,24 @@ ORDER BY name ASC`,
 		MigrationID: 1005,
 		UpItems: []Operation{
 			AlterTableAddIndex{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Index:    Index{Name: "trace_id_idx", Expression: "trace_id", Type: "tokenbf_v1(10000, 5,0)", Granularity: 1},
 			},
 			AlterTableAddIndex{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Index:    Index{Name: "span_id_idx", Expression: "span_id", Type: "tokenbf_v1(5000, 5,0)", Granularity: 1},
 			},
 		},
 		DownItems: []Operation{
 			AlterTableDropIndex{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Index:    Index{Name: "trace_id_idx"},
 			},
 			AlterTableDropIndex{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Index:    Index{Name: "span_id_idx"},
 			},
@@ -304,7 +304,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableModifySettings{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Settings: TableSettings{
 					{Name: "object_serialization_version", Value: "'v3'"},
@@ -312,7 +312,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Column: Column{
 					Name: constants.BodyV2Column,
@@ -326,7 +326,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "distributed_logs_v2",
 				Column: Column{
 					Name: constants.BodyV2Column,
@@ -340,7 +340,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Column: Column{
 					Name:  constants.BodyPromotedColumn,
@@ -352,7 +352,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableAddColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "distributed_logs_v2",
 				Column: Column{
 					Name:  constants.BodyPromotedColumn,
@@ -364,7 +364,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableAddIndex{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Index: Index{
 					Name:        "body_v2_string_ngram_idx",
@@ -374,7 +374,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableAddIndex{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Index: Index{
 					Name:        "body_v2_string_token_idx",
@@ -384,7 +384,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableAddIndex{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Index: Index{
 					Name:        "body_v2_paths_ngram_idx",
@@ -394,7 +394,7 @@ ORDER BY name ASC`,
 				},
 			},
 			AlterTableAddIndex{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Index: Index{
 					Name:        "body_v2_paths_token_idx",
@@ -406,40 +406,40 @@ ORDER BY name ASC`,
 		},
 		DownItems: []Operation{
 			AlterTableDropIndex{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Index: Index{
 					Name: "body_v2_string_ngram_idx",
 				},
 			},
 			AlterTableDropIndex{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Index: Index{
 					Name: "body_v2_string_token_idx",
 				},
 			},
 			AlterTableDropIndex{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Index: Index{
 					Name: "body_v2_paths_ngram_idx",
 				},
 			},
 			AlterTableDropIndex{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Index: Index{
 					Name: "body_v2_paths_token_idx",
 				},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Column:   Column{Name: constants.BodyPromotedColumn},
 			},
 			AlterTableDropColumn{
-				Database: "o11y_logs",
+				Database: "signoz_logs",
 				Table:    "logs_v2",
 				Column:   Column{Name: constants.BodyV2Column},
 			},

@@ -52,7 +52,7 @@ extensions:
   zpages: {}
 exporters:
   clickhousetraces:
-    datasource: tcp://localhost:9000/o11y_traces
+    datasource: tcp://localhost:9000/signoz_traces
     retry_on_failure:
       enabled: true
       initial_interval: 5s
@@ -63,7 +63,7 @@ exporters:
       queue_size: 100
       num_consumers: 5
   o11ydatastoremetrics:
-    dsn: tcp://clickhouse:9000/o11y_metrics
+    dsn: tcp://clickhouse:9000/signoz_metrics
   prometheus:
     endpoint: "0.0.0.0:8889"
 service:

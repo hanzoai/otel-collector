@@ -126,11 +126,11 @@ func TestExporterPushLogsData(t *testing.T) {
 	}
 
 	// expect prepare batch for 5 tables
-	tagStatementV2 := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_tag_attributes_v2")
-	attributeKeysStmt := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_attribute_keys")
-	resourceKeysStmt := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_resource_keys")
-	logsStatementV2 := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_v2.*")
-	logsResourceStatementV2 := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_v2_resource.*")
+	tagStatementV2 := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_tag_attributes_v2")
+	attributeKeysStmt := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_attribute_keys")
+	resourceKeysStmt := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_resource_keys")
+	logsStatementV2 := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_v2.*")
+	logsResourceStatementV2 := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_v2_resource.*")
 
 	tagStatementV2.ExpectAppend()
 	tagStatementV2.ExpectSend()
@@ -144,7 +144,7 @@ func TestExporterPushLogsData(t *testing.T) {
 	logsResourceStatementV2.ExpectSend()
 
 	// make sure usage is inserted on shutdown
-	mock.ExpectExec(".*insert into o11y_logs.distributed_usage.*").WithArgs()
+	mock.ExpectExec(".*insert into signoz_logs.distributed_usage.*").WithArgs()
 	mock.ExpectClose()
 
 	exporter := setupTestExporter(t, mock)
@@ -279,11 +279,11 @@ func TestExporterConcurrency(t *testing.T) {
 			}
 
 			// expect prepare batch for 5 tables
-			tagStatementV2 := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_tag_attributes_v2")
-			attributeKeysStmt := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_attribute_keys")
-			resourceKeysStmt := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_resource_keys")
-			logsStatementV2 := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_v2.*")
-			logsResourceStatementV2 := mock.ExpectPrepareBatch("INSERT INTO o11y_logs.distributed_logs_v2_resource.*")
+			tagStatementV2 := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_tag_attributes_v2")
+			attributeKeysStmt := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_attribute_keys")
+			resourceKeysStmt := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_resource_keys")
+			logsStatementV2 := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_v2.*")
+			logsResourceStatementV2 := mock.ExpectPrepareBatch("INSERT INTO signoz_logs.distributed_logs_v2_resource.*")
 
 			tagStatementV2.ExpectAppend()
 			tagStatementV2.ExpectSend()
