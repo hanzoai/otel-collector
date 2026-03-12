@@ -1,4 +1,4 @@
-package o11yclickhousemetrics
+package o11ydatastoremetrics
 
 import (
 	"testing"
@@ -32,11 +32,11 @@ func TestUsageExporter(t *testing.T) {
 			name: "both count and size",
 			metrics: []*metricdata.Metric{
 				{
-					Descriptor: metricdata.Descriptor{Name: Hanzo O11yMetricPointsCount, LabelKeys: labelKeys},
+					Descriptor: metricdata.Descriptor{Name: HanzoO11yMetricPointsCount, LabelKeys: labelKeys},
 					TimeSeries: []*metricdata.TimeSeries{{LabelValues: labelValues, Points: []metricdata.Point{{Value: int64(42)}}}},
 				},
 				{
-					Descriptor: metricdata.Descriptor{Name: Hanzo O11yMetricPointsBytes, LabelKeys: labelKeys},
+					Descriptor: metricdata.Descriptor{Name: HanzoO11yMetricPointsBytes, LabelKeys: labelKeys},
 					TimeSeries: []*metricdata.TimeSeries{{LabelValues: labelValues, Points: []metricdata.Point{{Value: int64(1000)}}}},
 				},
 			},
@@ -47,7 +47,7 @@ func TestUsageExporter(t *testing.T) {
 			name: "only count",
 			metrics: []*metricdata.Metric{
 				{
-					Descriptor: metricdata.Descriptor{Name: Hanzo O11yMetricPointsCount, LabelKeys: labelKeys},
+					Descriptor: metricdata.Descriptor{Name: HanzoO11yMetricPointsCount, LabelKeys: labelKeys},
 					TimeSeries: []*metricdata.TimeSeries{{LabelValues: labelValues, Points: []metricdata.Point{{Value: int64(7)}}}},
 				},
 			},
@@ -58,7 +58,7 @@ func TestUsageExporter(t *testing.T) {
 			name: "only size",
 			metrics: []*metricdata.Metric{
 				{
-					Descriptor: metricdata.Descriptor{Name: Hanzo O11yMetricPointsBytes, LabelKeys: labelKeys},
+					Descriptor: metricdata.Descriptor{Name: HanzoO11yMetricPointsBytes, LabelKeys: labelKeys},
 					TimeSeries: []*metricdata.TimeSeries{{LabelValues: labelValues, Points: []metricdata.Point{{Value: int64(555)}}}},
 				},
 			},
@@ -69,7 +69,7 @@ func TestUsageExporter(t *testing.T) {
 			name: "missing required labels",
 			metrics: []*metricdata.Metric{
 				{
-					Descriptor: metricdata.Descriptor{Name: Hanzo O11yMetricPointsCount, LabelKeys: []metricdata.LabelKey{}},
+					Descriptor: metricdata.Descriptor{Name: HanzoO11yMetricPointsCount, LabelKeys: []metricdata.LabelKey{}},
 					TimeSeries: []*metricdata.TimeSeries{{LabelValues: []metricdata.LabelValue{}, Points: []metricdata.Point{{Value: int64(1)}}}},
 				},
 			},
@@ -80,7 +80,7 @@ func TestUsageExporter(t *testing.T) {
 			name: "exporterId mismatch",
 			metrics: []*metricdata.Metric{
 				{
-					Descriptor: metricdata.Descriptor{Name: Hanzo O11yMetricPointsCount, LabelKeys: labelKeys},
+					Descriptor: metricdata.Descriptor{Name: HanzoO11yMetricPointsCount, LabelKeys: labelKeys},
 					TimeSeries: []*metricdata.TimeSeries{{LabelValues: []metricdata.LabelValue{{Value: uuid.New().String(), Present: true}, {Value: tenant, Present: true}}, Points: []metricdata.Point{{Value: int64(1)}}}},
 				},
 			},

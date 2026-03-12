@@ -823,7 +823,7 @@ producerIteration:
 		zap.String("cost", duration.String()))
 
 	for k, v := range metrics {
-		_ = stats.RecordWithTags(ctx, []tag.Mutator{tag.Upsert(usage.TagTenantKey, k), tag.Upsert(usage.TagExporterIdKey, e.id.String())}, ExporterHanzo O11ySentLogRecords.M(int64(v.Count)), ExporterHanzo O11ySentLogRecordsBytes.M(int64(v.Size)))
+		_ = stats.RecordWithTags(ctx, []tag.Mutator{tag.Upsert(usage.TagTenantKey, k), tag.Upsert(usage.TagExporterIdKey, e.id.String())}, ExporterHanzoO11ySentLogRecords.M(int64(v.Count)), ExporterHanzoO11ySentLogRecordsBytes.M(int64(v.Size)))
 	}
 
 	return nil
