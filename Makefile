@@ -1,7 +1,7 @@
 COMMIT_SHA ?= $(shell git rev-parse HEAD)
-REPONAME ?= signoz
-IMAGE_NAME ?= hanzo-otel-collector
-MIGRATOR_IMAGE_NAME ?= signoz-schema-migrator
+REPONAME ?= ghcr.io/hanzoai
+IMAGE_NAME ?= otel-collector
+MIGRATOR_IMAGE_NAME ?= o11y-schema-migrator
 CONFIG_FILE ?= ./config/default-config.yaml
 DOCKER_TAG ?= latest
 
@@ -13,8 +13,8 @@ GOFMT=gofmt
 FMT_LOG=.fmt.log
 IMPORT_LOG=.import.log
 
-CLICKHOUSE_HOST ?= 127.0.0.1
-CLICKHOUSE_PORT ?= 9000
+DATASTORE_HOST ?= 127.0.0.1
+DATASTORE_PORT ?= 9000
 
 LD_FLAGS ?=
 
@@ -34,8 +34,8 @@ test:
 
 .PHONY: build
 build:
-	go build -o .build/${GOOS}-${GOARCH}/hanzo-otel-collector ./cmd/signozotelcollector
-	go build -o .build/${GOOS}-${GOARCH}/signoz-schema-migrator ./cmd/signozschemamigrator
+	go build -o .build/${GOOS}-${GOARCH}/hanzo-otel-collector ./cmd/o11yotelcollector
+	go build -o .build/${GOOS}-${GOARCH}/o11y-schema-migrator ./cmd/o11yschemamigrator
 
 .PHONY: amd64
 amd64:
@@ -50,47 +50,47 @@ build-all: amd64 arm64
 
 .PHONY: run
 run:
-	go run cmd/signozotelcollector/main.go --config ${CONFIG_FILE}
+	go run cmd/o11yotelcollector/main.go --config ${CONFIG_FILE}
 
 .PHONY: fmt
 fmt:
 	@echo Running go fmt on query service ...
 	@$(GOFMT) -e -s -l -w .
 
-.PHONY: build-and-push-signoz-collector
-build-and-push-signoz-collector:
+.PHONY: build-and-push-collector
+build-and-push-collector:
 	@echo "------------------"
-	@echo  "--> Build and push signoz collector docker image"
+	@echo  "--> Build and push otel collector docker image"
 	@echo "------------------"
 	docker buildx build --platform linux/amd64,linux/arm64 --progress plain \
-		--no-cache --push -f cmd/signozotelcollector/Dockerfile \
+		--no-cache --push -f cmd/o11yotelcollector/Dockerfile \
 		--tag $(REPONAME)/$(IMAGE_NAME):$(DOCKER_TAG) .
 
-.PHONY: build-signoz-collector
-build-signoz-collector:
+.PHONY: build-collector
+build-collector:
 	@echo "------------------"
-	@echo  "--> Build signoz collector docker image"
+	@echo  "--> Build otel collector docker image"
 	@echo "------------------"
 	docker build --build-arg TARGETPLATFORM="linux/amd64" \
-		--no-cache -f cmd/signozotelcollector/Dockerfile --progress plain \
+		--no-cache -f cmd/o11yotelcollector/Dockerfile --progress plain \
 		--tag $(REPONAME)/$(IMAGE_NAME):$(DOCKER_TAG) .
 
-.PHONY: build-signoz-schema-migrator
-build-signoz-schema-migrator:
+.PHONY: build-schema-migrator
+build-schema-migrator:
 	@echo "------------------"
 	@echo  "--> Build schema migrator docker image"
 	@echo "------------------"
 	docker build --build-arg TARGETPLATFORM="linux/amd64" \
-		--no-cache -f cmd/signozschemamigrator/Dockerfile --progress plain \
+		--no-cache -f cmd/o11yschemamigrator/Dockerfile --progress plain \
 		--tag $(REPONAME)/$(MIGRATOR_IMAGE_NAME):$(DOCKER_TAG) .
 
-.PHONY: build-and-push-signoz-schema-migrator
-build-and-push-signoz-schema-migrator:
+.PHONY: build-and-push-schema-migrator
+build-and-push-schema-migrator:
 	@echo "------------------"
 	@echo  "--> Build and push schema migrator docker image"
 	@echo "------------------"
 	docker buildx build --platform linux/amd64,linux/arm64 --progress plain \
-		--no-cache --push -f cmd/signozschemamigrator/Dockerfile \
+		--no-cache --push -f cmd/o11yschemamigrator/Dockerfile \
 		--tag $(REPONAME)/$(MIGRATOR_IMAGE_NAME):$(DOCKER_TAG) .
 
 .PHONY: lint
@@ -107,6 +107,6 @@ test-ci: lint
 .PHONY: migrator
 migrator:
 	@echo "------------------"
-	@echo "--> Running schema migrator for $(CLICKHOUSE_HOST):$(CLICKHOUSE_PORT)"
+	@echo "--> Running schema migrator for $(DATASTORE_HOST):$(DATASTORE_PORT)"
 	@echo "------------------"
-	go run cmd/signozschemamigrator/main.go sync --dsn "clickhouse://$(CLICKHOUSE_HOST):$(CLICKHOUSE_PORT)" --dev
+	go run cmd/o11yschemamigrator/main.go sync --dsn "clickhouse://$(DATASTORE_HOST):$(DATASTORE_PORT)" --dev
