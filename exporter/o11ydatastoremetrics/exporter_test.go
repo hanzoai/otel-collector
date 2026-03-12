@@ -1,4 +1,4 @@
-package o11yclickhousemetrics
+package o11ydatastoremetrics
 
 import (
 	"context"
@@ -24,7 +24,7 @@ import (
 	"go.opentelemetry.io/otel/metric/noop"
 	"go.uber.org/zap"
 
-	internalmetadata "github.com/hanzoai/otel-collector/exporter/o11yclickhousemetrics/internal/metadata"
+	internalmetadata "github.com/hanzoai/otel-collector/exporter/o11ydatastoremetrics/internal/metadata"
 )
 
 func Test_prepareBatchGauge(t *testing.T) {

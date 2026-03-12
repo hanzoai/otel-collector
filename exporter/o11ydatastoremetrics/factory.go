@@ -1,11 +1,11 @@
-package o11yclickhousemetrics
+package o11ydatastoremetrics
 
 import (
 	"context"
 	"errors"
 
 	"github.com/ClickHouse/clickhouse-go/v2"
-	internalmetadata "github.com/hanzoai/otel-collector/exporter/o11yclickhousemetrics/internal/metadata"
+	internalmetadata "github.com/hanzoai/otel-collector/exporter/o11ydatastoremetrics/internal/metadata"
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/collector/component"

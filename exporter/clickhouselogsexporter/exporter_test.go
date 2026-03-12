@@ -187,7 +187,7 @@ func TestGetResourceAttributesByte(t *testing.T) {
 			plogs := plogsgen.Generate(plogsgen.WithResourceAttributeCount(10))
 
 			// get the base expected value
-			withoutHanzo O11yAttrs, err := getResourceAttributesByte(plogs.ResourceLogs().At(0).Resource())
+			withoutHanzoO11yAttrs, err := getResourceAttributesByte(plogs.ResourceLogs().At(0).Resource())
 			require.NoError(t, err)
 
 			// add the provided attributeand get the actual value
@@ -196,9 +196,9 @@ func TestGetResourceAttributesByte(t *testing.T) {
 			require.NoError(t, err)
 
 			if tc.pass {
-				assert.Equal(t, withoutHanzo O11yAttrs, WithNewAttribute)
+				assert.Equal(t, withoutHanzoO11yAttrs, WithNewAttribute)
 			} else {
-				assert.NotEqual(t, withoutHanzo O11yAttrs, WithNewAttribute)
+				assert.NotEqual(t, withoutHanzoO11yAttrs, WithNewAttribute)
 			}
 
 		})

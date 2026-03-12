@@ -1,3 +1,3 @@
 //go:generate mdatagen metadata.yaml
 
-package o11yclickhousemeter
+package o11ydatastoremeter

@@ -25,7 +25,7 @@ func TestTracesSizeWithNoEvents(t *testing.T) {
 	assert.Equal(t, 406, size)
 }
 
-func TestTracesSizeWithNoEventAndHanzo O11yResource(t *testing.T) {
+func TestTracesSizeWithNoEventAndHanzoO11yResource(t *testing.T) {
 	traces := ptracesgen.Generate(
 		ptracesgen.WithSpanCount(1),
 		ptracesgen.WithResourceAttributeCount(1),

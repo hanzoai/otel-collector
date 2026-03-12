@@ -1,4 +1,4 @@
-package o11yclickhousemetrics
+package o11ydatastoremetrics
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	internalmetadata "github.com/hanzoai/otel-collector/exporter/o11yclickhousemetrics/internal/metadata"
+	internalmetadata "github.com/hanzoai/otel-collector/exporter/o11ydatastoremetrics/internal/metadata"
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/google/uuid"
 	"go.opencensus.io/stats"
@@ -1127,7 +1127,7 @@ func (c *clickhouseMetricsExporter) writeBatch(ctx context.Context, batch *batch
 			}
 		}
 		for k, v := range metrics {
-			err = stats.RecordWithTags(ctx, []tag.Mutator{tag.Upsert(usage.TagTenantKey, k), tag.Upsert(usage.TagExporterIdKey, c.exporterID.String())}, ExporterHanzo O11ySentMetricPoints.M(int64(v.Count)), ExporterHanzo O11ySentMetricPointsBytes.M(int64(v.Size)))
+			err = stats.RecordWithTags(ctx, []tag.Mutator{tag.Upsert(usage.TagTenantKey, k), tag.Upsert(usage.TagExporterIdKey, c.exporterID.String())}, ExporterHanzoO11ySentMetricPoints.M(int64(v.Count)), ExporterHanzoO11ySentMetricPointsBytes.M(int64(v.Size)))
 			if err != nil {
 				c.logger.Error("error recording usage metric", zap.Error(err))
 			}

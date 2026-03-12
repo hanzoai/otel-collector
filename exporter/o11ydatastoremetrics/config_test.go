@@ -1,4 +1,4 @@
-package o11yclickhousemetrics
+package o11ydatastoremetrics
 
 import (
 	"testing"
