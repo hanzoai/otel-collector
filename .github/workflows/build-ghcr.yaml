@@ -6,90 +6,31 @@ on:
     tags: [v*]
   workflow_dispatch:
 
-env:
-  REGISTRY: ghcr.io
+permissions:
+  contents: read
+  packages: write
 
 jobs:
-  build-collector:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.24'
-      - name: Build Go binary
-        run: |
-          mkdir -p .build/linux-amd64
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o .build/linux-amd64/hanzo-otel-collector ./cmd/o11yotelcollector
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/hanzoai/otel-collector
-          tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=sha,prefix=
-            type=raw,value=latest,enable={{is_default_branch}}
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: cmd/o11yotelcollector/Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            TARGETOS=linux
-            TARGETARCH=amd64
+  collector:
+    uses: hanzoai/.github/.github/workflows/docker-build.yml@main
+    with:
+      image: ghcr.io/hanzoai/otel-collector
+      dockerfile: cmd/o11yotelcollector/Dockerfile
+      pre-build-command: |
+        ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+        mkdir -p .build/linux-${ARCH}
+        CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build \
+          -o .build/linux-${ARCH}/hanzo-otel-collector ./cmd/o11yotelcollector
+    secrets: inherit
 
-  build-schema-migrator:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.24'
-      - name: Build Go binary
-        run: |
-          mkdir -p .build/linux-amd64
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o .build/linux-amd64/o11y-schema-migrator ./cmd/o11yschemamigrator
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/hanzoai/o11y-schema-migrator
-          tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=sha,prefix=
-            type=raw,value=latest,enable={{is_default_branch}}
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: cmd/o11yschemamigrator/Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            TARGETOS=linux
-            TARGETARCH=amd64
+  schema-migrator:
+    uses: hanzoai/.github/.github/workflows/docker-build.yml@main
+    with:
+      image: ghcr.io/hanzoai/o11y-schema-migrator
+      dockerfile: cmd/o11yschemamigrator/Dockerfile
+      pre-build-command: |
+        ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+        mkdir -p .build/linux-${ARCH}
+        CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build \
+          -o .build/linux-${ARCH}/o11y-schema-migrator ./cmd/o11yschemamigrator
+    secrets: inherit
