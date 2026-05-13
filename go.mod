@@ -1,6 +1,6 @@
 module github.com/hanzoai/otel-collector
 
-go 1.26.1
+go 1.26.3
 
 require (
 	github.com/ClickHouse/ch-go v0.66.0
