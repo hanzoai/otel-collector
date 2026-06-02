@@ -1188,7 +1188,13 @@ func (p *processorImp) buildDimensionKVs(serviceName string, span ptrace.Span, o
 	dims.PutStr(operationKey, spanName)
 	dims.PutStr(spanKindKey, SpanKindStr(span.Kind()))
 	dims.PutStr(statusCodeKey, StatusCodeStr(span.Status().Code()))
+	dims.PutStr(signozID, p.instanceID)
+	dims.PutStr(resourcePrefix+signozID, p.instanceID)
 	for _, d := range optionalDims {
+		// Already tagged above from the collector instance ID.
+		if d.name == signozID {
+			continue
+		}
 		v, ok, foundInResource := getDimensionValueWithResource(d, span.Attributes(), resourceAttrs)
 		if ok {
 			v.CopyTo(dims.PutEmpty(d.name))
@@ -1215,8 +1221,13 @@ func (p *processorImp) buildCustomDimensionKVs(serviceName string, span ptrace.S
 		v.CopyTo(dims.PutEmpty(k))
 	}
 	dims.PutStr(statusCodeKey, StatusCodeStr(span.Status().Code()))
-
+	dims.PutStr(signozID, p.instanceID)
+	dims.PutStr(resourcePrefix+signozID, p.instanceID)
 	for _, d := range optionalDims {
+		// Already tagged above from the collector instance ID.
+		if d.name == signozID {
+			continue
+		}
 		v, ok, foundInResource := getDimensionValueWithResource(d, span.Attributes(), resourceAttrs)
 		if ok {
 			v.CopyTo(dims.PutEmpty(d.name))

@@ -4,6 +4,7 @@ package router
 
 import (
 	"fmt"
+	"maps"
 
 	"go.opentelemetry.io/collector/component"
 
@@ -61,6 +62,9 @@ func (c Config) Build(set component.TelemetrySettings) (operator.Operator, error
 	}
 
 	routes := make([]*Route, 0, len(c.Routes))
+	// allCompiledPatterns merges pre-compiled like/ilike matchers from every
+	// route so they can be injected into the single shared env at runtime.
+	allCompiledPatterns := map[string]func(s string) bool{}
 	for _, routeConfig := range c.Routes {
 		compiled, hasBodyFieldRef, err := o11ystanzahelper.ExprCompileBool(routeConfig.Expression)
 		if err != nil {
@@ -72,6 +76,7 @@ func (c Config) Build(set component.TelemetrySettings) (operator.Operator, error
 			return nil, fmt.Errorf("failed to build attributer for route '%s': %w", routeConfig.Expression, err)
 		}
 
+		maps.Copy(allCompiledPatterns, compiledPatterns)
 		route := Route{
 			Attributer:          attributer,
 			Expression:          compiled,
@@ -82,7 +87,8 @@ func (c Config) Build(set component.TelemetrySettings) (operator.Operator, error
 	}
 
 	return &Transformer{
-		BasicOperator: basicOperator,
-		routes:        routes,
+		BasicOperator:       basicOperator,
+		routes:              routes,
+		allCompiledPatterns: allCompiledPatterns,
 	}, nil
 }

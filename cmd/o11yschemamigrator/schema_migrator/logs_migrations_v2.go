@@ -273,13 +273,15 @@ ORDER BY name ASC`,
 				Database: O11yMetadataDB,
 				Table:    constants.LocalPathTypesTable,
 				Columns: []Column{
-					{Name: constants.PathTypesTablePathColumn, Type: ColumnTypeString, Codec: "ZSTD(1)"},
-					{Name: constants.PathTypesTableTypeColumn, Type: ColumnTypeString, Codec: "ZSTD(1)"},
-					{Name: constants.PathTypesTableLastSeenColumn, Type: ColumnTypeUInt64, Codec: "DoubleDelta, LZ4"},
+					{Name: "signal", Type: ColumnTypeString, Codec: "ZSTD(1)"},
+					{Name: "field_context", Type: ColumnTypeString, Codec: "ZSTD(1)"},
+					{Name: constants.FieldKeysTableNameColumn, Type: ColumnTypeString, Codec: "ZSTD(1)"},
+					{Name: constants.FieldKeysTableDataTypeColumn, Type: ColumnTypeString, Codec: "ZSTD(1)"},
+					{Name: constants.FieldKeysTableLastSeenColumn, Type: ColumnTypeUInt64, Codec: "DoubleDelta, LZ4"},
 				},
 				Engine: ReplacingMergeTree{
 					MergeTree: MergeTree{
-						OrderBy:     fmt.Sprintf("(%s, %s)", constants.PathTypesTablePathColumn, constants.PathTypesTableTypeColumn),
+						OrderBy:     fmt.Sprintf("(signal, field_context, %s, %s)", constants.FieldKeysTableNameColumn, constants.FieldKeysTableDataTypeColumn),
 						PartitionBy: "toDate(last_seen / 1000000000)",
 						TTL:         "toDateTime(last_seen / 1000000000) + toIntervalSecond(1296000)",
 						Settings: TableSettings{
@@ -293,9 +295,11 @@ ORDER BY name ASC`,
 				Database: O11yMetadataDB,
 				Table:    constants.DistributedPathTypesTable,
 				Columns: []Column{
-					{Name: constants.PathTypesTablePathColumn, Type: ColumnTypeString, Codec: "ZSTD(1)"},
-					{Name: constants.PathTypesTableTypeColumn, Type: ColumnTypeString, Codec: "ZSTD(1)"},
-					{Name: constants.PathTypesTableLastSeenColumn, Type: ColumnTypeUInt64, Codec: "DoubleDelta, LZ4"},
+					{Name: "signal", Type: ColumnTypeString, Codec: "ZSTD(1)"},
+					{Name: "field_context", Type: ColumnTypeString, Codec: "ZSTD(1)"},
+					{Name: constants.FieldKeysTableNameColumn, Type: ColumnTypeString, Codec: "ZSTD(1)"},
+					{Name: constants.FieldKeysTableDataTypeColumn, Type: ColumnTypeString, Codec: "ZSTD(1)"},
+					{Name: constants.FieldKeysTableLastSeenColumn, Type: ColumnTypeUInt64, Codec: "DoubleDelta, LZ4"},
 				},
 				Engine: Distributed{
 					Database:    O11yMetadataDB,
@@ -317,6 +321,12 @@ ORDER BY name ASC`,
 				Column: Column{
 					Name: constants.BodyV2Column,
 					Type: JSONColumnType{
+						Columns: []Column{
+							{
+								Name: "message",
+								Type: ColumnTypeString,
+							},
+						},
 						MaxDynamicPaths: utils.ToPointer[uint](0),
 					},
 					Codec: "ZSTD(1)",
@@ -331,6 +341,12 @@ ORDER BY name ASC`,
 				Column: Column{
 					Name: constants.BodyV2Column,
 					Type: JSONColumnType{
+						Columns: []Column{
+							{
+								Name: "message",
+								Type: ColumnTypeString,
+							},
+						},
 						MaxDynamicPaths: utils.ToPointer[uint](0),
 					},
 					Codec: "ZSTD(1)",
