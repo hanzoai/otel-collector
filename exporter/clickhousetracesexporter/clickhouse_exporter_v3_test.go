@@ -281,6 +281,41 @@ func Test_populateEventsV3(t *testing.T) {
 				},
 			},
 		},
+		// OTel semconv domain-specific exception event names should also be
+		// recognized. See: https://opentelemetry.io/docs/specs/semconv/http/http-exceptions/
+		{
+			name: "test_http_client_request_exception",
+			args: args{
+				events: func() ptrace.SpanEventSlice {
+					events := ptrace.NewSpanEventSlice()
+					event := events.AppendEmpty()
+					event.SetName("http.client.request.exception")
+					event.SetTimestamp(pcommon.NewTimestampFromTime(time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC)))
+					attrs := event.Attributes()
+					attrs.PutStr("exception.type", "TimeoutError")
+					attrs.PutStr("exception.message", "request timed out")
+					return events
+				}(),
+				span:                         &SpanV3{},
+				lowCardinalExceptionGrouping: false,
+			},
+			result: SpanV3{
+				ErrorEvents: []ErrorEvent{
+					{
+						Event: Event{
+							Name:         "http.client.request.exception",
+							TimeUnixNano: uint64(pcommon.NewTimestampFromTime(time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC)).AsTime().UnixNano()),
+							AttributeMap: map[string]string{
+								"exception.type":    "TimeoutError",
+								"exception.message": "request timed out",
+							},
+							IsError: true,
+						},
+						ErrorGroupID: "62de452df58795e9c308a703ccad5a3d",
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -309,6 +344,7 @@ func Test_newStructuredSpanV3(t *testing.T) {
 		otelSpan    ptrace.Span
 		ServiceName string
 		resource    pcommon.Resource
+		scope       pcommon.InstrumentationScope
 		config      storageConfig
 	}
 	tests := []struct {
@@ -350,6 +386,7 @@ func Test_newStructuredSpanV3(t *testing.T) {
 					v.PutDouble("map_double", 20.5)
 					return resource
 				}(),
+				scope:  ptrace.NewScopeSpans().Scope(),
 				config: storageConfig{},
 			},
 			want: &SpanV3{
@@ -396,6 +433,71 @@ func Test_newStructuredSpanV3(t *testing.T) {
 				HasError:    false,
 				References:  `[{"refType":"CHILD_OF"}]`,
 				ServiceName: "test_service",
+				Scope:       NewInstrumentationScope(ptrace.NewScopeSpans().Scope()),
+			},
+			wantErr: false,
+		},
+		{
+			name: "test_structured_span_with_scope",
+			args: args{
+				bucketStart: 0,
+				fingerprint: "test_fingerprint",
+				otelSpan: func() ptrace.Span {
+					span := ptrace.NewSpan()
+					span.SetName("test_span")
+					span.SetStartTimestamp(pcommon.NewTimestampFromTime(time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC)))
+					span.SetEndTimestamp(pcommon.NewTimestampFromTime(time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC)))
+					span.SetKind(ptrace.SpanKindServer)
+					span.SetTraceID(pcommon.NewTraceIDEmpty())
+					span.SetSpanID(pcommon.NewSpanIDEmpty())
+					return span
+				}(),
+				ServiceName: "test_service",
+				resource: func() pcommon.Resource {
+					resource := pcommon.NewResource()
+					resource.Attributes().PutStr("service.name", "test_service")
+					return resource
+				}(),
+				scope: func() pcommon.InstrumentationScope {
+					ss := ptrace.NewScopeSpans()
+					ss.Scope().SetName("io.opentelemetry.contrib.mongodb")
+					ss.Scope().SetVersion("1.2.3")
+					ss.Scope().Attributes().PutStr("custom.key", "custom.value")
+					ss.Scope().Attributes().PutStr("another.key", "another.value")
+					return ss.Scope()
+				}(),
+				config: storageConfig{},
+			},
+			want: &SpanV3{
+				TsBucketStart:     0,
+				FingerPrint:       "test_fingerprint",
+				StartTimeUnixNano: uint64(pcommon.NewTimestampFromTime(time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC)).AsTime().UnixNano()),
+				DurationNano:      0,
+				Name:              "test_span",
+				Kind:              2,
+				SpanKind:          "Server",
+				StatusCodeString:  "Unset",
+				AttributeString:   map[string]string{},
+				AttributesNumber:  map[string]float64{},
+				AttributesBool:    map[string]bool{},
+				ResourcesString: map[string]string{
+					"service.name": "test_service",
+				},
+				BillableResourcesString: map[string]string{
+					"service.name": "test_service",
+				},
+				Scope: NewInstrumentationScope(func() pcommon.InstrumentationScope {
+					ss := ptrace.NewScopeSpans()
+					ss.Scope().SetName("io.opentelemetry.contrib.mongodb")
+					ss.Scope().SetVersion("1.2.3")
+					ss.Scope().Attributes().PutStr("custom.key", "custom.value")
+					ss.Scope().Attributes().PutStr("another.key", "another.value")
+					return ss.Scope()
+				}()),
+				IsRemote:    "unknown",
+				HasError:    false,
+				References:  `[{"refType":"CHILD_OF"}]`,
+				ServiceName: "test_service",
 			},
 			wantErr: false,
 		},
@@ -434,6 +536,7 @@ func Test_newStructuredSpanV3(t *testing.T) {
 					v.PutDouble("map_double", 20.5)
 					return resource
 				}(),
+				scope:  ptrace.NewScopeSpans().Scope(),
 				config: storageConfig{},
 			},
 			want: &SpanV3{
@@ -481,19 +584,19 @@ func Test_newStructuredSpanV3(t *testing.T) {
 				HasError:    false,
 				References:  `[{"refType":"CHILD_OF"}]`,
 				ServiceName: "test_service",
+				Scope:       NewInstrumentationScope(ptrace.NewScopeSpans().Scope()),
 			},
 			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := newStructuredSpanV3(tt.args.bucketStart, tt.args.fingerprint, tt.args.otelSpan, tt.args.ServiceName, tt.args.resource, tt.args.config)
+			got, err := newStructuredSpanV3(tt.args.bucketStart, tt.args.fingerprint, tt.args.otelSpan, tt.args.ServiceName, tt.args.resource, tt.args.scope, tt.args.config)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("newStructuredSpanV3() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			got.Tenant = nil
-			got.SpanAttributes = []SpanAttribute{}
 			if got.TsBucketStart != tt.want.TsBucketStart ||
 				got.FingerPrint != tt.want.FingerPrint ||
 				got.StartTimeUnixNano != tt.want.StartTimeUnixNano ||
@@ -514,8 +617,32 @@ func Test_newStructuredSpanV3(t *testing.T) {
 				got.ResponseStatusCode != tt.want.ResponseStatusCode ||
 				got.IsRemote != tt.want.IsRemote ||
 				got.HasError != tt.want.HasError ||
-				got.References != tt.want.References {
+				got.References != tt.want.References ||
+				got.Scope.Name != tt.want.Scope.Name ||
+				got.Scope.Version != tt.want.Scope.Version ||
+				!reflect.DeepEqual(got.Scope.Attributes, tt.want.Scope.Attributes) {
 				t.Errorf("newStructuredSpanV3() mismatch:\ngot = %+v\nwant = %+v", got, tt.want)
+			}
+
+			// Verify scope attributes are registered in SpanAttributes with tag_type="scope"
+			gotScopeAttrs := make(map[string]string)
+			for _, sa := range got.SpanAttributes {
+				if sa.TagType == "scope" {
+					gotScopeAttrs[sa.Key] = sa.StringValue
+				}
+			}
+			wantScopeAttrs := make(map[string]string)
+			if tt.want.Scope.Name != "" {
+				wantScopeAttrs["scope.name"] = tt.want.Scope.Name
+			}
+			if tt.want.Scope.Version != "" {
+				wantScopeAttrs["scope.version"] = tt.want.Scope.Version
+			}
+			for k, v := range tt.want.Scope.Attributes {
+				wantScopeAttrs[k] = v
+			}
+			if !reflect.DeepEqual(gotScopeAttrs, wantScopeAttrs) {
+				t.Errorf("scope SpanAttributes mismatch:\ngot = %+v\nwant = %+v", gotScopeAttrs, wantScopeAttrs)
 			}
 		})
 	}

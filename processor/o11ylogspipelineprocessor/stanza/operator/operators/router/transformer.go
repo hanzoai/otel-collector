@@ -20,7 +20,8 @@ import (
 // Transformer is an operator that routes entries based on matching expressions
 type Transformer struct {
 	helper.BasicOperator
-	routes []*Route
+	routes              []*Route
+	allCompiledPatterns map[string]func(s string) bool
 }
 
 // Route is a route on a router operator
@@ -61,14 +62,21 @@ func (t *Transformer) Process(ctx context.Context, entry *entry.Entry) error {
 				return err
 			}
 
-			for _, output := range route.OutputOperators {
-				_ = output.Process(ctx, entry)
-			}
-			break
-		}
-	}
+			// we compile the expression with "AsBool", so this should be safe
+			if matches.(bool) {
+				if err := route.Attribute(entry); err != nil {
+					t.Logger().Error("Failed to label entry", zap.Error(err))
+					return err
+				}
 
-	return nil
+				for _, output := range route.OutputOperators {
+					_ = output.Process(ctx, entry)
+				}
+				break
+			}
+		}
+		return nil
+	})
 }
 
 func (t *Transformer) ProcessBatch(ctx context.Context, entries []*entry.Entry) error {

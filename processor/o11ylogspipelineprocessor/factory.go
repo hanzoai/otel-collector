@@ -12,7 +12,6 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/processor"
-	"go.opentelemetry.io/collector/processor/processorhelper"
 
 	"github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/internal/metadata"
 )
@@ -33,10 +32,8 @@ func createDefaultConfig() component.Config {
 	}
 }
 
-var processorCapabilities = consumer.Capabilities{MutatesData: true}
-
 func createLogsProcessor(
-	ctx context.Context,
+	_ context.Context,
 	set processor.Settings,
 	cfg component.Config,
 	nextConsumer consumer.Logs,
@@ -49,19 +46,10 @@ func createLogsProcessor(
 		return nil, errors.New("no operators were configured for o11ylogspipeline processor")
 	}
 
-	proc, err := newLogsPipelineProcessor(pCfg, set.TelemetrySettings)
+	proc, err := newLogsPipelineProcessor(pCfg, set, nextConsumer)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't build \"o11ylogspipeline\" processor %w", err)
 	}
 
-	return processorhelper.NewLogs(
-		ctx,
-		set,
-		cfg,
-		nextConsumer,
-		proc.ProcessLogs,
-		processorhelper.WithStart(proc.Start),
-		processorhelper.WithShutdown(proc.Shutdown),
-		processorhelper.WithCapabilities(processorCapabilities),
-	)
+	return proc, nil
 }

@@ -121,7 +121,7 @@ func (e *SpanWriter) doFetchShouldSkipKeys() {
 
 	shouldSkipKeys := make(map[string]shouldSkipKey)
 	for _, key := range keys {
-		mapKey := utils.MakeKeyForAttributeKeys(key.TagKey, utils.TagType(key.TagType), utils.TagDataType(key.TagDataType))
+		mapKey := utils.MakeKeyForAttributeKeys(key.TagKey, utils.TagType(key.TagType), utils.FieldDataType(key.TagDataType))
 		e.logger.Debug("adding to should skip keys", zap.String("key", mapKey), zap.Any("string_count", key.StringCount), zap.Any("number_count", key.NumberCount))
 		shouldSkipKeys[mapKey] = key
 	}
@@ -160,6 +160,11 @@ func (w *SpanWriter) writeIndexBatchV3(ctx context.Context, batchSpans []*SpanV3
 			w.logger.Warn("resourcemap exceeded the limit of 100 keys")
 		}
 
+		marshalledScope, err := json.Marshal(span.Scope)
+		if err != nil {
+			w.logger.Warn("error marshalling instrumentation scope", zap.String("span_id", span.SpanId))
+		}
+
 		err = statement.Append(
 			span.TsBucketStart,
 			span.FingerPrint,
@@ -181,6 +186,7 @@ func (w *SpanWriter) writeIndexBatchV3(ctx context.Context, batchSpans []*SpanV3
 			span.AttributesBool,
 			span.ResourcesString,
 			span.ResourcesString,
+			marshalledScope,
 			span.Events,
 			span.References,
 
@@ -339,7 +345,7 @@ func (w *SpanWriter) writeTagBatchV3(ctx context.Context, batchSpans []*SpanV3) 
 			}
 			// add mapOfSpanAttributeKey to map
 			mapOfSpanAttributeKeys[mapOfSpanAttributeKey] = struct{}{}
-			v2Key := utils.MakeKeyForAttributeKeys(spanAttribute.Key, utils.TagType(spanAttribute.TagType), utils.TagDataType(spanAttribute.DataType))
+			v2Key := utils.MakeKeyForAttributeKeys(spanAttribute.Key, utils.TagType(spanAttribute.TagType), utils.FieldDataType(spanAttribute.DataType))
 
 			if len(spanAttribute.StringValue) > common.MaxAttributeValueLength {
 				w.logger.Debug("attribute value length exceeds the limit", zap.String("key", spanAttribute.Key))
@@ -395,19 +401,19 @@ func (w *SpanWriter) writeTagBatchV3(ctx context.Context, batchSpans []*SpanV3) 
 		if _, ok := mapOfSpanFields[span.Name]; !ok {
 			mapOfSpanFields[span.Name] = struct{}{}
 			// TODO: handle error
-			_ = tagStatementV2.Append(unixMilli, "name", utils.TagTypeSpanField, utils.TagDataTypeString, span.Name, nil)
+			_ = tagStatementV2.Append(unixMilli, "name", utils.TagTypeSpanField, utils.FieldDataTypeString, span.Name, nil)
 		}
 		if _, ok := mapOfSpanFields[span.SpanKind]; !ok {
 			mapOfSpanFields[span.SpanKind] = struct{}{}
 			// TODO: handle error
-			_ = tagStatementV2.Append(unixMilli, "kind_string", utils.TagTypeSpanField, utils.TagDataTypeString, span.SpanKind, nil)
-			_ = tagStatementV2.Append(unixMilli, "kind", utils.TagTypeSpanField, utils.TagDataTypeNumber, nil, float64(span.Kind))
+			_ = tagStatementV2.Append(unixMilli, "kind_string", utils.TagTypeSpanField, utils.FieldDataTypeString, span.SpanKind, nil)
+			_ = tagStatementV2.Append(unixMilli, "kind", utils.TagTypeSpanField, utils.FieldDataTypeFloat64, nil, float64(span.Kind))
 		}
 		if _, ok := mapOfSpanFields[span.StatusCodeString]; !ok {
 			mapOfSpanFields[span.StatusCodeString] = struct{}{}
 			// TODO: handle error
-			_ = tagStatementV2.Append(unixMilli, "status_code_string", utils.TagTypeSpanField, utils.TagDataTypeString, span.StatusCodeString, nil)
-			_ = tagStatementV2.Append(unixMilli, "status_code", utils.TagTypeSpanField, utils.TagDataTypeNumber, nil, float64(span.StatusCode))
+			_ = tagStatementV2.Append(unixMilli, "status_code_string", utils.TagTypeSpanField, utils.FieldDataTypeString, span.StatusCodeString, nil)
+			_ = tagStatementV2.Append(unixMilli, "status_code", utils.TagTypeSpanField, utils.FieldDataTypeFloat64, nil, float64(span.StatusCode))
 		}
 	}
 
