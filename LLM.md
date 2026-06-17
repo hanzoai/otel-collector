@@ -1,3 +1,3 @@
-# otel-collector — AI Assistant Context
+# otel-collector
 
 # Hanzo O11y Otel Collector
