@@ -1,4 +1,4 @@
-package signozstanzahelper
+package o11ystanzahelper
 
 import (
 	"testing"

@@ -12,12 +12,13 @@ import (
 
 	"github.com/goccy/go-json"
 
+	"github.com/google/uuid"
 	"github.com/hanzoai/otel-collector/pkg/metering"
+	tracesschema "github.com/hanzoai/otel-collector/pkg/schema/traces"
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/hanzoai/otel-collector/utils"
 	"github.com/hanzoai/otel-collector/utils/fingerprint"
 	"github.com/hanzoai/otel-collector/utils/flatten"
-	"github.com/google/uuid"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 	conventions "go.opentelemetry.io/otel/semconv/v1.27.0"

@@ -6,10 +6,16 @@ const (
 	BodyPromotedColumn       = "body_promoted"
 	BodyPromotedColumnPrefix = "body_promoted."
 
-	O11yMetadataDB             = "signoz_metadata"
+	O11yMetadataDB               = "signoz_metadata"
 	LocalPathTypesTable          = "json_path_types"
 	DistributedPathTypesTable    = "distributed_json_path_types"
 	PathTypesTablePathColumn     = "path"
 	PathTypesTableTypeColumn     = "type"
 	PathTypesTableLastSeenColumn = "last_seen"
+
+	// field_keys table column names (values kept byte-identical to the schema
+	// shared with the metadata exporter's distributed_field_keys writer).
+	FieldKeysTableNameColumn     = "field_name"
+	FieldKeysTableDataTypeColumn = "field_data_type"
+	FieldKeysTableLastSeenColumn = "last_seen"
 )
