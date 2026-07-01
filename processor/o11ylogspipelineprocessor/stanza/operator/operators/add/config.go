@@ -35,8 +35,8 @@ func NewConfigWithID(operatorID string) *Config {
 // Config is the configuration of an add operator
 type Config struct {
 	o11ystanzahelper.TransformerConfig `mapstructure:",squash"`
-	Field                                entry.Field `mapstructure:"field"`
-	Value                                any         `mapstructure:"value,omitempty"`
+	Field                              entry.Field `mapstructure:"field"`
+	Value                              any         `mapstructure:"value,omitempty"`
 }
 
 // Build will build an add operator from the supplied configuration
@@ -58,12 +58,13 @@ func (c Config) Build(set component.TelemetrySettings) (operator.Operator, error
 	exprStr := strings.TrimPrefix(strVal, "EXPR(")
 	exprStr = strings.TrimSuffix(exprStr, ")")
 
-	compiled, hasBodyFieldRef, err := o11ystanzahelper.ExprCompile(exprStr)
+	compiled, hasBodyFieldRef, compiledPatterns, err := o11ystanzahelper.ExprCompile(exprStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to compile expression '%s': %w", c.IfExpr, err)
 	}
 
 	addOperator.program = compiled
 	addOperator.valueExprHasBodyFieldRef = hasBodyFieldRef
+	addOperator.compiledPatterns = compiledPatterns
 	return addOperator, nil
 }

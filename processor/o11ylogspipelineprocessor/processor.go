@@ -24,6 +24,7 @@ import (
 	"go.uber.org/zap"
 
 	_ "github.com/hanzoai/otel-collector/pkg/parser/grok" // ensure grok parser gets registered.
+	"github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/internal/metadata"
 )
 
 type logsPipelineProcessor struct {

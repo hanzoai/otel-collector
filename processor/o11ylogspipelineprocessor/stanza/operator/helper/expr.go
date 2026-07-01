@@ -1,6 +1,6 @@
 // Mostly brought in as-is from otel-collector-contrib with the following changes:
 // - GetExprEnv includes severity_text and severity_number
-// - signozExprPatcher rewrites like/ilike AST nodes for compile-time pattern compilation
+// - o11yExprPatcher rewrites like/ilike AST nodes for compile-time pattern compilation
 
 package o11ystanzahelper
 
@@ -10,11 +10,11 @@ import (
 	"os"
 	"sync"
 
-	o11ystanzaentry "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/entry"
-	"github.com/hanzoai/otel-collector/utils"
 	"github.com/expr-lang/expr"
 	"github.com/expr-lang/expr/ast"
 	"github.com/expr-lang/expr/vm"
+	o11ystanzaentry "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/entry"
+	"github.com/hanzoai/otel-collector/utils"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza/entry"
 )
 
@@ -128,6 +128,12 @@ type o11yExprPatcher struct {
 	errs []error
 }
 
+// error aggregates the compile-time errors collected during the AST walk into a
+// single error, or returns nil if none were encountered.
+func (p *o11yExprPatcher) error() error {
+	return errors.Join(p.errs...)
+}
+
 func (p *o11yExprPatcher) Visit(node *ast.Node) {
 	// Change all references to fields inside body (eg: body.request.id)
 	// to refer inside body_map instead (eg: body_map.request.id)
@@ -187,7 +193,7 @@ func (p *o11yExprPatcher) Visit(node *ast.Node) {
 //	             inject it into the env before vm.Run.
 //	4 — rewrite: mutate the CallNode to call __like_3f8a1c2d(body) instead of
 //	             like(body, "%error%"), dropping the now-baked-in pattern arg.
-func (p *signozExprPatcher) rewriteLikeCall(n *ast.CallNode, c *ast.IdentifierNode) {
+func (p *o11yExprPatcher) rewriteLikeCall(n *ast.CallNode, c *ast.IdentifierNode) {
 	// ── Arity check ───────────────────────────────────────────────────────
 	if len(n.Arguments) != 2 {
 		p.errs = append(p.errs, fmt.Errorf(

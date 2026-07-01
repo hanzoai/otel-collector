@@ -338,8 +338,8 @@ func TestAggregateMetricsDoesNotMutateSpans(t *testing.T) {
 
 	rss := traces.ResourceSpans()
 	for i := 0; i < rss.Len(); i++ {
-		_, found := rss.At(i).Resource().Attributes().Get(signozID)
-		assert.False(t, found, "%s must not be set on spans", signozID)
+		_, found := rss.At(i).Resource().Attributes().Get(o11yID)
+		assert.False(t, found, "%s must not be set on spans", o11yID)
 	}
 }
 
@@ -817,12 +817,12 @@ func TestBuildDimensionKVsTagsCollectorID(t *testing.T) {
 
 	dims := p.buildDimensionKVs("svc", ptrace.NewSpan(), nil, pcommon.NewMap())
 
-	v, ok := dims.Get(signozID)
-	require.True(t, ok, "%s must be present as a label", signozID)
+	v, ok := dims.Get(o11yID)
+	require.True(t, ok, "%s must be present as a label", o11yID)
 	assert.Equal(t, testID, v.Str())
 
-	rv, ok := dims.Get(resourcePrefix + signozID)
-	require.True(t, ok, "%s%s must be present as a label", resourcePrefix, signozID)
+	rv, ok := dims.Get(resourcePrefix + o11yID)
+	require.True(t, ok, "%s%s must be present as a label", resourcePrefix, o11yID)
 	assert.Equal(t, testID, rv.Str())
 }
 

@@ -66,7 +66,7 @@ func (c Config) Build(set component.TelemetrySettings) (operator.Operator, error
 	// route so they can be injected into the single shared env at runtime.
 	allCompiledPatterns := map[string]func(s string) bool{}
 	for _, routeConfig := range c.Routes {
-		compiled, hasBodyFieldRef, err := o11ystanzahelper.ExprCompileBool(routeConfig.Expression)
+		compiled, hasBodyFieldRef, compiledPatterns, err := o11ystanzahelper.ExprCompileBool(routeConfig.Expression)
 		if err != nil {
 			return nil, fmt.Errorf("failed to compile expression '%s': %w", routeConfig.Expression, err)
 		}

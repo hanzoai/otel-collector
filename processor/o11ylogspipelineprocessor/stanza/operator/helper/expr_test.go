@@ -1,4 +1,4 @@
-package signozstanzahelper
+package o11ystanzahelper
 
 import (
 	"testing"
@@ -162,7 +162,7 @@ func TestExprILike(t *testing.T) {
 // wrong arity, non-string patterns, or a non-bool result type are rejected by
 // ExprCompileBool at compile time.
 //
-// Arity and pattern-type errors are caught by signozExprPatcher.Visit during
+// Arity and pattern-type errors are caught by o11yExprPatcher.Visit during
 // the expr.Compile AST walk and returned by ExprCompileBool immediately —
 // they never reach vm.Run. Syntax errors are caught by expr.Compile itself.
 func TestExprCompileBoolErrors(t *testing.T) {

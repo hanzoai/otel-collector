@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strings"
 
-	o11ystanzahelper "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator/helper"
 	"github.com/expr-lang/expr/vm"
+	o11ystanzahelper "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator/helper"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza/entry"
 )
@@ -21,6 +21,7 @@ type Transformer struct {
 	Value                    any
 	program                  *vm.Program
 	valueExprHasBodyFieldRef bool
+	compiledPatterns         map[string]func(s string) bool
 }
 
 // Process will process an entry with a add transformation.
@@ -38,10 +39,12 @@ func (t *Transformer) Transform(e *entry.Entry) error {
 		return e.Set(t.Field, t.Value)
 	}
 	if t.program != nil {
-		env := o11ystanzahelper.GetExprEnv(e, t.valueExprHasBodyFieldRef)
-		defer o11ystanzahelper.PutExprEnv(env)
-
-		result, err := vm.Run(t.program, env)
+		var result any
+		err := o11ystanzahelper.RunWithExprEnv(e, t.valueExprHasBodyFieldRef, t.compiledPatterns, func(env map[string]any) error {
+			var runErr error
+			result, runErr = vm.Run(t.program, env)
+			return runErr
+		})
 		if err != nil {
 			return fmt.Errorf("evaluate value_expr: %w", err)
 		}
