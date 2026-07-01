@@ -25,10 +25,11 @@ import (
 
 	"github.com/ClickHouse/clickhouse-go/v2"
 	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 	"github.com/hanzoai/otel-collector/internal/common"
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/hanzoai/otel-collector/utils"
-	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/tag"

@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"slices"
 
-	o11ystanzahelper "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator/helper"
 	"github.com/expr-lang/expr/vm"
+	o11ystanzahelper "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator/helper"
 	"go.uber.org/multierr"
 	"go.uber.org/zap"
 
@@ -45,21 +45,12 @@ func (t *Transformer) Process(ctx context.Context, entry *entry.Entry) error {
 	routesHaveBodyFieldRef := slices.ContainsFunc(
 		t.routes, func(r *Route) bool { return r.exprHasBodyFieldRef },
 	)
-	env := o11ystanzahelper.GetExprEnv(entry, routesHaveBodyFieldRef)
-	defer o11ystanzahelper.PutExprEnv(env)
-
-	for _, route := range t.routes {
-		matches, err := vm.Run(route.Expression, env)
-		if err != nil {
-			t.Logger().Warn("Running expression returned an error", zap.Error(err))
-			continue
-		}
-
-		// we compile the expression with "AsBool", so this should be safe
-		if matches.(bool) {
-			if err := route.Attribute(entry); err != nil {
-				t.Logger().Error("Failed to label entry", zap.Error(err))
-				return err
+	return o11ystanzahelper.RunWithExprEnv(entry, routesHaveBodyFieldRef, t.allCompiledPatterns, func(env map[string]any) error {
+		for _, route := range t.routes {
+			matches, err := vm.Run(route.Expression, env)
+			if err != nil {
+				t.Logger().Warn("Running expression returned an error", zap.Error(err))
+				continue
 			}
 
 			// we compile the expression with "AsBool", so this should be safe

@@ -6,10 +6,10 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/bytedance/sonic"
 	o11ystanzaentry "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/entry"
 	o11ystanzahelper "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator/helper"
 	"github.com/hanzoai/otel-collector/utils"
-	"github.com/bytedance/sonic"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza/entry"
 	"go.opentelemetry.io/otel/metric"
 	"go.uber.org/zap"
@@ -79,7 +79,7 @@ func (p *Processor) processTextLogs(str string) map[string]any {
 
 // getMessage returns the "message" field value, treating nil as missing and
 // removing the nil entry so downstream steps see a clean state.
-func getMessage(e *entry.Entry, field signozstanzaentry.Field) (any, bool) {
+func getMessage(e *entry.Entry, field o11ystanzaentry.Field) (any, bool) {
 	val, exists := e.Get(field)
 	if !exists {
 		return nil, false
@@ -159,7 +159,7 @@ func (p *Processor) normalize(entry *entry.Entry) {
 				// delete "message" first, then shift all inner keys to top level
 				entry.Delete(message)
 				for key, value := range mapValue {
-					entry.Set(signozstanzaentry.NewBodyField(key), value)
+					entry.Set(o11ystanzaentry.NewBodyField(key), value)
 				}
 			}
 		}
