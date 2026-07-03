@@ -29,12 +29,11 @@ images:
     context: .
     dockerfile: cmd/o11yschemamigrator/Dockerfile.selfbuild
 
-# Fast, targeted gate on the ZAP wire (the surface this repo adds over upstream).
-# A full `go test ./...` on this distro is minutes-long; the ZAP receiver+exporter
-# are what must never regress, so we gate exactly those.
-test:
-  - name: zap-transport
-    run: go test ./receiver/zapreceiver/... ./exporter/zapexporter/...
+# NOTE: no `test:` here. The reusable runs `test:` on a bare arc runner (no Go
+# toolchain; DinD daemon, so bind-mounts don't cross), so the ZAP-surface gate
+# (`go test ./receiver/zapreceiver/... ./exporter/zapexporter/...`) lives in the
+# collector's Dockerfile.selfbuild build stage instead — where the toolchain and
+# source already are, and a failing test fails the image. One gate, one place.
 
 # On push to main, roll the in-cluster collector Deployment to the freshly-built
 # immutable tag. (The otel-collector-config ConfigMap + the otel-agent DaemonSet
