@@ -1,0 +1,25 @@
+# Self-contained multi-stage build of the O11y ClickHouse schema migrator.
+#
+# Unlike ./Dockerfile (which COPYs a binary a CI pre-build-command produced), this
+# compiles the migrator in-image, so the canonical Hanzo CI (hanzoai/ci reads the
+# root hanzo.yml → plain `docker buildx build`, no pre-build step) can produce it,
+# and an in-cluster Kaniko/BuildKit build can too. Mirrors
+# cmd/o11yotelcollector/Dockerfile.selfbuild.
+FROM golang:1.26-bookworm AS build
+WORKDIR /src
+# Prime the module cache first for better layer reuse.
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+ARG TARGETOS=linux
+ARG TARGETARCH=amd64
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+    go build -trimpath -o /out/o11y-schema-migrator ./cmd/o11yschemamigrator
+
+FROM debian:bookworm-slim
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+ARG USER_UID=10001
+USER ${USER_UID}
+COPY --from=build /out/o11y-schema-migrator /o11y-schema-migrator
+ENTRYPOINT [ "/o11y-schema-migrator" ]
+CMD ["--dsn", "tcp://localhost:9000"]
