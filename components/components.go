@@ -9,6 +9,7 @@ import (
 	"github.com/hanzoai/otel-collector/exporter/o11ydatastoremeter"
 	"github.com/hanzoai/otel-collector/exporter/o11ydatastoremetrics"
 	"github.com/hanzoai/otel-collector/exporter/o11ykafkaexporter"
+	"github.com/hanzoai/otel-collector/exporter/zapexporter"
 	o11yhealthcheckextension "github.com/hanzoai/otel-collector/extension/healthcheckextension"
 	_ "github.com/hanzoai/otel-collector/pkg/parser/grok"
 	"github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor"
@@ -19,6 +20,7 @@ import (
 	"github.com/hanzoai/otel-collector/receiver/httplogreceiver"
 	"github.com/hanzoai/otel-collector/receiver/o11yawsfirehosereceiver"
 	"github.com/hanzoai/otel-collector/receiver/o11ykafkareceiver"
+	"github.com/hanzoai/otel-collector/receiver/zapreceiver"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/connector/countconnector"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/connector/datadogconnector"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/connector/exceptionsconnector"
@@ -355,6 +357,9 @@ func Components() (otelcol.Factories, error) {
 		clickhouselogsexporter.NewFactory(),
 		o11ydatastoremetrics.NewFactory(),
 		clickhousetracesexporter.NewFactory(),
+		// ZAP-native OTLP exporter — forwards signals to another collector's
+		// ZAP receiver over the ZAP wire (used by the filelog log-agent).
+		zapexporter.NewFactory(),
 		debugexporter.NewFactory(),
 		fileexporter.NewFactory(),
 		googlecloudpubsubexporter.NewFactory(),
@@ -483,6 +488,9 @@ func CoreComponents(
 		receivers,
 		otlpreceiver.NewFactory(),
 		nopreceiver.NewFactory(),
+		// ZAP-native OTLP receiver — Hanzo services ship telemetry over the
+		// ZAP wire (zap-proto/http); OTLP above stays as an interop endpoint.
+		zapreceiver.NewFactory(),
 	)
 	receiversMap, err := otelcol.MakeFactoryMap(receivers...)
 	if err != nil {
