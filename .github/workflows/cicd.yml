@@ -1,0 +1,16 @@
+# Canonical Hanzo CI/CD. All build/test/deploy logic lives ONCE in the reusable
+# hanzoai/ci workflow; this file only wires triggers + secrets. The reusable reads
+# the root hanzo.yml and runs on our self-hosted arc pool (hanzo-build-linux-amd64)
+# by default — no GitHub-hosted minutes. This is the going-forward pattern for all
+# native-PaaS repos; do not add per-repo build logic here.
+name: cicd
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  cicd:
+    uses: hanzoai/ci/.github/workflows/build.yml@main
+    secrets: inherit
