@@ -19,6 +19,11 @@ RUN go mod download
 COPY . .
 ARG TARGETOS=linux
 ARG TARGETARCH=amd64
+# Gate the ZAP surface (the receiver+exporter this distro adds over upstream) in
+# the build itself — the canonical CI runs `test:` on a bare arc runner with no
+# Go toolchain and a DinD daemon (bind-mounts don't cross), so the test lives
+# here where the toolchain + source already are. A failing test fails the image.
+RUN CGO_ENABLED=0 go test ./receiver/zapreceiver/... ./exporter/zapexporter/...
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
     go build -trimpath -o /out/hanzo-otel-collector ./cmd/o11yotelcollector
 
