@@ -16,5 +16,5 @@ jobs:
     # hanzoai/ci@main currently fails on the stock arc runner (missing PyYAML/jq);
     # the fix is hanzoai/ci#4 (fix/provision-parse-toolchain). Flip back to @main
     # the moment #4 merges — that is the one-and-only canonical import.
-    uses: hanzoai/ci/.github/workflows/build.yml@fix/provision-parse-toolchain
+    uses: hanzoai/ci/.github/workflows/build.yml@main
     secrets: inherit
