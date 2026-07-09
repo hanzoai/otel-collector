@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	databaseName = "signoz_logs"
+	databaseName = "o11y_logs"
 )
 
 // NewFactory creates a factory for Elastic exporter.
