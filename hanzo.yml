@@ -22,8 +22,8 @@ images:
     dockerfile: cmd/o11yotelcollector/Dockerfile.selfbuild
     tag-suffix: zap-native
 
-  # ClickHouse schema migrator — creates/updates the signoz_logs / signoz_traces /
-  # signoz_metrics DDL in hanzoai/datastore. Self-building (mirrors the collector).
+  # ClickHouse schema migrator — creates/updates the o11y_logs / o11y_traces /
+  # o11y_metrics DDL in hanzoai/datastore. Self-building (mirrors the collector).
   - name: schema-migrator
     repo: ghcr.io/hanzoai/o11y-schema-migrator
     context: .
