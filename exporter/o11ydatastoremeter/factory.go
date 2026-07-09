@@ -55,7 +55,7 @@ func createDefaultConfig() component.Config {
 		BackOffConfig:    configretry.NewDefaultBackOffConfig(),
 		QueueBatchConfig: configoptional.Some(exporterhelper.NewDefaultQueueConfig()),
 		DSN:              "tcp://localhost:9000",
-		Database:         "signoz_meter",
+		Database:         "o11y_meter",
 		SamplesTable:     "distributed_samples",
 	}
 }
