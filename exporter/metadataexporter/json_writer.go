@@ -23,7 +23,7 @@ import (
 
 const (
 	distributedFieldKeysTable  = constants.SignozMetadataDB + "." + constants.DistributedFieldKeysTable
-	distributedTagAttrsV2Table = "signoz_logs.distributed_tag_attributes_v2"
+	distributedTagAttrsV2Table = "o11y_logs.distributed_tag_attributes_v2"
 
 	jsonArraySuffix  = "[]"
 	jsonMessageField = "message"
@@ -138,8 +138,8 @@ func appendTypeSet(ta *typesAccumulator, signal, context string, stmt driver.Bat
 // feeding both type collection and value suggestions from one traversal.
 //
 // It writes to two tables per flush:
-//   - signoz_metadata.distributed_json_path_types  (path → ClickHouse type)
-//   - signoz_logs.distributed_tag_attributes_v2    (path → value, tag_type=source)
+//   - o11y_metadata.distributed_json_path_types  (path → ClickHouse type)
+//   - o11y_logs.distributed_tag_attributes_v2    (path → value, tag_type=source)
 type jsonMetadataWriter struct {
 	cfg              JSONConfig
 	logger           *zap.Logger
