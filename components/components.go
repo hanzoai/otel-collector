@@ -2,8 +2,8 @@ package components
 
 import (
 	"github.com/hanzoai/otel-collector/connectors/o11ymeterconnector"
-	"github.com/hanzoai/otel-collector/exporter/clickhouselogsexporter"
-	"github.com/hanzoai/otel-collector/exporter/clickhousetracesexporter"
+	"github.com/hanzoai/otel-collector/exporter/datastorelogsexporter"
+	"github.com/hanzoai/otel-collector/exporter/datastoretracesexporter"
 	"github.com/hanzoai/otel-collector/exporter/jsontypeexporter"
 	"github.com/hanzoai/otel-collector/exporter/metadataexporter"
 	"github.com/hanzoai/otel-collector/exporter/o11ydatastoremeter"
@@ -354,9 +354,9 @@ func Components() (otelcol.Factories, error) {
 		awskinesisexporter.NewFactory(),
 		awss3exporter.NewFactory(),
 		cassandraexporter.NewFactory(),
-		clickhouselogsexporter.NewFactory(),
+		datastorelogsexporter.NewFactory(),
 		o11ydatastoremetrics.NewFactory(),
-		clickhousetracesexporter.NewFactory(),
+		datastoretracesexporter.NewFactory(),
 		// ZAP-native OTLP exporter — forwards signals to another collector's
 		// ZAP receiver over the ZAP wire (used by the filelog log-agent).
 		zapexporter.NewFactory(),
