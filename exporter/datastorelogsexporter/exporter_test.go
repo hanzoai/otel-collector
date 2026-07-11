@@ -60,7 +60,7 @@ func testOptions(t *testing.T) []LogExporterOption {
 }
 
 // setupTestExporter creates a new exporter with mock ClickHouse client for testing
-func setupTestExporter(t *testing.T, mock driver.Conn) *clickhouseLogsExporter {
+func setupTestExporter(t *testing.T, mock driver.Conn) *datastoreLogsExporter {
 	opts := testOptions(t)
 	opts = append(opts, WithDatastoreClient(mock))
 	id := uuid.New()
@@ -206,7 +206,7 @@ func TestGetResourceAttributesByte(t *testing.T) {
 }
 
 // setupTestExporterWithConcurrency creates a new exporter with mock ClickHouse client and custom concurrency for testing
-func setupTestExporterWithConcurrency(t *testing.T, mock driver.Conn, concurrency int) *clickhouseLogsExporter {
+func setupTestExporterWithConcurrency(t *testing.T, mock driver.Conn, concurrency int) *datastoreLogsExporter {
 	opts := testOptions(t)
 	id := uuid.New()
 	opts = append(opts, WithDatastoreClient(mock), WithNewUsageCollector(id, mock), WithConcurrency(concurrency))

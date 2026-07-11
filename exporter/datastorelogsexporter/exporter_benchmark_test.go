@@ -18,7 +18,7 @@ import (
 )
 
 // setupBenchmarkExporter creates a new exporter with mock ClickHouse client for benchmarking
-func setupBenchmarkExporter(b *testing.B, mock driver.Conn) *clickhouseLogsExporter {
+func setupBenchmarkExporter(b *testing.B, mock driver.Conn) *datastoreLogsExporter {
 	// keys cache is used to avoid duplicate inserts for the same attribute key.
 	keysCache := ttlcache.New(
 		ttlcache.WithTTL[string, struct{}](240*time.Minute),
