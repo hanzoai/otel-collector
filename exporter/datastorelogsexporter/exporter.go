@@ -276,7 +276,7 @@ func (r *resourcesSeenMap) rangeAll(fn func(bucketTs int64, resourceKey, fingerp
 	return err
 }
 
-type clickhouseLogsExporter struct {
+type datastoreLogsExporter struct {
 	id                     uuid.UUID
 	db                     clickhouse.Conn
 	insertLogsSQLV2        string
@@ -311,7 +311,7 @@ type clickhouseLogsExporter struct {
 	promotedPathsSyncInterval time.Duration
 }
 
-func newExporter(_ exporter.Settings, cfg *Config, opts ...LogExporterOption) (*clickhouseLogsExporter, error) {
+func newExporter(_ exporter.Settings, cfg *Config, opts ...LogExporterOption) (*datastoreLogsExporter, error) {
 	// view should be registered after exporter is initialized
 	if err := view.Register(LogsCountView, LogsSizeView); err != nil {
 		return nil, err
@@ -322,7 +322,7 @@ func newExporter(_ exporter.Settings, cfg *Config, opts ...LogExporterOption) (*
 		maxAllowedDataAgeDays = *cfg.MaxAllowedDataAgeDays
 	}
 
-	e := &clickhouseLogsExporter{
+	e := &datastoreLogsExporter{
 		insertLogsSQLV2:           renderInsertLogsSQLV2(cfg.BodyJSONEnabled),
 		insertLogsResourceSQL:     renderInsertLogsResourceSQL(cfg),
 		cfg:                       cfg,
@@ -346,13 +346,13 @@ func newExporter(_ exporter.Settings, cfg *Config, opts ...LogExporterOption) (*
 	return e, nil
 }
 
-func (e *clickhouseLogsExporter) Start(ctx context.Context, host component.Host) error {
+func (e *datastoreLogsExporter) Start(ctx context.Context, host component.Host) error {
 	e.fetchShouldSkipKeys() // Start ticker routine
 	e.fetchPromotedPaths()
 	return nil
 }
 
-func (e *clickhouseLogsExporter) doFetchShouldSkipKeys() {
+func (e *datastoreLogsExporter) doFetchShouldSkipKeys() {
 	query := fmt.Sprintf(`
 		SELECT tag_key, tag_type, tag_data_type, uniq(string_value) as string_count, uniq(number_value) as number_count
 		FROM %s.%s
@@ -379,7 +379,7 @@ func (e *clickhouseLogsExporter) doFetchShouldSkipKeys() {
 	e.shouldSkipKeyValue.Store(shouldSkipKeys)
 }
 
-func (e *clickhouseLogsExporter) fetchShouldSkipKeys() {
+func (e *datastoreLogsExporter) fetchShouldSkipKeys() {
 	ticker := time.NewTicker(e.fetchKeysInterval)
 	e.shutdownFuncs = append(e.shutdownFuncs, func() error {
 		ticker.Stop()
@@ -402,7 +402,7 @@ func (e *clickhouseLogsExporter) fetchShouldSkipKeys() {
 }
 
 // fetchPromotedPaths periodically loads promoted JSON paths from ClickHouse into memory.
-func (e *clickhouseLogsExporter) fetchPromotedPaths() {
+func (e *datastoreLogsExporter) fetchPromotedPaths() {
 	// if body JSON columns are activated, fetch promoted paths periodically
 	if e.bodyJSONEnabled {
 		ticker := time.NewTicker(e.promotedPathsSyncInterval)
@@ -427,7 +427,7 @@ func (e *clickhouseLogsExporter) fetchPromotedPaths() {
 	}
 }
 
-func (e *clickhouseLogsExporter) doFetchPromotedPaths() {
+func (e *datastoreLogsExporter) doFetchPromotedPaths() {
 	// Query Evolution Table for promoted paths
 	// Format: signal, col_name, col_type, field_context, field_name, release_time
 	// Example: logs, body_promoted, JSON, body, user.name, Jan 10
@@ -454,7 +454,7 @@ func (e *clickhouseLogsExporter) doFetchPromotedPaths() {
 }
 
 // Shutdown will shutdown the exporter.
-func (e *clickhouseLogsExporter) Shutdown(_ context.Context) error {
+func (e *datastoreLogsExporter) Shutdown(_ context.Context) error {
 	close(e.closeChan)
 	e.wg.Wait()
 	for _, shutdownFunc := range e.shutdownFuncs {
@@ -483,7 +483,7 @@ func (e *clickhouseLogsExporter) Shutdown(_ context.Context) error {
 	return nil
 }
 
-func (e *clickhouseLogsExporter) pushLogsData(ctx context.Context, ld plog.Logs) error {
+func (e *datastoreLogsExporter) pushLogsData(ctx context.Context, ld plog.Logs) error {
 	e.wg.Add(1)
 	defer e.wg.Done()
 
@@ -507,7 +507,7 @@ func tsBucket(ts int64, bucketSize int64) int64 {
 	return (int64(ts) / int64(bucketSize)) * int64(bucketSize)
 }
 
-func (e *clickhouseLogsExporter) pushToDatastore(ctx context.Context, ld plog.Logs) error {
+func (e *datastoreLogsExporter) pushToDatastore(ctx context.Context, ld plog.Logs) error {
 	oldestAllowedTs := uint64(time.Now().Add(-time.Duration(e.maxAllowedDataAgeDays) * 24 * time.Hour).UnixNano())
 
 	start := time.Now()
@@ -832,7 +832,7 @@ producerIteration:
 	return nil
 }
 
-func (e *clickhouseLogsExporter) processBody(body pcommon.Value) (string, string, string, error) {
+func (e *datastoreLogsExporter) processBody(body pcommon.Value) (string, string, string, error) {
 	promoted := pcommon.NewValueMap()
 	bodyJSON := pcommon.NewValueMap()
 	if e.bodyJSONEnabled {
@@ -879,7 +879,7 @@ func getStringifiedBody(body pcommon.Value) string {
 	return strBody
 }
 
-func (e *clickhouseLogsExporter) addAttrsToAttributeKeysStatement(
+func (e *datastoreLogsExporter) addAttrsToAttributeKeysStatement(
 	attributeKeysStmt driver.Batch,
 	resourceKeysStmt driver.Batch,
 	key string,
@@ -913,7 +913,7 @@ func (e *clickhouseLogsExporter) addAttrsToAttributeKeysStatement(
 	e.keysCache.Set(cacheKey, struct{}{}, ttlcache.DefaultTTL)
 }
 
-func (e *clickhouseLogsExporter) addAttrsToTagStatement(
+func (e *datastoreLogsExporter) addAttrsToTagStatement(
 	tagStatementV2 driver.Batch,
 	attributeKeysStmt driver.Batch,
 	resourceKeysStmt driver.Batch,
