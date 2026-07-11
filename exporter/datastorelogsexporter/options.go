@@ -11,22 +11,22 @@ import (
 	"go.uber.org/zap"
 )
 
-type LogExporterOption func(*clickhouseLogsExporter)
+type LogExporterOption func(*datastoreLogsExporter)
 
 func WithDatastoreClient(client driver.Conn) LogExporterOption {
-	return func(e *clickhouseLogsExporter) {
+	return func(e *datastoreLogsExporter) {
 		e.db = client
 	}
 }
 
 func WithLogger(logger *zap.Logger) LogExporterOption {
-	return func(e *clickhouseLogsExporter) {
+	return func(e *datastoreLogsExporter) {
 		e.logger = logger
 	}
 }
 
 func WithNewUsageCollector(id uuid.UUID, db driver.Conn) LogExporterOption {
-	return func(e *clickhouseLogsExporter) {
+	return func(e *datastoreLogsExporter) {
 		e.usageCollector = usage.NewUsageCollector(
 			id,
 			e.db,
@@ -44,7 +44,7 @@ func WithNewUsageCollector(id uuid.UUID, db driver.Conn) LogExporterOption {
 }
 
 func WithMeter(meter metric.Meter) LogExporterOption {
-	return func(e *clickhouseLogsExporter) {
+	return func(e *datastoreLogsExporter) {
 		durationHistogram, err := meter.Float64Histogram(
 			"exporter_db_write_latency",
 			metric.WithDescription("Time taken to write data to ClickHouse"),
@@ -59,19 +59,19 @@ func WithMeter(meter metric.Meter) LogExporterOption {
 }
 
 func WithKeysCache(keysCache *ttlcache.Cache[string, struct{}]) LogExporterOption {
-	return func(e *clickhouseLogsExporter) {
+	return func(e *datastoreLogsExporter) {
 		e.keysCache = keysCache
 	}
 }
 
 func WithRFCache(rfCache *ttlcache.Cache[string, struct{}]) LogExporterOption {
-	return func(e *clickhouseLogsExporter) {
+	return func(e *datastoreLogsExporter) {
 		e.rfCache = rfCache
 	}
 }
 
 func WithConcurrency(concurrency int) LogExporterOption {
-	return func(e *clickhouseLogsExporter) {
+	return func(e *datastoreLogsExporter) {
 		e.limiter = make(chan struct{}, concurrency)
 	}
 }
