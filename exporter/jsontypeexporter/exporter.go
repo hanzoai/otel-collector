@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	clickhouse "github.com/hanzo-ds/go"
+	"github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/constants"
 	"github.com/hanzoai/otel-collector/pkg/keycheck"
 	"github.com/hanzoai/otel-collector/utils"
