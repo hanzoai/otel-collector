@@ -17,9 +17,9 @@ import (
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/tag"
 
-	chproto "github.com/ClickHouse/ch-go/proto"
-	"github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	chproto "github.com/hanzo-ds/native/proto"
+	clickhouse "github.com/hanzo-ds/go"
+	"github.com/hanzo-ds/go/lib/driver"
 	"github.com/jellydator/ttlcache/v3"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/exporter"

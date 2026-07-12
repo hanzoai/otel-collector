@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/hanzo-ds/go/lib/driver"
 )
 
 // Used by the receiver for working with clickhouse.

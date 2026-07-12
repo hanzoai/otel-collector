@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	clickhouse "github.com/hanzo-ds/go"
 	"github.com/hanzoai/otel-collector/constants"
 	"github.com/cenkalti/backoff/v4"
 	"go.uber.org/zap"

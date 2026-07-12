@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/plogsgen"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
-	cmock "github.com/srikanthccv/ClickHouse-go-mock"
+	cmock "github.com/hanzo-ds/mock"
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/otel/metric/noop"
 	"go.uber.org/zap"

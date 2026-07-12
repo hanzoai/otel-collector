@@ -7,8 +7,8 @@ import (
 	"math"
 	"sync"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	clickhouse "github.com/hanzo-ds/go"
+	"github.com/hanzo-ds/go/lib/driver"
 	pkgfingerprint "github.com/hanzoai/otel-collector/internal/common/fingerprint"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"

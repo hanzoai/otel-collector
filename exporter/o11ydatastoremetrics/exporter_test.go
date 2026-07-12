@@ -13,10 +13,10 @@ import (
 
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/google/uuid"
-	cmock "github.com/srikanthccv/ClickHouse-go-mock"
+	cmock "github.com/hanzo-ds/mock"
 	"go.uber.org/zap/zaptest"
 
-	chproto "github.com/ClickHouse/ch-go/proto"
+	chproto "github.com/hanzo-ds/native/proto"
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/pmetricsgen"
 	"github.com/stretchr/testify/require"
 	"github.com/zeebo/assert"

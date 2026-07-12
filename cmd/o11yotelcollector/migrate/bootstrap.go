@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	clickhouse "github.com/hanzo-ds/go"
 	"github.com/hanzoai/otel-collector/cmd/o11yotelcollector/config"
 	schemamigrator "github.com/hanzoai/otel-collector/cmd/o11yschemamigrator/schema_migrator"
 	"github.com/cenkalti/backoff/v4"
