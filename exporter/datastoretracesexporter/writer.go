@@ -23,8 +23,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
-	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	clickhouse "github.com/hanzo-ds/go"
+	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/hanzoai/otel-collector/internal/common"

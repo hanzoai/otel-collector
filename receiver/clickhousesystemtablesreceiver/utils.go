@@ -3,7 +3,7 @@ package clickhousesystemtablesreceiver
 import (
 	"context"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	clickhouse "github.com/hanzo-ds/go"
 )
 
 func newClickhouseClient(ctx context.Context, dsn string) (clickhouse.Conn, error) {

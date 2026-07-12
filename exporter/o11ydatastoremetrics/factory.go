@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	clickhouse "github.com/hanzo-ds/go"
 	internalmetadata "github.com/hanzoai/otel-collector/exporter/o11ydatastoremetrics/internal/metadata"
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/google/uuid"
