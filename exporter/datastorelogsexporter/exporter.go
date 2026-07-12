@@ -26,8 +26,8 @@ import (
 	"github.com/goccy/go-json"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
-	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	clickhouse "github.com/hanzo-ds/go"
+	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/constants"
 	"github.com/hanzoai/otel-collector/internal/common"
 	"github.com/hanzoai/otel-collector/pkg/keycheck"

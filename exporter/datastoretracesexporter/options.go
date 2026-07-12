@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"time"
 
-	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"

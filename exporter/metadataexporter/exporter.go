@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	clickhouse "github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	clickhouse "github.com/hanzo-ds/go"
+	"github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/utils"
 	"github.com/hanzoai/otel-collector/utils/fingerprint"
 	"github.com/hanzoai/otel-collector/utils/flatten"
