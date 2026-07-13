@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"github.com/SigNoz/signoz-otel-collector/constants"
-	"github.com/SigNoz/signoz-otel-collector/pkg/keycheck"
-	"github.com/SigNoz/signoz-otel-collector/utils"
+	"github.com/hanzoai/otel-collector/constants"
+	"github.com/hanzoai/otel-collector/pkg/keycheck"
+	"github.com/hanzoai/otel-collector/utils"
 	"github.com/hanzoai/otel-collector/internal/common"
 	lru "github.com/hashicorp/golang-lru/v2"
 	"go.opentelemetry.io/collector/pdata/pcommon"
@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	distributedFieldKeysTable  = constants.SignozMetadataDB + "." + constants.DistributedFieldKeysTable
+	distributedFieldKeysTable  = constants.O11yMetadataDB + "." + constants.DistributedFieldKeysTable
 	distributedTagAttrsV2Table = "o11y_logs.distributed_tag_attributes_v2"
 
 	jsonArraySuffix  = "[]"
@@ -167,8 +167,8 @@ func newJSONMetadataWriter(
 	if err != nil {
 		return nil, fmt.Errorf("failed to create cardinal key cache: %w", err)
 	}
-	logsProcessed, err := e.set.MeterProvider.Meter("github.com/SigNoz/signoz-otel-collector/exporter/metadataexporter").Int64Counter(
-		"signoz_metadata_exporter_json_logs_processed",
+	logsProcessed, err := e.set.MeterProvider.Meter("github.com/hanzoai/otel-collector/exporter/metadataexporter").Int64Counter(
+		"o11y_metadata_exporter_json_logs_processed",
 		metric.WithDescription("Number of log records with a JSON (map) body processed by the JSON metadata writer"),
 	)
 	if err != nil {

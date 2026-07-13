@@ -13,7 +13,7 @@ RUN apt-get update && \
 
 USER ${USER_UID}
 
-COPY ./target/${OS}-${ARCH}/signoz-schema-migrator /signoz-schema-migrator
+COPY ./target/${OS}-${ARCH}/o11y-schema-migrator /o11y-schema-migrator
 
-ENTRYPOINT [ "/signoz-schema-migrator" ]
+ENTRYPOINT [ "/o11y-schema-migrator" ]
 CMD ["--dsn", "tcp://localhost:9000"]

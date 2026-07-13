@@ -1,5 +1,5 @@
 operators:
-  - id: router_signoz
+  - id: router_o11y
     type: router
     default: noop
     routes:

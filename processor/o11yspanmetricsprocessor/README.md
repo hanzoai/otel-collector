@@ -69,16 +69,16 @@ The processor supports time-bucketed keys that enable timestamp-aware metrics. *
 ```yaml
 # Delta temporality with time bucketing (recommended for timestamp-aware metrics)
 processors:
-  signozspanmetrics/delta:
+  o11yspanmetrics/delta:
     time_bucket_interval: 1m  # 1 minute buckets
-    metrics_exporter: signozclickhousemetrics
+    metrics_exporter: o11yclickhousemetrics
     aggregation_temporality: AGGREGATION_TEMPORALITY_DELTA
     metrics_flush_interval: 60s
 
 # Cumulative temporality (no time bucketing to prevent memory issues)
 processors:
-  signozspanmetrics/cumulative:
-    metrics_exporter: signozclickhousemetrics
+  o11yspanmetrics/cumulative:
+    metrics_exporter: o11yclickhousemetrics
     aggregation_temporality: AGGREGATION_TEMPORALITY_CUMULATIVE
     metrics_flush_interval: 60s
 ```

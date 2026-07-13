@@ -1,4 +1,4 @@
-package signozllmpricingprocessor // import "github.com/SigNoz/signoz-otel-collector/processor/signozllmpricingprocessor"
+package o11yllmpricingprocessor // import "github.com/hanzoai/otel-collector/processor/o11yllmpricingprocessor"
 
 import (
 	"fmt"
