@@ -10,7 +10,7 @@ Example:
 
 ```yaml
 receivers:
-  signozawsfirehose:
+  o11yawsfirehose:
     endpoint: 0.0.0.0:4433
     record_type: cwmetrics
     tls:

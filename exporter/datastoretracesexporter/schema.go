@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"maps"
 
-	"github.com/SigNoz/signoz-otel-collector/utils"
+	"github.com/hanzoai/otel-collector/utils"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.uber.org/zap/zapcore"
 )

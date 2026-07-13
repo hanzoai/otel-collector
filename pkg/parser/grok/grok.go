@@ -8,7 +8,7 @@ import (
 	o11ystanzahelper "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator/helper"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza/entry"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza/operator"
-	"github.com/vjeantet/grok"
+	"github.com/hanzoai/otel-collector/pkg/grok"
 	"go.opentelemetry.io/collector/component"
 )
 

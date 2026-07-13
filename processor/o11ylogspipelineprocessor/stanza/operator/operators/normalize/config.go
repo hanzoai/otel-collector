@@ -42,8 +42,8 @@ func (c Config) Build(set component.TelemetrySettings) (operator.Operator, error
 		return nil, err
 	}
 
-	logsProcessed, err := set.MeterProvider.Meter("github.com/SigNoz/signoz-otel-collector/processor/signozlogspipelineprocessor/stanza/operator/operators/normalize").Int64Counter(
-		"signoz_normalize_operator_logs_processed",
+	logsProcessed, err := set.MeterProvider.Meter("github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator/operators/normalize").Int64Counter(
+		"o11y_normalize_operator_logs_processed",
 		metric.WithDescription("Number of log entries processed by the normalize operator"),
 	)
 	if err != nil {
