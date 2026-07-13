@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/hanzo-ds/go"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
 	"go.opentelemetry.io/collector/component"
@@ -62,7 +62,7 @@ func createTracesExporter(
 
 	client, err := newDatastoreClient(ctx, c)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create clickhouse client: %w", err)
+		return nil, fmt.Errorf("failed to create datastore client: %w", err)
 	}
 
 	id := uuid.New()
@@ -116,12 +116,12 @@ func createTracesExporter(
 		exporterhelper.WithRetry(c.BackOffConfig))
 }
 
-func newDatastoreClient(ctx context.Context, cfg *Config) (clickhouse.Conn, error) {
-	options, err := clickhouse.ParseDSN(cfg.Datasource)
+func newDatastoreClient(ctx context.Context, cfg *Config) (datastore.Conn, error) {
+	options, err := datastore.ParseDSN(cfg.Datasource)
 	if err != nil {
 		return nil, err
 	}
-	// setting maxIdleConnections = numConsumers + 1 to avoid `prepareBatch:clickhouse: acquire conn timeout` error
+	// setting maxIdleConnections = numConsumers + 1 to avoid `prepareBatch:datastore: acquire conn timeout` error
 	// default to 1 extra idle connection; if queue config present, align with consumer count.
 	maxIdleConnections := 1
 	if qc := cfg.QueueBatchConfig.Get(); qc != nil {
@@ -131,7 +131,7 @@ func newDatastoreClient(ctx context.Context, cfg *Config) (clickhouse.Conn, erro
 		options.MaxIdleConns = maxIdleConnections
 		options.MaxOpenConns = maxIdleConnections + 5
 	}
-	db, err := clickhouse.Open(options)
+	db, err := datastore.Open(options)
 	if err != nil {
 		return nil, err
 	}

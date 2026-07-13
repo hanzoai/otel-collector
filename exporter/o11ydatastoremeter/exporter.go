@@ -7,8 +7,8 @@ import (
 	"math"
 	"sync"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/hanzo-ds/go"
+	"github.com/hanzo-ds/go/lib/driver"
 	pkgfingerprint "github.com/hanzoai/otel-collector/internal/common/fingerprint"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
@@ -22,10 +22,10 @@ var (
 
 const NanDetectedErrMsg = "NaN detected in data point, skipping entire data point"
 
-type clickhouseMeterExporter struct {
+type datastoreMeterExporter struct {
 	cfg        *Config
 	logger     *zap.Logger
-	conn       clickhouse.Conn
+	conn       datastore.Conn
 	wg         sync.WaitGroup
 	samplesSQL string
 	closeChan  chan struct{}
@@ -45,20 +45,20 @@ type sample struct {
 	value       float64
 }
 
-func NewClickHouseExporter(logger *zap.Logger, config component.Config) (*clickhouseMeterExporter, error) {
+func NewDatastoreExporter(logger *zap.Logger, config component.Config) (*datastoreMeterExporter, error) {
 	cfg := config.(*Config)
 
-	connOptions, err := clickhouse.ParseDSN(cfg.DSN)
+	connOptions, err := datastore.ParseDSN(cfg.DSN)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := clickhouse.Open(connOptions)
+	conn, err := datastore.Open(connOptions)
 	if err != nil {
 		return nil, err
 	}
 
-	return &clickhouseMeterExporter{
+	return &datastoreMeterExporter{
 		cfg:        cfg,
 		logger:     logger,
 		conn:       conn,
@@ -67,22 +67,22 @@ func NewClickHouseExporter(logger *zap.Logger, config component.Config) (*clickh
 	}, nil
 }
 
-func (c *clickhouseMeterExporter) Capabilities() consumer.Capabilities {
+func (c *datastoreMeterExporter) Capabilities() consumer.Capabilities {
 	return consumer.Capabilities{MutatesData: false}
 }
 
-func (c *clickhouseMeterExporter) Start(ctx context.Context, host component.Host) error {
+func (c *datastoreMeterExporter) Start(ctx context.Context, host component.Host) error {
 	return nil
 }
 
-func (c *clickhouseMeterExporter) Shutdown(ctx context.Context) error {
+func (c *datastoreMeterExporter) Shutdown(ctx context.Context) error {
 	close(c.closeChan)
 	c.wg.Wait()
 	return c.conn.Close()
 }
 
 // processSum processes sum metrics
-func (c *clickhouseMeterExporter) processSum(batch *batch, metric pmetric.Metric, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
+func (c *datastoreMeterExporter) processSum(batch *batch, metric pmetric.Metric, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
 	name := metric.Name()
 	desc := metric.Description()
 	unit := metric.Unit()
@@ -128,7 +128,7 @@ func (c *clickhouseMeterExporter) processSum(batch *batch, metric pmetric.Metric
 }
 
 // processGauge processes gauge metrics
-func (c *clickhouseMeterExporter) processGauge(batch *batch, metric pmetric.Metric, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
+func (c *datastoreMeterExporter) processGauge(batch *batch, metric pmetric.Metric, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
 	name := metric.Name()
 	desc := metric.Description()
 	unit := metric.Unit()
@@ -174,7 +174,7 @@ func (c *clickhouseMeterExporter) processGauge(batch *batch, metric pmetric.Metr
 	}
 }
 
-func (c *clickhouseMeterExporter) prepareBatch(_ context.Context, md pmetric.Metrics) *batch {
+func (c *datastoreMeterExporter) prepareBatch(_ context.Context, md pmetric.Metrics) *batch {
 	batch := newBatch()
 	for i := 0; i < md.ResourceMetrics().Len(); i++ {
 		rm := md.ResourceMetrics().At(i)
@@ -203,7 +203,7 @@ func (c *clickhouseMeterExporter) prepareBatch(_ context.Context, md pmetric.Met
 	return batch
 }
 
-func (c *clickhouseMeterExporter) ConsumeMetrics(ctx context.Context, md pmetric.Metrics) error {
+func (c *datastoreMeterExporter) ConsumeMetrics(ctx context.Context, md pmetric.Metrics) error {
 	c.wg.Add(1)
 	defer c.wg.Done()
 	select {
@@ -214,7 +214,7 @@ func (c *clickhouseMeterExporter) ConsumeMetrics(ctx context.Context, md pmetric
 	}
 }
 
-func (c *clickhouseMeterExporter) writeBatch(ctx context.Context, batch *batch) error {
+func (c *datastoreMeterExporter) writeBatch(ctx context.Context, batch *batch) error {
 	if len(batch.samples) == 0 {
 		return nil
 	}

@@ -124,7 +124,7 @@ func TestAlterTableAddColumn(t *testing.T) {
 				Column: Column{
 					Name:    "col",
 					Type:    ColumnTypeUUID,
-					Default: "uuid_nil()", // no such function in clickhouse but shows any expression can be passed as default value
+					Default: "uuid_nil()", // no such function in datastore but shows any expression can be passed as default value
 				},
 			}.OnCluster("cluster"),
 			want: "ALTER TABLE db.table ON CLUSTER cluster ADD COLUMN IF NOT EXISTS col UUID DEFAULT uuid_nil()",

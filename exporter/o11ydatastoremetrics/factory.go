@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/hanzo-ds/go"
 	internalmetadata "github.com/hanzoai/otel-collector/exporter/o11ydatastoremetrics/internal/metadata"
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/google/uuid"
@@ -15,7 +15,7 @@ import (
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
 )
 
-// NewFactory creates a new ClickHouse Metrics exporter.
+// NewFactory creates a new Datastore Metrics exporter.
 func NewFactory() exporter.Factory {
 	return exporter.NewFactory(
 		internalmetadata.Type,
@@ -31,12 +31,12 @@ func createMetricsExporter(ctx context.Context, set exporter.Settings,
 		return nil, errors.New("invalid configuration")
 	}
 
-	connOptions, err := clickhouse.ParseDSN(chCfg.DSN)
+	connOptions, err := datastore.ParseDSN(chCfg.DSN)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := clickhouse.Open(connOptions)
+	conn, err := datastore.Open(connOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func createMetricsExporter(ctx context.Context, set exporter.Settings,
 		set.Logger,
 	)
 
-	chExporter, err := NewClickHouseExporter(
+	chExporter, err := NewDatastoreExporter(
 		WithConfig(chCfg),
 		WithConn(conn),
 		WithLogger(set.Logger),

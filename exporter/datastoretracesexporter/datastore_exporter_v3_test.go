@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
-	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/ptracesgen"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
-	cmock "github.com/srikanthccv/ClickHouse-go-mock"
+	cmock "github.com/hanzo-ds/mock"
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/exporter"
@@ -687,7 +687,7 @@ func testWriterOptions() []WriterOption {
 	}
 }
 
-// setupTestExporter creates a new exporter with mock ClickHouse client for testing
+// setupTestExporter creates a new exporter with mock Datastore client for testing
 func setupTestExporter(t *testing.T, mock driver.Conn) *datastoreTracesExporter {
 	writerOpts := testWriterOptions()
 	writerOpts = append(writerOpts, WithDatastoreClient(mock))

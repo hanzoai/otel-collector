@@ -49,7 +49,7 @@ func maskToType(mask uint16) utils.FieldDataType {
 
 type typesConcurrentSet = utils.ConcurrentSet[utils.FieldDataType]
 
-// typesAccumulator is a per-batch accumulator mapping JSON paths to their observed ClickHouse types.
+// typesAccumulator is a per-batch accumulator mapping JSON paths to their observed Datastore types.
 // sync.Map is used because the jsonProcessor walk may be called from concurrent contexts
 // in the future; it is safe to use sequentially too.
 type typesAccumulator struct {

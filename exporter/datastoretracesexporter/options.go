@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"time"
 
-	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
@@ -66,7 +66,7 @@ func WithMeter(meter metric.Meter) WriterOption {
 	return func(e *SpanWriter) {
 		durationHistogram, err := meter.Float64Histogram(
 			"exporter_db_write_latency",
-			metric.WithDescription("Time taken to write data to ClickHouse"),
+			metric.WithDescription("Time taken to write data to Datastore"),
 			metric.WithUnit("ms"),
 			metric.WithExplicitBucketBoundaries(250, 500, 750, 1000, 2000, 2500, 3000, 4000, 5000, 6000, 8000, 10000, 15000, 25000, 30000),
 		)

@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/constants"
 	"github.com/hanzoai/otel-collector/pkg/keycheck"
 	"github.com/hanzoai/otel-collector/utils"
@@ -39,7 +39,7 @@ var (
 	}
 )
 
-// valueAccumulator writes tag attribute rows directly to a ClickHouse batch,
+// valueAccumulator writes tag attribute rows directly to a Datastore batch,
 // applying cardinality guards before each append.
 type valueAccumulator struct {
 	stmt driver.Batch
@@ -138,7 +138,7 @@ func appendTypeSet(ta *typesAccumulator, signal, context string, stmt driver.Bat
 // feeding both type collection and value suggestions from one traversal.
 //
 // It writes to two tables per flush:
-//   - o11y_metadata.distributed_json_path_types  (path → ClickHouse type)
+//   - o11y_metadata.distributed_json_path_types  (path → Datastore type)
 //   - o11y_logs.distributed_tag_attributes_v2    (path → value, tag_type=source)
 type jsonMetadataWriter struct {
 	cfg              JSONConfig

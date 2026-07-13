@@ -459,13 +459,13 @@ func (s *datastoreTracesExporter) pushTraceDataV3(ctx context.Context, td ptrace
 
 		err := s.Writer.WriteBatchOfSpansV3(ctx, batchOfSpans, metrics)
 		if err != nil {
-			return fmt.Errorf("error in writing spans to clickhouse: %w", err)
+			return fmt.Errorf("error in writing spans to datastore: %w", err)
 		}
 
 		// write the resources
 		err = s.Writer.WriteResourcesV3(ctx, resourcesSeen)
 		if err != nil {
-			return fmt.Errorf("error in writing resources to clickhouse: %w", err)
+			return fmt.Errorf("error in writing resources to datastore: %w", err)
 		}
 
 		return nil

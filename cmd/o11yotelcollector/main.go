@@ -92,7 +92,7 @@ func main() {
 		},
 	}
 
-	config.Clickhouse.RegisterFlags(rootCmd)
+	config.Datastore.RegisterFlags(rootCmd)
 	config.Collector.RegisterFlags(rootCmd)
 
 	migrate.Register(rootCmd, logger)

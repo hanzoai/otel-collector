@@ -1,4 +1,4 @@
-package clickhousesystemtablesreceiver
+package datastoresystemtablesreceiver
 
 import (
 	"testing"
@@ -30,10 +30,10 @@ func TestQueryLogToLogRecord(t *testing.T) {
 			expectedTimestamp:      pcommon.NewTimestampFromTime(time.Date(2023, 10, 31, 12, 0, 0, 0, time.UTC)),
 			expectedBody:           "SELECT * FROM table",
 			expectedAttributes: map[string]interface{}{
-				"source":                     "clickhouse",
-				"clickhouse.query_log.type":  "QueryFinish",
-				"clickhouse.query_log.query": "SELECT * FROM table",
-				"clickhouse.query_log.event_time_microseconds": time.Date(2023, 10, 31, 12, 0, 0, 0, time.UTC).Format(time.RFC3339),
+				"source":                     "datastore",
+				"datastore.query_log.type":  "QueryFinish",
+				"datastore.query_log.query": "SELECT * FROM table",
+				"datastore.query_log.event_time_microseconds": time.Date(2023, 10, 31, 12, 0, 0, 0, time.UTC).Format(time.RFC3339),
 			},
 		},
 		{
@@ -48,10 +48,10 @@ func TestQueryLogToLogRecord(t *testing.T) {
 			expectedTimestamp:      pcommon.NewTimestampFromTime(time.Date(2023, 10, 31, 13, 0, 0, 0, time.UTC)),
 			expectedBody:           "SELECT * FROM invalid_table",
 			expectedAttributes: map[string]interface{}{
-				"source":                     "clickhouse",
-				"clickhouse.query_log.type":  "ExceptionWhileProcessing",
-				"clickhouse.query_log.query": "SELECT * FROM invalid_table",
-				"clickhouse.query_log.event_time_microseconds": time.Date(2023, 10, 31, 13, 0, 0, 0, time.UTC).Format(time.RFC3339),
+				"source":                     "datastore",
+				"datastore.query_log.type":  "ExceptionWhileProcessing",
+				"datastore.query_log.query": "SELECT * FROM invalid_table",
+				"datastore.query_log.event_time_microseconds": time.Date(2023, 10, 31, 13, 0, 0, 0, time.UTC).Format(time.RFC3339),
 			},
 		},
 		{
@@ -69,14 +69,14 @@ func TestQueryLogToLogRecord(t *testing.T) {
 			expectedTimestamp:      pcommon.NewTimestampFromTime(time.Date(2023, 10, 31, 14, 0, 0, 0, time.UTC)),
 			expectedBody:           "SELECT * FROM table",
 			expectedAttributes: map[string]interface{}{
-				"source":                                       "clickhouse",
-				"clickhouse.query_log.type":                    "QueryFinish",
-				"clickhouse.query_log.query":                   "SELECT * FROM table",
-				"clickhouse.query_log.databases":               "db1,db2",
-				"clickhouse.query_log.tables":                  "table1,table2",
-				"clickhouse.query_log.event_time_microseconds": time.Date(2023, 10, 31, 14, 0, 0, 0, time.UTC).Format(time.RFC3339),
-				"clickhouse.query_log.ProfileEvents.event1":    uint64(10),
-				"clickhouse.query_log.ProfileEvents.event2":    uint64(20),
+				"source":                                       "datastore",
+				"datastore.query_log.type":                    "QueryFinish",
+				"datastore.query_log.query":                   "SELECT * FROM table",
+				"datastore.query_log.databases":               "db1,db2",
+				"datastore.query_log.tables":                  "table1,table2",
+				"datastore.query_log.event_time_microseconds": time.Date(2023, 10, 31, 14, 0, 0, 0, time.UTC).Format(time.RFC3339),
+				"datastore.query_log.ProfileEvents.event1":    uint64(10),
+				"datastore.query_log.ProfileEvents.event2":    uint64(20),
 			},
 		},
 		{
@@ -92,8 +92,8 @@ func TestQueryLogToLogRecord(t *testing.T) {
 			expectedTimestamp:      pcommon.NewTimestampFromTime(time.Date(2023, 10, 31, 15, 0, 0, 0, time.UTC)),
 			expectedBody:           "SELECT * FROM table",
 			expectedAttributes: map[string]interface{}{
-				"clickhouse.query_log.log_comment.key1": "value1",
-				"clickhouse.query_log.log_comment.key2": "value2",
+				"datastore.query_log.log_comment.key1": "value1",
+				"datastore.query_log.log_comment.key2": "value2",
 			},
 		},
 	}

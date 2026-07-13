@@ -8,7 +8,7 @@ import (
 
 	"github.com/goccy/go-json"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/hanzo-ds/go"
 	"github.com/google/uuid"
 	"go.opencensus.io/metric/metricdata"
 	"go.opencensus.io/metric/metricexport"
@@ -33,7 +33,7 @@ type UsageCollector struct {
 	ir                   *metricexport.IntervalReader
 	initReaderOnce       sync.Once
 	o                    Options
-	db                   clickhouse.Conn
+	db                   datastore.Conn
 	dbName               string
 	tableName            string
 	distributedTableName string
@@ -52,7 +52,7 @@ func init() {
 
 func NewUsageCollector(
 	exporterId uuid.UUID,
-	db clickhouse.Conn,
+	db datastore.Conn,
 	options Options,
 	dbName string,
 	usageParser func(metrics []*metricdata.Metric, id uuid.UUID) (map[string]Usage, error),

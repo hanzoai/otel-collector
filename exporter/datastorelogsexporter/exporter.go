@@ -26,8 +26,8 @@ import (
 	"github.com/goccy/go-json"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
-	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/hanzo-ds/go"
+	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/constants"
 	"github.com/hanzoai/otel-collector/internal/common"
 	"github.com/hanzoai/otel-collector/pkg/keycheck"
@@ -59,7 +59,7 @@ const (
 	distributedLogsResourceKeys      = "distributed_logs_resource_keys"
 	distributedColumnEvolutionTable  = constants.O11yMetadataDB + ".distributed_column_evolution_metadata"
 	distributedLogsResourceV2Seconds = 1800
-	// language=ClickHouse SQL
+	// language=Datastore SQL
 	insertLogsResourceSQLTemplate = `INSERT INTO %s.%s (
 		labels,
 		fingerprint,
@@ -171,7 +171,7 @@ type attributeMap struct {
 	BoolData   map[string]bool
 }
 
-// Record represents a prepared log record, ready to be appended to ClickHouse batches.
+// Record represents a prepared log record, ready to be appended to Datastore batches.
 type Record struct {
 	// batch columns
 	tsBucketStart    uint64
@@ -278,7 +278,7 @@ func (r *resourcesSeenMap) rangeAll(fn func(bucketTs int64, resourceKey, fingerp
 
 type datastoreLogsExporter struct {
 	id                     uuid.UUID
-	db                     clickhouse.Conn
+	db                     datastore.Conn
 	insertLogsSQLV2        string
 	insertLogsResourceSQL  string
 	bodyJSONEnabled        bool
@@ -401,7 +401,7 @@ func (e *datastoreLogsExporter) fetchShouldSkipKeys() {
 	}()
 }
 
-// fetchPromotedPaths periodically loads promoted JSON paths from ClickHouse into memory.
+// fetchPromotedPaths periodically loads promoted JSON paths from Datastore into memory.
 func (e *datastoreLogsExporter) fetchPromotedPaths() {
 	// if body JSON columns are activated, fetch promoted paths periodically
 	if e.bodyJSONEnabled {
@@ -1025,21 +1025,21 @@ func attributesToMap(attributes pcommon.Map, forceStringValues bool) (response a
 	return response
 }
 
-// newDatastoreClient create a clickhouse client.
-func newDatastoreClient(_ *zap.Logger, cfg *Config) (clickhouse.Conn, error) {
+// newDatastoreClient create a datastore client.
+func newDatastoreClient(_ *zap.Logger, cfg *Config) (datastore.Conn, error) {
 	ctx := context.Background()
-	options, err := clickhouse.ParseDSN(cfg.DSN)
+	options, err := datastore.ParseDSN(cfg.DSN)
 	if err != nil {
 		return nil, err
 	}
 
-	// default settings for allowing ClickHouse to handle duplicate paths in JSON type.
+	// default settings for allowing Datastore to handle duplicate paths in JSON type.
 	options.Settings["type_json_skip_duplicated_paths"] = 1
 	// default settings for disabling inferring datetimes and dates from JSON type.
 	options.Settings["input_format_try_infer_datetimes"] = 0
 	options.Settings["input_format_try_infer_dates"] = 0
 
-	// setting maxIdleConnections = numConsumers + 1 to avoid `prepareBatch:clickhouse: acquire conn timeout` error
+	// setting maxIdleConnections = numConsumers + 1 to avoid `prepareBatch:datastore: acquire conn timeout` error
 	maxIdleConnections := 1
 	if qc := cfg.QueueBatchConfig.Get(); qc != nil {
 		maxIdleConnections = qc.NumConsumers + 1
@@ -1049,7 +1049,7 @@ func newDatastoreClient(_ *zap.Logger, cfg *Config) (clickhouse.Conn, error) {
 		options.MaxOpenConns = maxIdleConnections + 5
 	}
 
-	db, err := clickhouse.Open(options)
+	db, err := datastore.Open(options)
 	if err != nil {
 		return nil, err
 	}

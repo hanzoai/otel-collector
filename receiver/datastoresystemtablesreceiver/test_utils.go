@@ -1,4 +1,4 @@
-package clickhousesystemtablesreceiver
+package datastoresystemtablesreceiver
 
 import (
 	"context"
@@ -8,28 +8,28 @@ import (
 	"go.uber.org/zap"
 )
 
-type mockClickhouseQuerrier struct {
+type mockDatastoreQuerrier struct {
 	tsNow uint32
 
 	nextScrapeResult []QueryLog
 }
 
-var _ clickhouseQuerier = (*mockClickhouseQuerrier)(nil)
+var _ datastoreQuerier = (*mockDatastoreQuerrier)(nil)
 
-func (t *mockClickhouseQuerrier) scrapeQueryLog(
+func (t *mockDatastoreQuerrier) scrapeQueryLog(
 	ctx context.Context, minTs uint32, maxTs uint32,
 ) ([]QueryLog, error) {
 	return t.nextScrapeResult, nil
 }
 
-func (t *mockClickhouseQuerrier) unixTsNow(ctx context.Context) (
+func (t *mockDatastoreQuerrier) unixTsNow(ctx context.Context) (
 	uint32, error,
 ) {
 	return t.tsNow, nil
 }
 
 func newTestReceiver(
-	ch clickhouseQuerier,
+	ch datastoreQuerier,
 	scrapeIntervalSeconds uint32,
 	scrapeDelaySeconds uint32,
 	nextConsumer consumer.Logs,
@@ -44,7 +44,7 @@ func newTestReceiver(
 	return &systemTablesReceiver{
 		scrapeIntervalSeconds: scrapeIntervalSeconds,
 		scrapeDelaySeconds:    scrapeDelaySeconds,
-		clickhouse:            ch,
+		datastore:            ch,
 		nextConsumer:          nextConsumer,
 		logger:                logger,
 	}, nil

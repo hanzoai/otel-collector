@@ -101,7 +101,7 @@ func (meter *metrics) CountPerResource(rmd pmetric.ResourceMetrics) int {
 			case pmetric.MetricTypeExponentialHistogram:
 				// Intentionally not counted. Exp histograms aren't billable on Cloud yet,
 				// and counting each bucket as a sample would explode the count.
-				// Kept consistent with the o11yclickhousemetrics exporter's writeExpHist,
+				// Kept consistent with the o11ydatastoremetrics exporter's writeExpHist,
 				// which also does not count these toward usage.
 				// TODO(srikanthccv): revisit when exp histograms are supported on Cloud.
 			}

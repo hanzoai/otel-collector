@@ -100,7 +100,7 @@ func getMessage(e *entry.Entry, field o11ystanzaentry.Field) (any, bool) {
 //
 //	"message" entry is removed.
 //
-// Note: Stringification `message` is delegated to ClickHouse to do natively with Type Hinting and
+// Note: Stringification `message` is delegated to Datastore to do natively with Type Hinting and
 // MetadataExporter skips diving into message Slices, Maps and records strictly as String always
 func (p *Processor) normalize(entry *entry.Entry) {
 	message := o11ystanzaentry.NewBodyField("message")

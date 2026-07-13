@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/plogsgen"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
-	cmock "github.com/srikanthccv/ClickHouse-go-mock"
+	cmock "github.com/hanzo-ds/mock"
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/otel/metric/noop"
 	"go.uber.org/zap"
@@ -17,7 +17,7 @@ import (
 	"github.com/hanzoai/otel-collector/exporter/datastorelogsexporter/internal/metadata"
 )
 
-// setupBenchmarkExporter creates a new exporter with mock ClickHouse client for benchmarking
+// setupBenchmarkExporter creates a new exporter with mock Datastore client for benchmarking
 func setupBenchmarkExporter(b *testing.B, mock driver.Conn) *datastoreLogsExporter {
 	// keys cache is used to avoid duplicate inserts for the same attribute key.
 	keysCache := ttlcache.New(
@@ -51,7 +51,7 @@ func setupBenchmarkExporter(b *testing.B, mock driver.Conn) *datastoreLogsExport
 	exporter, err := newExporter(
 		exporter.Settings{},
 		&Config{
-			DSN: "clickhouse://localhost:9000/test",
+			DSN: "datastore://localhost:9000/test",
 			AttributesLimits: AttributesLimits{
 				FetchKeysInterval: 2 * time.Second,
 				MaxDistinctValues: 25000,
@@ -71,7 +71,7 @@ func BenchmarkPushLogs_100k(b *testing.B) {
 	ctx := context.Background()
 	mock, err := cmock.NewClickHouseNative(nil)
 	if err != nil {
-		b.Fatalf("failed to create mock ClickHouse: %v", err)
+		b.Fatalf("failed to create mock Datastore: %v", err)
 	}
 
 	exporter := setupBenchmarkExporter(b, mock)
