@@ -23,7 +23,7 @@ vendor/
 # build folder
 .build
 *.rollback
-signoz-collector
+o11y-collector
 
 # tmp
 tmp/

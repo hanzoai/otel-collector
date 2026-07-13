@@ -1,4 +1,4 @@
-# Signoz Schema Migrator
+# O11y Schema Migrator
 
 This is a tool to manage the ClickHouse schema migrations.
 
@@ -162,29 +162,29 @@ Add `--dev` flag to run the migrator in the development/local mode.
 To run all the up migrations, you can use the following command:
 
 ```bash
-go run cmd/signozschemamigrator/main.go sync --cluster-name="cluster" --dsn="tcp://localhost:9000" --replication=true --up=
+go run cmd/o11yschemamigrator/main.go sync --cluster-name="cluster" --dsn="tcp://localhost:9000" --replication=true --up=
 ```
 
 To run all the up & async migrations, you can use the following command:
 
 ```bash
-go run cmd/signozschemamigrator/main.go async --cluster-name="cluster" --dsn="tcp://localhost:9000" --replication=true --up=
+go run cmd/o11yschemamigrator/main.go async --cluster-name="cluster" --dsn="tcp://localhost:9000" --replication=true --up=
 ```
 
 To run all the down migrations, you can use the following command:
 
 ```bash
-go run cmd/signozschemamigrator/main.go sync --cluster-name="cluster" --dsn="tcp://localhost:9000" --replication=true --down=
+go run cmd/o11yschemamigrator/main.go sync --cluster-name="cluster" --dsn="tcp://localhost:9000" --replication=true --down=
 ```
 
 To run a specific migration, you can use the following command:
 
 ```bash
-go run cmd/signozschemamigrator/main.go sync --cluster-name="cluster" --dsn="tcp://localhost:9000" --replication=true --up=1
+go run cmd/o11yschemamigrator/main.go sync --cluster-name="cluster" --dsn="tcp://localhost:9000" --replication=true --up=1
 ```
 
 To run more than one migration, you can use the following command:
 
 ```bash
-go run cmd/signozschemamigrator/main.go sync --cluster-name="cluster" --dsn="tcp://localhost:9000" --replication=true --up=1,2,3
+go run cmd/o11yschemamigrator/main.go sync --cluster-name="cluster" --dsn="tcp://localhost:9000" --replication=true --up=1,2,3
 ```

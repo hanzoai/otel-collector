@@ -1,4 +1,4 @@
-# Signoz Transform Processor
+# O11y Transform Processor
 
 A transform processor with some extra ottl functions.
 See [available custom OTTL functions](./ottlfunctions)
