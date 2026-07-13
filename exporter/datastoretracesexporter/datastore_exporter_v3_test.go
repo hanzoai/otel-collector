@@ -13,7 +13,7 @@ import (
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/ptracesgen"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
-	cmock "github.com/hanzoai/mock"
+	cmock "github.com/hanzo-ds/mock"
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/exporter"
