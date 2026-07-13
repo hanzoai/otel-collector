@@ -20,8 +20,8 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
 	github.com/hanzo-ds/go v1.0.0
-	github.com/hanzo-ds/mock v0.14.2
 	github.com/hanzo-ds/native v0.72.0
+	github.com/hanzoai/mock v0.14.3
 	github.com/hashicorp/golang-lru v1.0.2
 	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/jellydator/ttlcache/v3 v3.4.0

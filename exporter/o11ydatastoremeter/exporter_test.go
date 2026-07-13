@@ -5,7 +5,7 @@ import (
 	"log"
 	"testing"
 
-	cmock "github.com/hanzo-ds/mock"
+	cmock "github.com/hanzoai/mock"
 	"go.uber.org/zap/zaptest"
 
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/pmetricsgen"
@@ -118,7 +118,7 @@ func Test_prepareBatchGaugeWithNan(t *testing.T) {
 }
 
 func Test_shutdown(t *testing.T) {
-	conn, err := cmock.NewClickHouseNative(nil)
+	conn, err := cmock.NewDatastoreNative(nil)
 	if err != nil {
 		log.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
