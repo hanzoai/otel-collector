@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/hanzo-ds/go"
 	"github.com/hanzoai/otel-collector/cmd/o11yotelcollector/config"
 	schemamigrator "github.com/hanzoai/otel-collector/cmd/o11yschemamigrator/schema_migrator"
 	"github.com/hanzoai/otel-collector/constants"
@@ -16,7 +16,7 @@ import (
 )
 
 type asyncCheck struct {
-	conn             clickhouse.Conn
+	conn             datastore.Conn
 	timeout          time.Duration
 	migrationManager *schemamigrator.MigrationManager
 	logger           *zap.Logger
@@ -28,7 +28,7 @@ func registerAsyncCheck(parentCmd *cobra.Command, logger *zap.Logger) {
 		Short:        "Checks the status of async migrations for the store by checking the status of async migrations in the migration table.",
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			check, err := newAsyncCheck(config.Clickhouse.DSN, config.Clickhouse.Cluster, config.Clickhouse.Replication, config.MigrateSyncCheck.Timeout, logger)
+			check, err := newAsyncCheck(config.Datastore.DSN, config.Datastore.Cluster, config.Datastore.Replication, config.MigrateSyncCheck.Timeout, logger)
 			if err != nil {
 				return err
 			}
@@ -48,12 +48,12 @@ func registerAsyncCheck(parentCmd *cobra.Command, logger *zap.Logger) {
 }
 
 func newAsyncCheck(dsn string, cluster string, replication bool, timeout time.Duration, logger *zap.Logger) (*asyncCheck, error) {
-	opts, err := clickhouse.ParseDSN(dsn)
+	opts, err := datastore.ParseDSN(dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := clickhouse.Open(opts)
+	conn, err := datastore.Open(opts)
 	if err != nil {
 		return nil, err
 	}

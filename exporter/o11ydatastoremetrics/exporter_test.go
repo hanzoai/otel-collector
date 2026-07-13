@@ -13,10 +13,10 @@ import (
 
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/google/uuid"
-	cmock "github.com/srikanthccv/ClickHouse-go-mock"
+	cmock "github.com/hanzo-ds/mock"
 	"go.uber.org/zap/zaptest"
 
-	chproto "github.com/ClickHouse/ch-go/proto"
+	chproto "github.com/hanzo-ds/native/proto"
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/pmetricsgen"
 	"github.com/stretchr/testify/require"
 	"github.com/zeebo/assert"
@@ -29,7 +29,7 @@ import (
 
 func Test_prepareBatchGauge(t *testing.T) {
 	metrics := pmetricsgen.GenerateGaugeMetrics(1, 1, 1, 1, 1, 0, 0)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -95,7 +95,7 @@ func Test_prepareBatchGauge(t *testing.T) {
 
 func Test_prepareBatchSum(t *testing.T) {
 	metrics := pmetricsgen.GenerateSumMetrics(1, 1, 1, 1, 1, 0, 0)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -161,7 +161,7 @@ func Test_prepareBatchSum(t *testing.T) {
 
 func Test_prepareBatchHistogram(t *testing.T) {
 	metrics := pmetricsgen.GenerateHistogramMetrics(1, 1, 1, 1, 1, 0, 0)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -378,7 +378,7 @@ func Test_prepareBatchHistogram(t *testing.T) {
 
 func Test_prepareBatchExponentialHistogram(t *testing.T) {
 	metrics := pmetricsgen.GenerateExponentialHistogramMetrics(2, 1, 1, 1, 1, 22, 0, 0)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithEnableExpHist(true),
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
@@ -490,7 +490,7 @@ func Test_prepareBatchExponentialHistogram(t *testing.T) {
 
 func Test_prepareBatchSummary(t *testing.T) {
 	metrics := pmetricsgen.GenerateSummaryMetrics(1, 2, 1, 1, 1, 1, 0, 0)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -587,7 +587,7 @@ func Benchmark_prepareBatchGauge(b *testing.B) {
 	metrics := pmetricsgen.GenerateGaugeMetrics(10000, 10, 10, 10, 10, 0, 0)
 	b.ResetTimer()
 	b.ReportAllocs()
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -604,7 +604,7 @@ func Benchmark_prepareBatchSum(b *testing.B) {
 	metrics := pmetricsgen.GenerateSumMetrics(10000, 10, 10, 10, 10, 0, 0)
 	b.ResetTimer()
 	b.ReportAllocs()
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -621,7 +621,7 @@ func Benchmark_prepareBatchHistogram(b *testing.B) {
 	metrics := pmetricsgen.GenerateHistogramMetrics(1000, 10, 10, 10, 10, 0, 0)
 	b.ResetTimer()
 	b.ReportAllocs()
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -638,7 +638,7 @@ func Benchmark_prepareBatchExponentialHistogram(b *testing.B) {
 	metrics := pmetricsgen.GenerateExponentialHistogramMetrics(10000, 10, 10, 10, 10, 0, 0, 0)
 	b.ResetTimer()
 	b.ReportAllocs()
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithEnableExpHist(true),
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
@@ -656,7 +656,7 @@ func Benchmark_prepareBatchSummary(b *testing.B) {
 	metrics := pmetricsgen.GenerateSummaryMetrics(10000, 10, 10, 10, 10, 0, 0, 0)
 	b.ResetTimer()
 	b.ReportAllocs()
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -669,7 +669,7 @@ func Benchmark_prepareBatchSummary(b *testing.B) {
 
 func Test_prepareBatchGaugeWithNan(t *testing.T) {
 	metrics := pmetricsgen.GenerateGaugeMetrics(2, 5, 7, 9, 2, 5, 0)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -682,7 +682,7 @@ func Test_prepareBatchGaugeWithNan(t *testing.T) {
 
 func Test_prepareBatchGaugeWithStaleNan(t *testing.T) {
 	metrics := pmetricsgen.GenerateGaugeMetrics(1, 1, 1, 1, 1, 0, 1)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -714,7 +714,7 @@ func Test_prepareBatchGaugeWithStaleNan(t *testing.T) {
 
 func Test_prepareBatchHistogramWithNoRecordedValue(t *testing.T) {
 	metrics := pmetricsgen.GenerateHistogramMetrics(1, 1, 1, 1, 1, 0, 1)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -904,7 +904,7 @@ func Test_prepareBatchHistogramWithNoRecordedValue(t *testing.T) {
 
 func Test_prepareBatchHistogramWithNan(t *testing.T) {
 	metrics := pmetricsgen.GenerateHistogramMetrics(1, 1, 1, 1, 1, 1, 0)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -917,7 +917,7 @@ func Test_prepareBatchHistogramWithNan(t *testing.T) {
 
 func Test_prepareBatchSumWithNoRecordedValue(t *testing.T) {
 	metrics := pmetricsgen.GenerateSumMetrics(1, 1, 1, 1, 1, 1, 0)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -985,7 +985,7 @@ func Test_prepareBatchSumWithNoRecordedValue(t *testing.T) {
 
 func Test_prepareBatchSumWithNan(t *testing.T) {
 	metrics := pmetricsgen.GenerateSumMetrics(1, 1, 1, 1, 1, 0, 1)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -998,7 +998,7 @@ func Test_prepareBatchSumWithNan(t *testing.T) {
 
 func Test_prepareBatchSummaryWithNan(t *testing.T) {
 	metrics := pmetricsgen.GenerateSummaryMetrics(1, 2, 1, 1, 1, 1, 2, 0)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -1011,7 +1011,7 @@ func Test_prepareBatchSummaryWithNan(t *testing.T) {
 
 func Test_prepareBatchSummaryWithNoRecordedValue(t *testing.T) {
 	metrics := pmetricsgen.GenerateSummaryMetrics(1, 2, 1, 1, 1, 1, 0, 2)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
 		WithMeter(noop.NewMeterProvider().Meter(internalmetadata.ScopeName)),
@@ -1084,7 +1084,7 @@ func Test_prepareBatchSummaryWithNoRecordedValue(t *testing.T) {
 
 func Test_prepareBatchExponentialHistogramWithNoRecordedValue(t *testing.T) {
 	metrics := pmetricsgen.GenerateExponentialHistogramMetrics(2, 1, 1, 1, 1, 22, 0, 1)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithEnableExpHist(true),
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
@@ -1174,7 +1174,7 @@ func Test_prepareBatchExponentialHistogramWithNoRecordedValue(t *testing.T) {
 
 func Test_prepareBatchExponentialHistogramWithNan(t *testing.T) {
 	metrics := pmetricsgen.GenerateExponentialHistogramMetrics(2, 1, 1, 1, 1, 22, 1, 0)
-	exp, err := NewClickHouseExporter(
+	exp, err := NewDatastoreExporter(
 		WithEnableExpHist(true),
 		WithLogger(zap.NewNop()),
 		WithConfig(&Config{}),
@@ -1208,7 +1208,7 @@ func Test_shutdown(t *testing.T) {
 		},
 		"o11y_metrics",
 		UsageExporter, logger)
-	chExporter, err := NewClickHouseExporter(
+	chExporter, err := NewDatastoreExporter(
 		WithConn(conn),
 		WithUsageCollector(usageCollector),
 		WithExporterID(id),

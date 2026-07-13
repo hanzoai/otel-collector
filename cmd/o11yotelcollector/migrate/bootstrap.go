@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/hanzo-ds/go"
 	"github.com/hanzoai/otel-collector/cmd/o11yotelcollector/config"
 	schemamigrator "github.com/hanzoai/otel-collector/cmd/o11yschemamigrator/schema_migrator"
 	"github.com/cenkalti/backoff/v4"
@@ -14,7 +14,7 @@ import (
 )
 
 type bootstrap struct {
-	conn             clickhouse.Conn
+	conn             datastore.Conn
 	cluster          string
 	migrationManager *schemamigrator.MigrationManager
 	timeout          time.Duration
@@ -26,7 +26,7 @@ func registerBootstrap(parentCmd *cobra.Command, logger *zap.Logger) {
 		Use:   "bootstrap",
 		Short: "Creates the necessary tables to track status of migrations. A migration table is typically created to track the status of migrations. This command creates the necessary tables to track the status of migrations.",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			bootstrap, err := newBootstrap(config.Clickhouse.DSN, config.Clickhouse.Cluster, config.Clickhouse.Replication, config.MigrateBootstrap.Timeout, logger)
+			bootstrap, err := newBootstrap(config.Datastore.DSN, config.Datastore.Cluster, config.Datastore.Replication, config.MigrateBootstrap.Timeout, logger)
 			if err != nil {
 				return err
 			}
@@ -44,12 +44,12 @@ func registerBootstrap(parentCmd *cobra.Command, logger *zap.Logger) {
 }
 
 func newBootstrap(dsn string, cluster string, replication bool, timeout time.Duration, logger *zap.Logger) (*bootstrap, error) {
-	opts, err := clickhouse.ParseDSN(dsn)
+	opts, err := datastore.ParseDSN(dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := clickhouse.Open(opts)
+	conn, err := datastore.Open(opts)
 	if err != nil {
 		return nil, err
 	}

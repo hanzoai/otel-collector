@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/hanzo-ds/go"
 	"github.com/hanzoai/otel-collector/cmd/o11yotelcollector/config"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/spf13/cobra"
@@ -16,8 +16,8 @@ import (
 )
 
 type ready struct {
-	conn     clickhouse.Conn
-	connOpts *clickhouse.Options
+	conn     datastore.Conn
+	connOpts *datastore.Options
 	cluster  string
 	timeout  time.Duration
 	logger   *zap.Logger
@@ -29,8 +29,8 @@ func registerReady(parentCmd *cobra.Command, logger *zap.Logger) {
 		Short: "Checks if the store is ready to run migrations.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ready, err := newReady(
-				config.Clickhouse.DSN,
-				config.Clickhouse.Cluster,
+				config.Datastore.DSN,
+				config.Datastore.Cluster,
 				config.MigrateReady.Timeout,
 				logger,
 			)
@@ -52,12 +52,12 @@ func registerReady(parentCmd *cobra.Command, logger *zap.Logger) {
 }
 
 func newReady(dsn string, cluster string, timeout time.Duration, logger *zap.Logger) (*ready, error) {
-	opts, err := clickhouse.ParseDSN(dsn)
+	opts, err := datastore.ParseDSN(dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := clickhouse.Open(opts)
+	conn, err := datastore.Open(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (r *ready) Run(ctx context.Context) error {
 }
 
 func (r *ready) Ready(ctx context.Context) error {
-	if err := r.CheckClickhouse(ctx); err != nil {
+	if err := r.CheckDatastore(ctx); err != nil {
 		return err
 	}
 
@@ -110,7 +110,7 @@ func (r *ready) Ready(ctx context.Context) error {
 	return nil
 }
 
-func (r *ready) CheckClickhouse(ctx context.Context) error {
+func (r *ready) CheckDatastore(ctx context.Context) error {
 	query := "SELECT DISTINCT host_name, host_address, port FROM system.clusters WHERE host_address NOT IN ['localhost', '127.0.0.1', '::1'] AND cluster = ?"
 	rows, err := r.conn.Query(ctx, query, r.cluster)
 	if err != nil {
@@ -158,9 +158,9 @@ func (r *ready) CheckClickhouse(ctx context.Context) error {
 		addrPort := netip.AddrPortFrom(addr, host.port)
 		connectionOpts := r.connOpts
 		// cannot pass all the address here as this is used for failover/ load-balancing. at any point of them one is selected and connection is established
-		// ref: https://github.com/ClickHouse/clickhouse-go/blob/main/clickhouse.go#L275
+		// ref: https://github.com/ClickHouse/clickhouse-go/blob/main/datastore.go#L275
 		connectionOpts.Addr = []string{addrPort.String()}
-		conn, err := clickhouse.Open(connectionOpts)
+		conn, err := datastore.Open(connectionOpts)
 		if err != nil {
 			return err
 		}
@@ -169,10 +169,10 @@ func (r *ready) CheckClickhouse(ctx context.Context) error {
 		}()
 
 		if err := conn.Ping(ctx); err != nil {
-			return NewRetryableError(fmt.Errorf("clickhouse host %s:%d not reachable: %w", host.address, host.port, err))
+			return NewRetryableError(fmt.Errorf("datastore host %s:%d not reachable: %w", host.address, host.port, err))
 		}
 
-		r.logger.Info("clickhouse is ready", zap.String("host", host.address), zap.Uint16("port", host.port))
+		r.logger.Info("datastore is ready", zap.String("host", host.address), zap.Uint16("port", host.port))
 	}
 
 	return nil
@@ -182,7 +182,7 @@ func (r *ready) CheckKeeper(ctx context.Context) error {
 	query := "SELECT host, port FROM system.zookeeper_connection"
 	rows, err := r.conn.Query(ctx, query)
 	if err != nil {
-		var exception *clickhouse.Exception
+		var exception *datastore.Exception
 		if errors.As(err, &exception) {
 			if exception.Code == 999 {
 				if strings.Contains(exception.Error(), "No node") {

@@ -3,7 +3,7 @@ package metadataexporter
 import (
 	"context"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/utils/fingerprint"
 	"github.com/hanzoai/otel-collector/utils/flatten"
 	"go.opentelemetry.io/collector/pdata/pcommon"

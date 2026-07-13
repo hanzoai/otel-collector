@@ -18,7 +18,7 @@ func NewLabelsAsJSONString(name string, ms ...map[string]string) string {
 
 // marshalLabels marshals attributes into JSON, appending it to b.
 // It preserves an order. It is also significantly faster then json.Marshal.
-// It is compatible with ClickHouse JSON functions: https://clickhouse.yandex/docs/en/functions/json_functions.html
+// It is compatible with Datastore JSON functions: https://datastore.yandex/docs/en/functions/json_functions.html
 func marshalLabels(attrs map[string]string, b []byte) []byte {
 	// make sure that the attrs are sorted
 	keys := make([]string, 0, len(attrs))

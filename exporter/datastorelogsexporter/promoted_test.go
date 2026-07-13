@@ -95,7 +95,7 @@ func TestPromotedPathSeparation(t *testing.T) {
 			},
 		},
 		// This is likely not happen, but is covered for completeness
-		// ClickHouse will fail ingestion if there are multiple occurrences of the same path
+		// Datastore will fail ingestion if there are multiple occurrences of the same path
 		// type_json_skip_duplicated_paths can be enabled during parsing JSON object into JSON type duplicated paths will be ignored and only the first one will be inserted instead of an exception
 		// https://clickhouse.com/docs/operations/settings/formats#type_json_skip_duplicated_paths
 		{

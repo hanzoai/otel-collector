@@ -33,7 +33,7 @@ func TestCreateDefaultConfig(t *testing.T) {
 	assert.NoError(t, componenttest.CheckConfigStruct(cfg))
 }
 
-// use mock clickhouse
+// use mock datastore
 // func TestFactory_CreateLogsExporter(t *testing.T) {
 // 	factory := NewFactory()
 // 	cfg := withDefaultConfig(func(cfg *Config) {

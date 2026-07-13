@@ -12,7 +12,7 @@ import (
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
 )
 
-// NewFactory creates a new ClickHouse Meter Metrics exporter.
+// NewFactory creates a new Datastore Meter Metrics exporter.
 func NewFactory() exporter.Factory {
 	return exporter.NewFactory(
 		internalmetadata.Type,
@@ -26,7 +26,7 @@ func createMeterMetricsExporter(ctx context.Context, params exporter.Settings, c
 		return nil, errors.New("invalid configuration")
 	}
 
-	chExporter, err := NewClickHouseExporter(params.Logger, cfg)
+	chExporter, err := NewDatastoreExporter(params.Logger, cfg)
 	if err != nil {
 		return nil, err
 	}

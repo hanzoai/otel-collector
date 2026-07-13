@@ -17,9 +17,9 @@ import (
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/tag"
 
-	chproto "github.com/ClickHouse/ch-go/proto"
-	"github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	chproto "github.com/hanzo-ds/native/proto"
+	"github.com/hanzo-ds/go"
+	"github.com/hanzo-ds/go/lib/driver"
 	"github.com/jellydator/ttlcache/v3"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/exporter"
@@ -49,13 +49,13 @@ var (
 
 const NanDetectedErrMsg = "NaN detected in data point, skipping entire data point"
 
-type clickhouseMetricsExporter struct {
+type datastoreMetricsExporter struct {
 	cfg           *Config
 	logger        *zap.Logger
 	meter         metricapi.Meter
 	cache         *ttlcache.Cache[string, bool]
 	cacheRunning  bool
-	conn          clickhouse.Conn
+	conn          datastore.Conn
 	wg            sync.WaitGroup
 	enableExpHist bool
 
@@ -137,66 +137,66 @@ type metadata struct {
 	lastReportedUnixMilli  int64
 }
 
-type ExporterOption func(e *clickhouseMetricsExporter) error
+type ExporterOption func(e *datastoreMetricsExporter) error
 
 func WithLogger(logger *zap.Logger) ExporterOption {
-	return func(e *clickhouseMetricsExporter) error {
+	return func(e *datastoreMetricsExporter) error {
 		e.logger = logger
 		return nil
 	}
 }
 
 func WithMeter(meter metricapi.Meter) ExporterOption {
-	return func(e *clickhouseMetricsExporter) error {
+	return func(e *datastoreMetricsExporter) error {
 		e.meter = meter
 		return nil
 	}
 }
 
 func WithEnableExpHist(enableExpHist bool) ExporterOption {
-	return func(e *clickhouseMetricsExporter) error {
+	return func(e *datastoreMetricsExporter) error {
 		e.enableExpHist = enableExpHist
 		return nil
 	}
 }
 
 func WithCache(cache *ttlcache.Cache[string, bool]) ExporterOption {
-	return func(e *clickhouseMetricsExporter) error {
+	return func(e *datastoreMetricsExporter) error {
 		e.cache = cache
 		return nil
 	}
 }
 
-func WithConn(conn clickhouse.Conn) ExporterOption {
-	return func(e *clickhouseMetricsExporter) error {
+func WithConn(conn datastore.Conn) ExporterOption {
+	return func(e *datastoreMetricsExporter) error {
 		e.conn = conn
 		return nil
 	}
 }
 
 func WithConfig(cfg *Config) ExporterOption {
-	return func(e *clickhouseMetricsExporter) error {
+	return func(e *datastoreMetricsExporter) error {
 		e.cfg = cfg
 		return nil
 	}
 }
 
 func WithSettings(settings exporter.Settings) ExporterOption {
-	return func(e *clickhouseMetricsExporter) error {
+	return func(e *datastoreMetricsExporter) error {
 		e.settings = settings
 		return nil
 	}
 }
 
 func WithUsageCollector(collector *usage.UsageCollector) ExporterOption {
-	return func(e *clickhouseMetricsExporter) error {
+	return func(e *datastoreMetricsExporter) error {
 		e.usageCollector = collector
 		return nil
 	}
 }
 
 func WithExporterID(exporterID uuid.UUID) ExporterOption {
-	return func(e *clickhouseMetricsExporter) error {
+	return func(e *datastoreMetricsExporter) error {
 		e.exporterID = exporterID
 		return nil
 	}
@@ -216,8 +216,8 @@ func defaultOptions() []ExporterOption {
 	}
 }
 
-func NewClickHouseExporter(opts ...ExporterOption) (*clickhouseMetricsExporter, error) {
-	chExporter := &clickhouseMetricsExporter{}
+func NewDatastoreExporter(opts ...ExporterOption) (*datastoreMetricsExporter, error) {
+	chExporter := &datastoreMetricsExporter{}
 
 	newOptions := append(defaultOptions(), opts...)
 
@@ -243,7 +243,7 @@ func NewClickHouseExporter(opts ...ExporterOption) (*clickhouseMetricsExporter, 
 
 	chExporter.exportMetricsDuration, err = chExporter.meter.Float64Histogram(
 		"exporter_db_write_latency",
-		metricapi.WithDescription("Time taken to write data to ClickHouse"),
+		metricapi.WithDescription("Time taken to write data to Datastore"),
 		metricapi.WithUnit("ms"),
 		metricapi.WithExplicitBucketBoundaries(250, 500, 750, 1000, 2000, 2500, 3000, 4000, 5000, 6000, 8000, 10000, 15000, 25000, 30000),
 	)
@@ -265,13 +265,13 @@ func NewClickHouseExporter(opts ...ExporterOption) (*clickhouseMetricsExporter, 
 	return chExporter, nil
 }
 
-func (c *clickhouseMetricsExporter) Start(ctx context.Context, host component.Host) error {
+func (c *datastoreMetricsExporter) Start(ctx context.Context, host component.Host) error {
 	go c.cache.Start()
 	c.cacheRunning = true
 	return nil
 }
 
-func (c *clickhouseMetricsExporter) Shutdown(ctx context.Context) error {
+func (c *datastoreMetricsExporter) Shutdown(ctx context.Context) error {
 	if c.cacheRunning {
 		c.cache.Stop()
 	}
@@ -287,7 +287,7 @@ func (c *clickhouseMetricsExporter) Shutdown(ctx context.Context) error {
 }
 
 // processGauge processes gauge metrics
-func (c *clickhouseMetricsExporter) processGauge(batch *batch, metric pmetric.Metric, env string, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
+func (c *datastoreMetricsExporter) processGauge(batch *batch, metric pmetric.Metric, env string, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
 	name := metric.Name()
 	desc := metric.Description()
 	unit := metric.Unit()
@@ -360,7 +360,7 @@ func (c *clickhouseMetricsExporter) processGauge(batch *batch, metric pmetric.Me
 }
 
 // processSum processes sum metrics
-func (c *clickhouseMetricsExporter) processSum(batch *batch, metric pmetric.Metric, env string, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
+func (c *datastoreMetricsExporter) processSum(batch *batch, metric pmetric.Metric, env string, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
 
 	name := metric.Name()
 	desc := metric.Description()
@@ -432,7 +432,7 @@ func (c *clickhouseMetricsExporter) processSum(batch *batch, metric pmetric.Metr
 }
 
 // processHistogram processes histogram metrics
-func (c *clickhouseMetricsExporter) processHistogram(b *batch, metric pmetric.Metric, env string, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
+func (c *datastoreMetricsExporter) processHistogram(b *batch, metric pmetric.Metric, env string, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
 	name := metric.Name()
 	desc := metric.Description()
 	unit := metric.Unit()
@@ -628,7 +628,7 @@ func (c *clickhouseMetricsExporter) processHistogram(b *batch, metric pmetric.Me
 	b.addMetadata(name+bucketSuffix, desc, unit, typ, temporality, isMonotonic, scopeFingerprint, firstSeenUnixMilli, lastSeenUnixMilli)
 }
 
-func (c *clickhouseMetricsExporter) processSummary(b *batch, metric pmetric.Metric, env string, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
+func (c *datastoreMetricsExporter) processSummary(b *batch, metric pmetric.Metric, env string, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
 	name := metric.Name()
 	desc := metric.Description()
 	unit := metric.Unit()
@@ -775,7 +775,7 @@ func (c *clickhouseMetricsExporter) processSummary(b *batch, metric pmetric.Metr
 	b.addMetadata(name+quantilesSuffix, desc, unit, typ, temporality, isMonotonic, scopeFingerprint, firstSeenUnixMilli, lastSeenUnixMilli)
 }
 
-func (c *clickhouseMetricsExporter) processExponentialHistogram(b *batch, metric pmetric.Metric, env string, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
+func (c *datastoreMetricsExporter) processExponentialHistogram(b *batch, metric pmetric.Metric, env string, resourceFingerprint, scopeFingerprint *pkgfingerprint.Fingerprint) {
 	if !c.enableExpHist {
 		c.logger.Debug("exponential histogram is not enabled")
 		return
@@ -960,7 +960,7 @@ func (c *clickhouseMetricsExporter) processExponentialHistogram(b *batch, metric
 	b.addMetadata(name+maxSuffix, desc, unit, pmetric.MetricTypeGauge, pmetric.AggregationTemporalityUnspecified, isMonotonic, scopeFingerprint, firstSeenUnixMilli, lastSeenUnixMilli)
 }
 
-func (c *clickhouseMetricsExporter) prepareBatch(ctx context.Context, md pmetric.Metrics) *batch {
+func (c *datastoreMetricsExporter) prepareBatch(ctx context.Context, md pmetric.Metrics) *batch {
 	batch := newBatch(c.logger)
 	start := time.Now()
 	for i := 0; i < md.ResourceMetrics().Len(); i++ {
@@ -1011,7 +1011,7 @@ func (c *clickhouseMetricsExporter) prepareBatch(ctx context.Context, md pmetric
 	return batch
 }
 
-func (c *clickhouseMetricsExporter) PushMetrics(ctx context.Context, md pmetric.Metrics) error {
+func (c *datastoreMetricsExporter) PushMetrics(ctx context.Context, md pmetric.Metrics) error {
 	c.wg.Add(1)
 	defer c.wg.Done()
 	select {
@@ -1022,7 +1022,7 @@ func (c *clickhouseMetricsExporter) PushMetrics(ctx context.Context, md pmetric.
 	}
 }
 
-func (c *clickhouseMetricsExporter) writeBatch(ctx context.Context, batch *batch) error {
+func (c *datastoreMetricsExporter) writeBatch(ctx context.Context, batch *batch) error {
 	writeTimeSeries := func(ctx context.Context, timeSeries []*ts) error {
 		start := time.Now()
 

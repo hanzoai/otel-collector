@@ -5,7 +5,7 @@ import (
 	"log"
 	"testing"
 
-	cmock "github.com/srikanthccv/ClickHouse-go-mock"
+	cmock "github.com/hanzo-ds/mock"
 	"go.uber.org/zap/zaptest"
 
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/pmetricsgen"
@@ -21,7 +21,7 @@ func Benchmark_prepareBatchSum(b *testing.B) {
 	metrics := pmetricsgen.GenerateSumMetrics(10000, 10, 10, 10, 10, 0, 0)
 	b.ResetTimer()
 	b.ReportAllocs()
-	exp, err := NewClickHouseExporter(zap.NewNop(), &Config{DSN: "tcp://localhost:9000?database=default"})
+	exp, err := NewDatastoreExporter(zap.NewNop(), &Config{DSN: "tcp://localhost:9000?database=default"})
 	require.NoError(b, err)
 	for i := 0; i < b.N; i++ {
 		exp.prepareBatch(context.Background(), metrics)
@@ -32,7 +32,7 @@ func Benchmark_prepareBatchSum(b *testing.B) {
 
 func Test_prepareBatchSumWithNoRecordedValue(t *testing.T) {
 	metrics := pmetricsgen.GenerateSumMetrics(1, 1, 1, 1, 1, 1, 0)
-	exp, err := NewClickHouseExporter(zap.NewNop(), &Config{DSN: "tcp://localhost:9000?database=default"})
+	exp, err := NewDatastoreExporter(zap.NewNop(), &Config{DSN: "tcp://localhost:9000?database=default"})
 	require.NoError(t, err)
 	batch := exp.prepareBatch(context.Background(), metrics)
 	assert.NotNil(t, batch)
@@ -64,7 +64,7 @@ func Test_prepareBatchSumWithNoRecordedValue(t *testing.T) {
 
 func Test_prepareBatchSumWithNan(t *testing.T) {
 	metrics := pmetricsgen.GenerateSumMetrics(1, 1, 1, 1, 1, 0, 1)
-	exp, err := NewClickHouseExporter(zap.NewNop(), &Config{DSN: "tcp://localhost:9000?database=default"})
+	exp, err := NewDatastoreExporter(zap.NewNop(), &Config{DSN: "tcp://localhost:9000?database=default"})
 	require.NoError(t, err)
 	batch := exp.prepareBatch(context.Background(), metrics)
 	assert.Equal(t, 0, len(batch.samples))
@@ -74,7 +74,7 @@ func Test_prepareBatchSumWithNan(t *testing.T) {
 
 func Test_prepareBatchGaugeWithNoRecordedValue(t *testing.T) {
 	metrics := pmetricsgen.GenerateGaugeMetrics(1, 1, 1, 1, 1, 0, 1)
-	exp, err := NewClickHouseExporter(zap.NewNop(), &Config{DSN: "tcp://localhost:9000?database=default"})
+	exp, err := NewDatastoreExporter(zap.NewNop(), &Config{DSN: "tcp://localhost:9000?database=default"})
 	require.NoError(t, err)
 	batch := exp.prepareBatch(context.Background(), metrics)
 	assert.NotNil(t, batch)
@@ -109,7 +109,7 @@ func Test_prepareBatchGaugeWithNoRecordedValue(t *testing.T) {
 
 func Test_prepareBatchGaugeWithNan(t *testing.T) {
 	metrics := pmetricsgen.GenerateGaugeMetrics(1, 1, 1, 1, 1, 1, 0)
-	exp, err := NewClickHouseExporter(zap.NewNop(), &Config{DSN: "tcp://localhost:9000?database=default"})
+	exp, err := NewDatastoreExporter(zap.NewNop(), &Config{DSN: "tcp://localhost:9000?database=default"})
 	require.NoError(t, err)
 	batch := exp.prepareBatch(context.Background(), metrics)
 	assert.Equal(t, 0, len(batch.samples))
@@ -126,7 +126,7 @@ func Test_shutdown(t *testing.T) {
 	conn.MatchExpectationsInOrder(false)
 	conn.ExpectPrepareBatch("INSERT INTO . (temporality, metric_name, description, unit, type, is_monotonic, labels, fingerprint, unix_milli, value) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)") //samples query
 	conn.ExpectClose()
-	exporter, err := NewClickHouseExporter(zaptest.NewLogger(t), &Config{DSN: "tcp://localhost:9000?database=default"})
+	exporter, err := NewDatastoreExporter(zaptest.NewLogger(t), &Config{DSN: "tcp://localhost:9000?database=default"})
 	defaultConn := exporter.conn
 	exporter.conn = conn
 

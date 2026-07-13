@@ -60,7 +60,7 @@ func createDefaultConfig() component.Config {
 }
 
 // createLogsExporter creates a new exporter for logs.
-// Logs are directly insert into clickhouse.
+// Logs are directly insert into datastore.
 func createLogsExporter(
 	ctx context.Context,
 	set exporter.Settings,
@@ -70,7 +70,7 @@ func createLogsExporter(
 
 	client, err := newDatastoreClient(set.Logger, c)
 	if err != nil {
-		return nil, fmt.Errorf("cannot configure clickhouse logs exporter: %w", err)
+		return nil, fmt.Errorf("cannot configure datastore logs exporter: %w", err)
 	}
 
 	id := uuid.New()
@@ -106,7 +106,7 @@ func createLogsExporter(
 
 	exporter, err := newExporter(set, c, opts...)
 	if err != nil {
-		return nil, fmt.Errorf("cannot configure clickhouse logs exporter: %w", err)
+		return nil, fmt.Errorf("cannot configure datastore logs exporter: %w", err)
 	}
 
 	return exporterhelper.NewLogs(
