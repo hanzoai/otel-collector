@@ -17,7 +17,7 @@ import (
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/tag"
 
-	chproto "github.com/hanzo-ds/native/proto"
+	dsproto "github.com/hanzo-ds/native/proto"
 	"github.com/hanzo-ds/go"
 	"github.com/hanzo-ds/go/lib/driver"
 	"github.com/jellydator/ttlcache/v3"
@@ -94,7 +94,7 @@ type exponentialHistogramSample struct {
 	metricName  string
 	fingerprint uint64
 	unixMilli   int64
-	sketch      chproto.DD
+	sketch      dsproto.DD
 	count       float64
 	sum         float64
 	min         float64
@@ -852,13 +852,13 @@ func (c *datastoreMetricsExporter) processExponentialHistogram(b *batch, metric 
 		})
 	}
 
-	toStore := func(buckets pmetric.ExponentialHistogramDataPointBuckets) *chproto.Store {
+	toStore := func(buckets pmetric.ExponentialHistogramDataPointBuckets) *dsproto.Store {
 		bincounts := make([]float64, 0, buckets.BucketCounts().Len())
 		for _, bucket := range buckets.BucketCounts().AsRaw() {
 			bincounts = append(bincounts, float64(bucket))
 		}
 
-		store := &chproto.Store{
+		store := &dsproto.Store{
 			ContiguousBinIndexOffset: int32(buckets.Offset()),
 			ContiguousBinCounts:      bincounts,
 		}
@@ -870,8 +870,8 @@ func (c *datastoreMetricsExporter) processExponentialHistogram(b *batch, metric 
 		positive := toStore(dp.Positive())
 		negative := toStore(dp.Negative())
 		gamma := math.Pow(2, math.Pow(2, float64(-dp.Scale())))
-		dd := chproto.DD{
-			Mapping:        &chproto.IndexMapping{Gamma: gamma},
+		dd := dsproto.DD{
+			Mapping:        &dsproto.IndexMapping{Gamma: gamma},
 			PositiveValues: positive,
 			NegativeValues: negative,
 			ZeroCount:      float64(dp.ZeroCount()),
