@@ -1,0 +1,89 @@
+Hanzo O11y Otel Collector
+Copyright (c) 2026 Hanzo AI, Inc.
+
+This product includes software developed by Hanzo AI, Inc.
+
+------------------------------------------------------------------------
+Provenance
+------------------------------------------------------------------------
+
+Forked from https://github.com/SigNoz/signoz-otel-collector
+
+Root of this repository is SigNoz's OpenTelemetry Collector distribution,
+"Initial distro implementation" (commit cc061f7, Srikanth Chekuri, SigNoz,
+June 2022), original Go module path github.com/SigNoz/signoz-otel-collector.
+That distribution is itself a build of the OpenTelemetry Collector.
+
+Git history in this repository is intact (not squashed); the upstream root
+commit and subsequent SigNoz history are preserved.
+
+------------------------------------------------------------------------
+Upstream attribution and licenses
+------------------------------------------------------------------------
+
+signoz-otel-collector
+  Copyright SigNoz and the signoz-otel-collector authors.
+  Upstream: https://github.com/SigNoz/signoz-otel-collector
+  License: GNU Affero General Public License v3.0 (AGPL-3.0), as added
+  upstream by commit 733f950 ("chore(license): add GNU AGPL v3 license",
+  SigNoz PR #829). The AGPL-3.0 text governing this repository is the
+  LICENSE file at the repository root; it is retained verbatim and
+  unmodified. See COPYLEFT considerations below.
+
+OpenTelemetry Collector
+  Copyright The OpenTelemetry Authors.
+  Upstream: https://github.com/open-telemetry/opentelemetry-collector and
+  https://github.com/open-telemetry/opentelemetry-collector-contrib
+  License: Apache License, Version 2.0. The collector core and the
+  contrib receivers/processors/exporters this distribution builds on are
+  Apache-2.0. The upstream SigNoz repository does not ship a NOTICE file;
+  Apache-2.0 attribution to the OpenTelemetry Authors is recorded here.
+
+pkg/grok
+  Vendored grok pattern library under the Apache License, Version 2.0.
+  Its Apache-2.0 LICENSE is retained at pkg/grok/LICENSE.
+
+------------------------------------------------------------------------
+COPYLEFT considerations (AGPL-3.0, Section 13)
+------------------------------------------------------------------------
+
+The repository LICENSE is AGPL-3.0, inherited from upstream SigNoz. AGPL-3.0
+Section 13 ("Remote Network Interaction") requires that operators who make a
+modified version available to users interacting with it over a network offer
+those users access to the Corresponding Source. This collector is network
+server software (OTLP :4317/:4318, ZAP-native :4319). Operation as a hosted
+service therefore carries the Section 13 source-offer obligation. The
+underlying OpenTelemetry Collector components remain Apache-2.0; see LICENSE
+and the per-component license headers for the applicable terms of each part.
+
+------------------------------------------------------------------------
+DEVIATIONS
+------------------------------------------------------------------------
+
+Changes made by Hanzo AI, Inc. relative to upstream signoz-otel-collector:
+
+- Rebranded the Go module path github.com/SigNoz/signoz-otel-collector ->
+  github.com/hanzoai/otel-collector (commit ed4147c).
+- Rebranded the product to "Hanzo O11y Otel Collector" (README, LLM.md).
+- Added ZAP-native ingest: receiver/zapreceiver and exporter/zapexporter
+  (zap-proto/http on :4319) over upstream OTLP.
+- Renamed the ClickHouse trace/log exporters to the Hanzo Datastore
+  exporters exporter/datastoretracesexporter and
+  exporter/datastorelogsexporter, writing to hanzoai/datastore (ClickHouse).
+- Renamed the physical write-side schema signoz_* -> o11y_* (commit 03dbf86).
+- Namespaced the distro components signoz*/clickhouse* -> o11y*: exporters
+  o11ykafkaexporter, o11ydatastoremeter, o11ydatastoremetrics; receivers
+  o11ykafkareceiver, o11yawsfirehosereceiver; processors o11yspanmetrics,
+  o11ytailsampler, o11ytransform, o11yllmpricing, o11ylogspipeline; connector
+  o11ymeterconnector.
+- Forked the ClickHouse dd-sketch / proto drivers to hanzoai and renamed the
+  wire package chproto -> dsproto (commits 2e9c809, b7999ae).
+- Migrated test doubles from the hanzoai/mock fork to the hanzo-ds/mock
+  datastore API (NewDatastoreNative) (commit 29db386).
+- Removed all "signoz" identifiers from Go source and go.mod (0 remaining);
+  residual "clickhouse" references are technical (the datastore backend).
+- Replaced upstream CI with a single root hanzo.yml plus a ~7-line
+  .github/workflows/cicd.yml importing hanzoai/ci; builds run on the
+  self-hosted arc pool and produce two self-building images
+  (ghcr.io/hanzoai/otel-collector, ghcr.io/hanzoai/o11y-schema-migrator).
+- Added project knowledge files LLM.md (with AGENTS.md/CLAUDE.md symlinks).
