@@ -1,4 +1,4 @@
-package clickhousesystemtablesreceiver
+package datastoresystemtablesreceiver
 
 import (
 	"path/filepath"
@@ -39,7 +39,7 @@ func TestLoadConfig(t *testing.T) {
 		cm, err := confmaptest.LoadConf(filepath.Join("testdata", tt.testConfFileName))
 		require.Nil(err)
 
-		sub, err := cm.Sub("clickhousesystemtablesreceiver")
+		sub, err := cm.Sub("datastoresystemtablesreceiver")
 		require.Nil(err)
 
 		require.NoError(sub.Unmarshal(cfg))

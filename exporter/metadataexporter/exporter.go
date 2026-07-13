@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	clickhouse "github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	datastore "github.com/hanzo-ds/go"
+	"github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/utils"
 	"github.com/hanzoai/otel-collector/utils/fingerprint"
 	"github.com/hanzoai/otel-collector/utils/flatten"
@@ -90,11 +90,11 @@ func flattenJSONToStringMap(data map[string]any) map[string]string {
 }
 
 func newMetadataExporter(ctx context.Context, cfg Config, set exporter.Settings) (*metadataExporter, error) {
-	opts, err := clickhouse.ParseDSN(cfg.DSN)
+	opts, err := datastore.ParseDSN(cfg.DSN)
 	if err != nil {
 		return nil, err
 	}
-	conn, err := clickhouse.Open(opts)
+	conn, err := datastore.Open(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -300,7 +300,7 @@ func (e *metadataExporter) Shutdown(ctx context.Context) error {
 
 	if e.conn != nil {
 		if err := e.conn.Close(); err != nil {
-			e.set.Logger.Error("failed to close clickhouse connection", zap.Error(err))
+			e.set.Logger.Error("failed to close datastore connection", zap.Error(err))
 		}
 	}
 

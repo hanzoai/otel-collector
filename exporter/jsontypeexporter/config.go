@@ -17,7 +17,7 @@ type Config struct {
 	BackOffConfig                configretry.BackOffConfig                                `mapstructure:"retry_on_failure"`
 	QueueBatchConfig             configoptional.Optional[exporterhelper.QueueBatchConfig] `mapstructure:"sending_queue"`
 
-	// DSN is the ClickHouse server Data Source Name.
+	// DSN is the Datastore server Data Source Name.
 	DSN string `mapstructure:"dsn"`
 
 	// MaxDepthTraverse is the maximum depth of the JSON object to traverse.

@@ -1,4 +1,4 @@
-package clickhousesystemtablesreceiver
+package datastoresystemtablesreceiver
 
 import (
 	"context"
@@ -23,7 +23,7 @@ type systemTablesReceiver struct {
 	// (nextScrapeIntervalStartTs + scrapeIntervalSeconds) + scrapeDelaySeconds
 	scrapeDelaySeconds uint32
 
-	clickhouse   clickhouseQuerier
+	datastore   datastoreQuerier
 	nextConsumer consumer.Logs
 
 	logger  *zap.Logger
@@ -74,18 +74,18 @@ func (r *systemTablesReceiver) run(ctx context.Context) {
 
 }
 
-// Scrapes query_log table at clickhouse if the next set of query_log rows to be scraped are ready for scraping
+// Scrapes query_log table at datastore if the next set of query_log rows to be scraped are ready for scraping
 // Returns the number of seconds to wait before attempting a scrape again
 func (r *systemTablesReceiver) scrapeQueryLogIfReady(ctx context.Context) (uint32, error) {
-	if r.clickhouse == nil {
-		db, err := newClickhouseClient(ctx, r.config.DSN)
+	if r.datastore == nil {
+		db, err := newDatastoreClient(ctx, r.config.DSN)
 		if err != nil {
-			return r.scrapeIntervalSeconds, fmt.Errorf("couldn't create clickhouse client: %w", err)
+			return r.scrapeIntervalSeconds, fmt.Errorf("couldn't create datastore client: %w", err)
 		}
-		r.clickhouse = newClickhouseQuerrier(db, r.config.ClusterName)
+		r.datastore = newDatastoreQuerrier(db, r.config.ClusterName)
 	}
 
-	serverTsNow, err := r.clickhouse.unixTsNow(ctx)
+	serverTsNow, err := r.datastore.unixTsNow(ctx)
 	if err != nil {
 		return r.scrapeIntervalSeconds, fmt.Errorf("couldn't determine server timestamp: %w", err)
 	}
@@ -115,7 +115,7 @@ func (r *systemTablesReceiver) scrapeQueryLogIfReady(ctx context.Context) (uint3
 	)
 
 	if r.obsrecv != nil {
-		r.obsrecv.EndLogsOp(ctx, "clickhouse.system.query_log", pushedCount, scrapeErr)
+		r.obsrecv.EndLogsOp(ctx, "datastore.system.query_log", pushedCount, scrapeErr)
 	}
 
 	if scrapeErr != nil {
@@ -144,11 +144,11 @@ func (r *systemTablesReceiver) scrapeQueryLogIfReady(ctx context.Context) (uint3
 func (r *systemTablesReceiver) scrapeAndPushQueryLogs(
 	ctx context.Context, minEventTs uint32, maxEventTs uint32,
 ) (int, error) {
-	queryLogs, err := r.clickhouse.scrapeQueryLog(
+	queryLogs, err := r.datastore.scrapeQueryLog(
 		ctx, minEventTs, maxEventTs,
 	)
 	if err != nil {
-		return 0, fmt.Errorf("couldn't scrape clickhouse query_log table: %w", err)
+		return 0, fmt.Errorf("couldn't scrape datastore query_log table: %w", err)
 	}
 
 	pl, err := r.queryLogsToPlogs(queryLogs)

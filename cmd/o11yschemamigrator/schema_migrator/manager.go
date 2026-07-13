@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/hanzo-ds/go"
 	"github.com/hanzoai/otel-collector/constants"
 	"github.com/cenkalti/backoff/v4"
 	"go.uber.org/zap"
@@ -74,9 +74,9 @@ type MigrationManager struct {
 	// addrs is the list of addresses of the hosts in the cluster.
 	addrs    []string
 	addrsMux sync.Mutex
-	conn     clickhouse.Conn
-	connOpts clickhouse.Options
-	conns    map[string]clickhouse.Conn
+	conn     datastore.Conn
+	connOpts datastore.Options
+	conns    map[string]datastore.Conn
 
 	clusterName        string
 	replicationEnabled bool
@@ -95,7 +95,7 @@ func NewMigrationManager(opts ...Option) (*MigrationManager, error) {
 		// no mutation should be running for more than 15 minutes, if it is, we should fail fast
 		backoff:            backoff.NewExponentialBackOff(),
 		replicationEnabled: false,
-		conns:              make(map[string]clickhouse.Conn),
+		conns:              make(map[string]datastore.Conn),
 	}
 	for _, opt := range opts {
 		opt(mgr)
@@ -124,13 +124,13 @@ func WithReplicationEnabled(replicationEnabled bool) Option {
 	}
 }
 
-func WithConn(conn clickhouse.Conn) Option {
+func WithConn(conn datastore.Conn) Option {
 	return func(mgr *MigrationManager) {
 		mgr.conn = conn
 	}
 }
 
-func WithConnOptions(opts clickhouse.Options) Option {
+func WithConnOptions(opts datastore.Options) Option {
 	return func(mgr *MigrationManager) {
 		mgr.connOpts = opts
 	}
@@ -403,7 +403,7 @@ func (m *MigrationManager) HostAddrs() ([]string, error) {
 			m.logger.Info("Connecting to new host", zap.String("host", hostAddr))
 			opts := m.connOpts
 			opts.Addr = []string{hostAddr}
-			conn, err := clickhouse.Open(&opts)
+			conn, err := datastore.Open(&opts)
 			if err != nil {
 				return nil, errors.Join(ErrFailedToGetConn, err)
 			}
@@ -439,7 +439,7 @@ func (m *MigrationManager) HostAddrs() ([]string, error) {
 	return addrs, nil
 }
 
-func (m *MigrationManager) getConn(hostAddr string) (clickhouse.Conn, error) {
+func (m *MigrationManager) getConn(hostAddr string) (datastore.Conn, error) {
 	m.addrsMux.Lock()
 	defer m.addrsMux.Unlock()
 	if conn, ok := m.conns[hostAddr]; ok {
@@ -447,7 +447,7 @@ func (m *MigrationManager) getConn(hostAddr string) (clickhouse.Conn, error) {
 	}
 	opts := m.connOpts
 	opts.Addr = []string{hostAddr}
-	conn, err := clickhouse.Open(&opts)
+	conn, err := datastore.Open(&opts)
 	if err != nil {
 		return nil, err
 	}
@@ -548,10 +548,10 @@ func (m *MigrationManager) getDistributedDDLQueue(ctx context.Context) ([]Distri
 	// 10 attempts is an arbitrary number. If we don't get the DDL queue after 10 attempts, we give up.
 	for i := 0; i < 10; i++ {
 		if err := m.conn.Select(ctx, &ddlQueue, query); err != nil {
-			if exception, ok := err.(*clickhouse.Exception); ok {
+			if exception, ok := err.(*datastore.Exception); ok {
 				if exception.Code == 999 {
-					// ClickHouse DDLWorker is cleaning up entries in the distributed_ddl_queue before we can query it. This leads to the exception:
-					// code: 999, message: Coordination error: No node, path /clickhouse/o11y-clickhouse/task_queue/ddl/query-000000<some 4 digit number>/finished
+					// Datastore DDLWorker is cleaning up entries in the distributed_ddl_queue before we can query it. This leads to the exception:
+					// code: 999, message: Coordination error: No node, path /datastore/o11y-datastore/task_queue/ddl/query-000000<some 4 digit number>/finished
 
 					// It looks like this exception is safe to retry on.
 					if strings.Contains(exception.Error(), "No node") {
@@ -572,7 +572,7 @@ func (m *MigrationManager) getDistributedDDLQueue(ctx context.Context) ([]Distri
 	return ddlQueue, nil
 }
 
-func (m *MigrationManager) waitForDistributionQueueOnHost(ctx context.Context, conn clickhouse.Conn, db, table string) error {
+func (m *MigrationManager) waitForDistributionQueueOnHost(ctx context.Context, conn datastore.Conn, db, table string) error {
 	errCountQuery := "SELECT count(*) FROM system.distribution_queue WHERE database = $1 AND table = $2 AND (error_count != 0 OR is_blocked = 1)"
 
 	var errCount uint64

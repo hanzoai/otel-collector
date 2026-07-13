@@ -23,8 +23,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
-	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/hanzo-ds/go"
+	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/hanzoai/otel-collector/internal/common"
@@ -52,10 +52,10 @@ type shouldSkipKey struct {
 	NumberCount uint64 `ch:"number_count"`
 }
 
-// SpanWriter for writing spans to ClickHouse
+// SpanWriter for writing spans to Datastore
 type SpanWriter struct {
 	logger            *zap.Logger
-	db                clickhouse.Conn
+	db                datastore.Conn
 	traceDatabase     string
 	errorTable        string
 	attributeTableV2  string

@@ -16,7 +16,7 @@ import (
 	"github.com/hanzoai/otel-collector/processor/o11yspanmetricsprocessor"
 	"github.com/hanzoai/otel-collector/processor/o11ytailsampler"
 	"github.com/hanzoai/otel-collector/processor/o11ytransformprocessor"
-	"github.com/hanzoai/otel-collector/receiver/clickhousesystemtablesreceiver"
+	"github.com/hanzoai/otel-collector/receiver/datastoresystemtablesreceiver"
 	"github.com/hanzoai/otel-collector/receiver/httplogreceiver"
 	"github.com/hanzoai/otel-collector/receiver/o11yawsfirehosereceiver"
 	"github.com/hanzoai/otel-collector/receiver/o11ykafkareceiver"
@@ -247,7 +247,7 @@ func Components() (otelcol.Factories, error) {
 		bigipreceiver.NewFactory(),
 		carbonreceiver.NewFactory(),
 		chronyreceiver.NewFactory(),
-		clickhousesystemtablesreceiver.NewFactory(),
+		datastoresystemtablesreceiver.NewFactory(),
 		cloudflarereceiver.NewFactory(),
 		cloudfoundryreceiver.NewFactory(),
 		collectdreceiver.NewFactory(),

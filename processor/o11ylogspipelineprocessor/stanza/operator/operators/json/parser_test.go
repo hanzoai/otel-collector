@@ -161,7 +161,7 @@ func TestParser(t *testing.T) {
 					},
 					"superkey3": []string{"val1", "val2"},
 				},
-				// Note: body is not stringified by parser but the exporter when saving in clickhouse
+				// Note: body is not stringified by parser but the exporter when saving in datastore
 				Body: map[string]any{
 					"superkey": "superval",
 					"superkey2": map[string]any{

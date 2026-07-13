@@ -1,4 +1,4 @@
-package clickhousesystemtablesreceiver
+package datastoresystemtablesreceiver
 
 import (
 	"context"
@@ -17,7 +17,7 @@ func TestReceiverStartAndShutdown(t *testing.T) {
 	r := &systemTablesReceiver{
 		scrapeIntervalSeconds: 2,
 		scrapeDelaySeconds:    8,
-		clickhouse:            &mockClickhouseQuerrier{},
+		datastore:            &mockDatastoreQuerrier{},
 		nextConsumer:          consumertest.NewNop(),
 		logger:                zap.NewNop(),
 	}
@@ -31,7 +31,7 @@ func TestReceiver(t *testing.T) {
 
 	testScrapeIntervalSeconds := uint32(2)
 	testScrapeDelaySeconds := uint32(8)
-	mockQuerrier := &mockClickhouseQuerrier{}
+	mockQuerrier := &mockDatastoreQuerrier{}
 	logsSink := consumertest.LogsSink{}
 	testReceiver, err := newTestReceiver(
 		mockQuerrier,
@@ -42,7 +42,7 @@ func TestReceiver(t *testing.T) {
 	require.Nil(err)
 
 	// Receiver should start scraping query_log rows that come after the
-	// clickhouse ts it observes when starting up
+	// datastore ts it observes when starting up
 	t0 := uint32(time.Now().Unix())
 	mockQuerrier.tsNow = t0
 
@@ -120,12 +120,12 @@ func TestReceiver(t *testing.T) {
 
 	require.Equal(lr.Body().Str(), testQuery)
 	require.Equal(lr.Timestamp().AsTime().Unix(), testQlEventTime.Unix())
-	et, exists := lr.Attributes().Get("clickhouse.query_log.event_time")
+	et, exists := lr.Attributes().Get("datastore.query_log.event_time")
 	require.True(exists)
 	require.Equal(et.Str(), testQlEventTime.Format(time.RFC3339))
 
 	// should scrape again immediately if scrape is too far behind the server ts
-	// for example: this can happen if clickhouse goes down for some time
+	// for example: this can happen if datastore goes down for some time
 	mockQuerrier.tsNow += 10 * testScrapeIntervalSeconds
 	testQl4 := makeTestQueryLog("host-4", time.Now(), "test query 4")
 	mockQuerrier.nextScrapeResult = []QueryLog{testQl4}

@@ -35,14 +35,14 @@ type AttributesLimits struct {
 	MaxDistinctValues int           `mapstructure:"max_distinct_values"`
 }
 
-// Config defines configuration for ClickHouse exporter.
+// Config defines configuration for Datastore exporter.
 type Config struct {
 	exporterhelper.TimeoutConfig `mapstructure:",squash"`
 	BackOffConfig                configretry.BackOffConfig                                `mapstructure:"retry_on_failure"`
 	QueueBatchConfig             configoptional.Optional[exporterhelper.QueueBatchConfig] `mapstructure:"sending_queue"`
 
-	// DSN is the ClickHouse server Data Source Name.
-	// For tcp protocol reference: [ClickHouse/clickhouse-go#dsn](https://github.com/ClickHouse/clickhouse-go#dsn).
+	// DSN is the Datastore server Data Source Name.
+	// For tcp protocol reference: [Datastore/datastore-go#dsn](https://github.com/ClickHouse/clickhouse-go#dsn).
 	DSN                 string `mapstructure:"dsn"`
 	UseNewSchema        bool   `mapstructure:"use_new_schema"`
 	LogLevelConcurrency *int   `mapstructure:"log_level_concurrency"`
@@ -59,7 +59,7 @@ var (
 	errConfigNoDSN = errors.New("dsn must be specified")
 )
 
-// Validate validates the clickhouse server configuration.
+// Validate validates the datastore server configuration.
 func (cfg *Config) Validate() (err error) {
 	if cfg.DSN == "" {
 		err = multierr.Append(err, errConfigNoDSN)

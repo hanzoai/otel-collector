@@ -1,15 +1,15 @@
-package clickhousesystemtablesreceiver
+package datastoresystemtablesreceiver
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/hanzo-ds/go/lib/driver"
 )
 
-// Used by the receiver for working with clickhouse.
+// Used by the receiver for working with datastore.
 // Helps mock things for tests
-type clickhouseQuerier interface {
+type datastoreQuerier interface {
 	// Scrape query_log table for rows with minEventTs <= event_time < maxEventTs
 	scrapeQueryLog(
 		ctx context.Context, minEventTs uint32, maxEventTs uint32,
@@ -27,9 +27,9 @@ type querrierImpl struct {
 	clusterName string
 }
 
-var _ clickhouseQuerier = (*querrierImpl)(nil)
+var _ datastoreQuerier = (*querrierImpl)(nil)
 
-func newClickhouseQuerrier(db driver.Conn, clusterName string) *querrierImpl {
+func newDatastoreQuerrier(db driver.Conn, clusterName string) *querrierImpl {
 	return &querrierImpl{
 		db:          db,
 		clusterName: clusterName,
@@ -49,7 +49,7 @@ func (q *querrierImpl) unixTsNow(ctx context.Context) (
 	row := q.db.QueryRow(ctx, `select toUnixTimestamp(now())`)
 	if err := row.Scan(&serverTsNow); err != nil {
 		return 0, fmt.Errorf(
-			"couldn't query current timestamp at clickhouse server: %w", err,
+			"couldn't query current timestamp at datastore server: %w", err,
 		)
 	}
 	return serverTsNow, nil
