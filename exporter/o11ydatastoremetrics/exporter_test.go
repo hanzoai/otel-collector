@@ -13,7 +13,7 @@ import (
 
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/google/uuid"
-	cmock "github.com/hanzo-ds/mock"
+	cmock "github.com/hanzoai/mock"
 	"go.uber.org/zap/zaptest"
 
 	chproto "github.com/hanzo-ds/native/proto"
@@ -1187,7 +1187,7 @@ func Test_prepareBatchExponentialHistogramWithNan(t *testing.T) {
 }
 
 func Test_shutdown(t *testing.T) {
-	conn, err := cmock.NewClickHouseNative(nil)
+	conn, err := cmock.NewDatastoreNative(nil)
 	if err != nil {
 		log.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}

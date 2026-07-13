@@ -11,7 +11,7 @@ import (
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/plogsgen"
 	"github.com/hanzoai/otel-collector/utils"
 	lru "github.com/hashicorp/golang-lru/v2"
-	mockhouse "github.com/hanzo-ds/mock"
+	mockhouse "github.com/hanzoai/mock"
 )
 
 // buildLogs constructs a plog.Logs with count log records, using plogsgen for bodies.
@@ -34,7 +34,7 @@ func buildLogs(count int) plog.Logs {
 
 func BenchmarkPushLogs_10k(b *testing.B) {
 	ctx := context.Background()
-	conn, err := mockhouse.NewClickHouseNative(nil)
+	conn, err := mockhouse.NewDatastoreNative(nil)
 	if err != nil {
 		b.Fatalf("failed to create mock house: %v", err)
 	}

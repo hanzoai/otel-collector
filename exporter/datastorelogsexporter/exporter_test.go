@@ -12,7 +12,7 @@ import (
 	"github.com/hanzoai/otel-collector/utils"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
-	cmock "github.com/hanzo-ds/mock"
+	cmock "github.com/hanzoai/mock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/exporter"
@@ -90,7 +90,7 @@ func setupTestExporter(t *testing.T, mock driver.Conn) *datastoreLogsExporter {
 }
 
 func TestExporterInit(t *testing.T) {
-	mock, err := cmock.NewClickHouseWithQueryMatcher(nil, sqlmock.QueryMatcherRegexp)
+	mock, err := cmock.NewDatastoreWithQueryMatcher(nil, sqlmock.QueryMatcherRegexp)
 	if err != nil {
 		log.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
@@ -120,7 +120,7 @@ func TestExporterInit(t *testing.T) {
 }
 
 func TestExporterPushLogsData(t *testing.T) {
-	mock, err := cmock.NewClickHouseWithQueryMatcher(nil, sqlmock.QueryMatcherRegexp)
+	mock, err := cmock.NewDatastoreWithQueryMatcher(nil, sqlmock.QueryMatcherRegexp)
 	if err != nil {
 		log.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
@@ -273,7 +273,7 @@ func TestExporterConcurrency(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			mock, err := cmock.NewClickHouseWithQueryMatcher(nil, sqlmock.QueryMatcherRegexp)
+			mock, err := cmock.NewDatastoreWithQueryMatcher(nil, sqlmock.QueryMatcherRegexp)
 			if err != nil {
 				log.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 			}
