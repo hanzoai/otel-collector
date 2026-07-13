@@ -892,8 +892,8 @@ require (
 )
 
 replace (
-	github.com/ClickHouse/ch-go v0.66.0 => github.com/SigNoz/ch-go v0.66.0-dd-sketch
-	github.com/ClickHouse/clickhouse-go/v2 v2.36.0 => github.com/SigNoz/clickhouse-go/v2 v2.36.0-dd-sketch
+	github.com/ClickHouse/ch-go v0.66.0 => github.com/hanzoai/ch-go v0.66.0-dd-sketch
+	github.com/ClickHouse/clickhouse-go/v2 v2.36.0 => github.com/hanzoai/clickhouse-go/v2 v2.36.0-dd-sketch
 
 	// using 0.23.0 as there is an issue with 0.24.0 stats that results in
 	// an error
