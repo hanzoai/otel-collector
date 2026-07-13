@@ -1,4 +1,4 @@
-package clickhousesystemtablesreceiver
+package datastoresystemtablesreceiver
 
 import (
 	"errors"
@@ -30,7 +30,7 @@ func (cfg *Config) Validate() (err error) {
 	}
 
 	if cfg.QueryLogScrapeConfig.MinScrapeDelaySeconds == 0 {
-		err = multierr.Append(err, errors.New("query_log_scrape_config.scrape_delay_seconds must be set to a value greater than flush_interval_milliseconds setting for clickhouse query_log table"))
+		err = multierr.Append(err, errors.New("query_log_scrape_config.scrape_delay_seconds must be set to a value greater than flush_interval_milliseconds setting for datastore query_log table"))
 	}
 
 	return err

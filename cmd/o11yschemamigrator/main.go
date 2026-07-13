@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/hanzo-ds/go"
 	schema_migrator "github.com/hanzoai/otel-collector/cmd/o11yschemamigrator/schema_migrator"
 	"github.com/hanzoai/otel-collector/constants"
 	"github.com/spf13/cobra"
@@ -60,7 +60,7 @@ func main() {
 	var clusterName string
 	var development bool
 
-	cmd.PersistentFlags().StringVar(&dsn, "dsn", "", "Clickhouse DSN")
+	cmd.PersistentFlags().StringVar(&dsn, "dsn", "", "Datastore DSN")
 	cmd.PersistentFlags().BoolVar(&replicationEnabled, "replication", false, "Enable replication")
 	cmd.PersistentFlags().StringVar(&clusterName, "cluster-name", "cluster", "Cluster name to use while running migrations")
 	cmd.PersistentFlags().BoolVar(&development, "dev", false, "Development mode")
@@ -121,13 +121,13 @@ func registerSyncMigrate(cmd *cobra.Command) {
 				return fmt.Errorf("cannot provide both up and down migrations")
 			}
 
-			opts, err := clickhouse.ParseDSN(dsn)
+			opts, err := datastore.ParseDSN(dsn)
 			if err != nil {
 				return fmt.Errorf("failed to parse dsn: %w", err)
 			}
 			logger.Info("Parsed DSN", zap.Any("opts", opts))
 
-			conn, err := clickhouse.Open(opts)
+			conn, err := datastore.Open(opts)
 			if err != nil {
 				return fmt.Errorf("failed to open connection: %w", err)
 			}
@@ -219,13 +219,13 @@ func registerAsyncMigrate(cmd *cobra.Command) {
 				return fmt.Errorf("cannot provide both up and down migrations")
 			}
 
-			opts, err := clickhouse.ParseDSN(dsn)
+			opts, err := datastore.ParseDSN(dsn)
 			if err != nil {
 				return fmt.Errorf("failed to parse dsn: %w", err)
 			}
 			logger.Info("Parsed DSN", zap.Any("opts", opts))
 
-			conn, err := clickhouse.Open(opts)
+			conn, err := datastore.Open(opts)
 			if err != nil {
 				return fmt.Errorf("failed to open connection: %w", err)
 			}

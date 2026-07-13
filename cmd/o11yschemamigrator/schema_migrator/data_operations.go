@@ -18,7 +18,7 @@ type InsertIntoTable struct {
 	Values string
 }
 
-// OnCluster is a no-op for INSERTs (ClickHouse does not support INSERT ... ON CLUSTER).
+// OnCluster is a no-op for INSERTs (Datastore does not support INSERT ... ON CLUSTER).
 func (i InsertIntoTable) OnCluster(cluster string) Operation {
 	i.cluster = cluster
 	return &i

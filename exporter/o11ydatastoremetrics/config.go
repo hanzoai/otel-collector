@@ -9,7 +9,7 @@ import (
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
 )
 
-// Config defines configuration for ClickHouse Metrics exporter.
+// Config defines configuration for Datastore Metrics exporter.
 type Config struct {
 	exporterhelper.TimeoutConfig `mapstructure:",squash"`                                 // squash ensures fields are correctly decoded in embedded struct.
 	BackOffConfig                configretry.BackOffConfig                                `mapstructure:"retry_on_failure"`

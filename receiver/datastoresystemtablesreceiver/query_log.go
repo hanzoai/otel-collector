@@ -1,4 +1,4 @@
-package clickhousesystemtablesreceiver
+package datastoresystemtablesreceiver
 
 import (
 	"context"
@@ -9,12 +9,12 @@ import (
 
 	"github.com/goccy/go-json"
 
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/hanzo-ds/go/lib/driver"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/plog"
 )
 
-// DTO for scanning query_log rows from clickhouse
+// DTO for scanning query_log rows from datastore
 // https://clickhouse.com/docs/en/operations/system-tables/query_log
 type QueryLog struct {
 	// Hostname of the server executing the query.
@@ -112,20 +112,20 @@ type QueryLog struct {
 	// The flag whether a query was executed over a secure interface
 	IsSecure uint8 `ch:"is_secure"`
 
-	// Operating system username who runs clickhouse-client.
+	// Operating system username who runs datastore-client.
 	OSUser string `ch:"os_user"`
 
-	// Hostname of the client machine where the clickhouse-client or another TCP client is run.
+	// Hostname of the client machine where the datastore-client or another TCP client is run.
 	ClientHostname string `ch:"client_hostname"`
-	// The clickhouse-client or another TCP client name.
+	// The datastore-client or another TCP client name.
 	ClientName string `ch:"client_name"`
-	// Revision of the clickhouse-client or another TCP client.
+	// Revision of the datastore-client or another TCP client.
 	ClientRevision uint32 `ch:"client_revision"`
-	// Major version of the clickhouse-client or another TCP client.
+	// Major version of the datastore-client or another TCP client.
 	ClientVersionMajor uint32 `ch:"client_version_major"`
-	// Minor version of the clickhouse-client or another TCP client.
+	// Minor version of the datastore-client or another TCP client.
 	ClientVersionMinor uint32 `ch:"client_version_minor"`
-	// Patch component of the clickhouse-client or another TCP client version.
+	// Patch component of the datastore-client or another TCP client version.
 	ClientVersionPatch uint32 `ch:"client_version_patch"`
 
 	// HTTP method that initiated the query. Possible values: 0 — The query was launched from the TCP interface, 1 — GET method was used, 2 — POST method was used.
@@ -143,8 +143,8 @@ type QueryLog struct {
 	// How many times a query was forwarded between servers.
 	DistributedDepth uint64 `ch:"distributed_depth"`
 
-	// ClickHouse revision.
-	ClickhouseRevision uint32 `ch:"revision"`
+	// Datastore revision.
+	DatastoreRevision uint32 `ch:"revision"`
 
 	// Log comment. It can be set to arbitrary string no longer than max_query_size. An empty string if it is not defined.
 	LogComment string `ch:"log_comment"`
@@ -189,7 +189,7 @@ type QueryLog struct {
 	AsyncReadCounters map[string]uint64 `ch:"asynchronous_read_counters"`
 }
 
-// Queries clickhouse `db` for query_log rows with minTs <= event_time < maxTs.
+// Queries datastore `db` for query_log rows with minTs <= event_time < maxTs.
 // If ClusterName is non-empty, the scrape will target `clusterAllReplicas(clusterName, system.query_log)`
 func scrapeQueryLogTable(
 	ctx context.Context,
@@ -290,7 +290,7 @@ func scrapeQueryLogTable(
 
 	rows, err := db.Query(ctx, query)
 	if err != nil {
-		return nil, fmt.Errorf("couldn't query clickhouse query_log table: %w", err)
+		return nil, fmt.Errorf("couldn't query datastore query_log table: %w", err)
 	}
 
 	result := []QueryLog{}
@@ -329,7 +329,7 @@ func (ql *QueryLog) toLogRecord() (plog.LogRecord, error) {
 		if attrName := field.Tag.Get("ch"); attrName != "" {
 			fieldVal := qlVal.Field(i).Interface()
 			// if attrName is log_comment, and it's json string, we convert it to attributes
-			// with the prefix clickhouse.query_log.log_comment.<key> = value
+			// with the prefix datastore.query_log.log_comment.<key> = value
 			if attrName == "log_comment" && json.Valid([]byte(qlVal.Field(i).String())) {
 				logCommentMap := map[string]any{}
 				err := json.Unmarshal([]byte(qlVal.Field(i).String()), &logCommentMap)
@@ -338,8 +338,8 @@ func (ql *QueryLog) toLogRecord() (plog.LogRecord, error) {
 				}
 			}
 
-			// prefix all the attributes with clickhouse.query_log.
-			attrName = fmt.Sprintf("clickhouse.query_log.%s", attrName)
+			// prefix all the attributes with datastore.query_log.
+			attrName = fmt.Sprintf("datastore.query_log.%s", attrName)
 			pval := pcommonValue(fieldVal)
 			// if the pval is a slice, we convert it to a string with the elements separated by commas
 			// else if pval is a map, we add one attribute for each key-value pair with a prefix of the attribute name
@@ -363,7 +363,7 @@ func (ql *QueryLog) toLogRecord() (plog.LogRecord, error) {
 			}
 		}
 	}
-	lr.Attributes().PutStr("source", "clickhouse")
+	lr.Attributes().PutStr("source", "datastore")
 
 	return lr, nil
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/hanzo-ds/go"
 	"github.com/hanzoai/otel-collector/cmd/o11yotelcollector/config"
 	schemamigrator "github.com/hanzoai/otel-collector/cmd/o11yschemamigrator/schema_migrator"
 	"github.com/hanzoai/otel-collector/constants"
@@ -15,7 +15,7 @@ import (
 )
 
 type syncUp struct {
-	conn             clickhouse.Conn
+	conn             datastore.Conn
 	cluster          string
 	migrationManager *schemamigrator.MigrationManager
 	timeout          time.Duration
@@ -28,7 +28,7 @@ func registerSyncUp(parentCmd *cobra.Command, logger *zap.Logger) {
 		Short:        "Runs 'up' sync migrations for the store. Up migrations are used to apply new migrations to the store.",
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			up, err := newSyncUp(config.Clickhouse.DSN, config.Clickhouse.Cluster, config.Clickhouse.Replication, config.MigrateSyncUp.Timeout, logger)
+			up, err := newSyncUp(config.Datastore.DSN, config.Datastore.Cluster, config.Datastore.Replication, config.MigrateSyncUp.Timeout, logger)
 			if err != nil {
 				return err
 			}
@@ -48,12 +48,12 @@ func registerSyncUp(parentCmd *cobra.Command, logger *zap.Logger) {
 }
 
 func newSyncUp(dsn string, cluster string, replication bool, timeout time.Duration, logger *zap.Logger) (*syncUp, error) {
-	opts, err := clickhouse.ParseDSN(dsn)
+	opts, err := datastore.ParseDSN(dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := clickhouse.Open(opts)
+	conn, err := datastore.Open(opts)
 	if err != nil {
 		return nil, err
 	}

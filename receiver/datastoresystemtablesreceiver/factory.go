@@ -1,4 +1,4 @@
-package clickhousesystemtablesreceiver
+package datastoresystemtablesreceiver
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"go.opentelemetry.io/collector/receiver"
 	"go.opentelemetry.io/collector/receiver/receiverhelper"
 
-	"github.com/hanzoai/otel-collector/receiver/clickhousesystemtablesreceiver/internal/metadata"
+	"github.com/hanzoai/otel-collector/receiver/datastoresystemtablesreceiver/internal/metadata"
 )
 
 const (
@@ -48,7 +48,7 @@ func createLogsReceiver(
 
 	obsrecv, err := receiverhelper.NewObsReport(receiverhelper.ObsReportSettings{
 		ReceiverID:             params.ID,
-		Transport:              "clickhouse",
+		Transport:              "datastore",
 		ReceiverCreateSettings: params,
 	})
 	if err != nil {

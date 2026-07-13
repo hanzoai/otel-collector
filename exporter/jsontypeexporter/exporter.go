@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go/v2"
-	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/hanzo-ds/go"
+	"github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/constants"
 	"github.com/hanzoai/otel-collector/pkg/keycheck"
 	"github.com/hanzoai/otel-collector/utils"
@@ -34,7 +34,7 @@ type jsonTypeExporter struct {
 	config  *Config
 	logger  *zap.Logger
 	limiter chan struct{}
-	conn    clickhouse.Conn
+	conn    datastore.Conn
 	// this cache doesn't contains full paths, only keys from different levels
 	// it is used to avoid checking if a key is high cardinality or not for every log record
 	cardinalKeyCache *lru.Cache[string, struct{}]
@@ -42,15 +42,15 @@ type jsonTypeExporter struct {
 }
 
 func newExporter(cfg Config, set exporter.Settings) (*jsonTypeExporter, error) {
-	// Initialize ClickHouse connection
-	connOptions, err := clickhouse.ParseDSN(cfg.DSN)
+	// Initialize Datastore connection
+	connOptions, err := datastore.ParseDSN(cfg.DSN)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse ClickHouse DSN: %w", err)
+		return nil, fmt.Errorf("failed to parse Datastore DSN: %w", err)
 	}
 
-	conn, err := clickhouse.Open(connOptions)
+	conn, err := datastore.Open(connOptions)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to ClickHouse: %w", err)
+		return nil, fmt.Errorf("failed to connect to Datastore: %w", err)
 	}
 
 	keyCache, err := lru.New[string, struct{}](defaultKeyCacheSize)
@@ -331,7 +331,7 @@ func inferArrayMask(types []pcommon.ValueType) uint16 {
 	return maskArrayDynamic
 }
 
-// persistTypes writes the collected types to the ClickHouse database
+// persistTypes writes the collected types to the Datastore database
 func (e *jsonTypeExporter) persistTypes(ctx context.Context, typeSet *TypeSet) error {
 	// Prepare the SQL statement
 	sql := fmt.Sprintf("INSERT INTO %s (path, type, last_seen) VALUES (?, ?, ?)", distributedPathTypesTableName)

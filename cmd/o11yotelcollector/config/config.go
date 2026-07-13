@@ -10,7 +10,7 @@ import (
 
 var (
 	Collector         collector
-	Clickhouse        clickhouse
+	Datastore        datastore
 	MigrateReady      migrateReady
 	MigrateBootstrap  migrateBootstrap
 	MigrateSyncCheck  migrateSyncCheck
@@ -33,16 +33,16 @@ func (cfg *collector) RegisterFlags(cmd *cobra.Command) {
 		"Comma-delimited list of feature gate identifiers. Prefix with '-' to disable the feature. '+' or no prefix will enable the feature.")
 }
 
-type clickhouse struct {
+type datastore struct {
 	DSN         string
 	Cluster     string
 	Replication bool
 }
 
-func (cfg *clickhouse) RegisterFlags(cmd *cobra.Command) {
-	cmd.PersistentFlags().StringVar(&cfg.DSN, "clickhouse-dsn", "tcp://0.0.0.0:9001", "DSN for clickhouse connection")
-	cmd.PersistentFlags().StringVar(&cfg.Cluster, "clickhouse-cluster", "cluster", "Name of the clickhouse cluster to connect")
-	cmd.PersistentFlags().BoolVar(&cfg.Replication, "clickhouse-replication", true, "Set true if replication is enabled in the clickhouse cluster")
+func (cfg *datastore) RegisterFlags(cmd *cobra.Command) {
+	cmd.PersistentFlags().StringVar(&cfg.DSN, "datastore-dsn", "tcp://0.0.0.0:9001", "DSN for datastore connection")
+	cmd.PersistentFlags().StringVar(&cfg.Cluster, "datastore-cluster", "cluster", "Name of the datastore cluster to connect")
+	cmd.PersistentFlags().BoolVar(&cfg.Replication, "datastore-replication", true, "Set true if replication is enabled in the datastore cluster")
 }
 
 type migrateReady struct {

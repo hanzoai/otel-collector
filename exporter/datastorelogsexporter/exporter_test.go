@@ -6,13 +6,13 @@ import (
 	"testing"
 	"time"
 
-	driver "github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/plogsgen"
 	"github.com/hanzoai/otel-collector/utils"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
-	cmock "github.com/srikanthccv/ClickHouse-go-mock"
+	cmock "github.com/hanzo-ds/mock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/exporter"
@@ -59,7 +59,7 @@ func testOptions(t *testing.T) []LogExporterOption {
 	}
 }
 
-// setupTestExporter creates a new exporter with mock ClickHouse client for testing
+// setupTestExporter creates a new exporter with mock Datastore client for testing
 func setupTestExporter(t *testing.T, mock driver.Conn) *datastoreLogsExporter {
 	opts := testOptions(t)
 	opts = append(opts, WithDatastoreClient(mock))
@@ -67,7 +67,7 @@ func setupTestExporter(t *testing.T, mock driver.Conn) *datastoreLogsExporter {
 	opts = append(opts, WithNewUsageCollector(id, mock))
 
 	cfg := &Config{
-		DSN: "clickhouse://localhost:9000/test",
+		DSN: "datastore://localhost:9000/test",
 		AttributesLimits: AttributesLimits{
 			FetchKeysInterval: 2 * time.Second,
 			MaxDistinctValues: 25000,
@@ -205,14 +205,14 @@ func TestGetResourceAttributesByte(t *testing.T) {
 	}
 }
 
-// setupTestExporterWithConcurrency creates a new exporter with mock ClickHouse client and custom concurrency for testing
+// setupTestExporterWithConcurrency creates a new exporter with mock Datastore client and custom concurrency for testing
 func setupTestExporterWithConcurrency(t *testing.T, mock driver.Conn, concurrency int) *datastoreLogsExporter {
 	opts := testOptions(t)
 	id := uuid.New()
 	opts = append(opts, WithDatastoreClient(mock), WithNewUsageCollector(id, mock), WithConcurrency(concurrency))
 
 	cfg := &Config{
-		DSN: "clickhouse://localhost:9000/test",
+		DSN: "datastore://localhost:9000/test",
 		AttributesLimits: AttributesLimits{
 			FetchKeysInterval: 2 * time.Second,
 			MaxDistinctValues: 25000,
@@ -462,7 +462,7 @@ func TestProcessBody(t *testing.T) {
 			exporter, err := newExporter(
 				exporter.Settings{},
 				&Config{
-					DSN:                       "clickhouse://localhost:9000/test",
+					DSN:                       "datastore://localhost:9000/test",
 					BodyJSONEnabled:           tc.bodyJSONEnabled,
 					BodyJSONOldBodyEnabled:    tc.bodyJSONOldBodyEnabled,
 					PromotedPathsSyncInterval: utils.ToPointer(5 * time.Minute),
