@@ -3,7 +3,7 @@ package schemamigrator
 import (
 	"testing"
 
-	mockhouse "github.com/hanzo-ds/mock"
+	mockhouse "github.com/hanzoai/mock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -12,7 +12,7 @@ import (
 func newTestMigrationManager(t *testing.T) *MigrationManager {
 	t.Helper()
 
-	conn, err := mockhouse.NewClickHouseNative(nil)
+	conn, err := mockhouse.NewDatastoreNative(nil)
 	require.NoError(t, err)
 
 	manager, err := NewMigrationManager(

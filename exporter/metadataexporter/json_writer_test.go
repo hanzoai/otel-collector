@@ -12,7 +12,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/hanzoai/otel-collector/utils"
 	lru "github.com/hashicorp/golang-lru/v2"
-	cmock "github.com/hanzo-ds/mock"
+	cmock "github.com/hanzoai/mock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/pcommon"
@@ -30,7 +30,7 @@ func newTestWriter(t *testing.T, cfg JSONConfig) *jsonMetadataWriter {
 
 func newTestValueAccumulator(t *testing.T) *valueAccumulator {
 	t.Helper()
-	conn, err := cmock.NewClickHouseWithQueryMatcher(nil, sqlmock.QueryMatcherRegexp)
+	conn, err := cmock.NewDatastoreWithQueryMatcher(nil, sqlmock.QueryMatcherRegexp)
 	require.NoError(t, err)
 	conn.ExpectPrepareBatch(".*")
 	batch, err := conn.PrepareBatch(context.Background(), "INSERT INTO noop")

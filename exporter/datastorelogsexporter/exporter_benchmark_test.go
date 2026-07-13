@@ -9,7 +9,7 @@ import (
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/plogsgen"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
-	cmock "github.com/hanzo-ds/mock"
+	cmock "github.com/hanzoai/mock"
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/otel/metric/noop"
 	"go.uber.org/zap"
@@ -69,7 +69,7 @@ func setupBenchmarkExporter(b *testing.B, mock driver.Conn) *datastoreLogsExport
 
 func BenchmarkPushLogs_100k(b *testing.B) {
 	ctx := context.Background()
-	mock, err := cmock.NewClickHouseNative(nil)
+	mock, err := cmock.NewDatastoreNative(nil)
 	if err != nil {
 		b.Fatalf("failed to create mock Datastore: %v", err)
 	}
