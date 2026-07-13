@@ -12,7 +12,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/hanzoai/otel-collector/utils"
 	lru "github.com/hashicorp/golang-lru/v2"
-	cmock "github.com/hanzoai/mock"
+	cmock "github.com/hanzo-ds/mock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/pcommon"

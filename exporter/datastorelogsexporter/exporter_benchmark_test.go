@@ -9,7 +9,7 @@ import (
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/plogsgen"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
-	cmock "github.com/hanzoai/mock"
+	cmock "github.com/hanzo-ds/mock"
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/otel/metric/noop"
 	"go.uber.org/zap"

@@ -12,7 +12,7 @@ import (
 	"github.com/hanzoai/otel-collector/utils"
 	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
-	cmock "github.com/hanzoai/mock"
+	cmock "github.com/hanzo-ds/mock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/exporter"

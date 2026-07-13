@@ -3,7 +3,7 @@ package schemamigrator
 import (
 	"testing"
 
-	mockhouse "github.com/hanzoai/mock"
+	mockhouse "github.com/hanzo-ds/mock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
