@@ -16,7 +16,7 @@ import (
 	cmock "github.com/hanzo-ds/mock"
 	"go.uber.org/zap/zaptest"
 
-	chproto "github.com/hanzo-ds/native/proto"
+	dsproto "github.com/hanzo-ds/native/proto"
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/pmetricsgen"
 	"github.com/stretchr/testify/require"
 	"github.com/zeebo/assert"
@@ -434,13 +434,13 @@ func Test_prepareBatchExponentialHistogram(t *testing.T) {
 			temporality: pmetric.AggregationTemporalityDelta,
 			metricName:  "http.server.duration1",
 			unixMilli:   1727286182000,
-			sketch: chproto.DD{
-				Mapping: &chproto.IndexMapping{Gamma: math.Pow(2, math.Pow(2, float64(-2)))},
-				PositiveValues: &chproto.Store{
+			sketch: dsproto.DD{
+				Mapping: &dsproto.IndexMapping{Gamma: math.Pow(2, math.Pow(2, float64(-2)))},
+				PositiveValues: &dsproto.Store{
 					ContiguousBinIndexOffset: 1,
 					ContiguousBinCounts:      []float64{0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 11, 1, 1, 1, 1, 10},
 				},
-				NegativeValues: &chproto.Store{
+				NegativeValues: &dsproto.Store{
 					ContiguousBinIndexOffset: 1,
 					ContiguousBinCounts:      []float64{0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 11, 1, 1, 1, 1, 10},
 				},
@@ -1146,13 +1146,13 @@ func Test_prepareBatchExponentialHistogramWithNoRecordedValue(t *testing.T) {
 			metricName:  "http.server.duration1",
 			unixMilli:   1727286182000,
 			flags:       1,
-			sketch: chproto.DD{
-				Mapping: &chproto.IndexMapping{Gamma: math.Pow(2, math.Pow(2, float64(-2)))},
-				PositiveValues: &chproto.Store{
+			sketch: dsproto.DD{
+				Mapping: &dsproto.IndexMapping{Gamma: math.Pow(2, math.Pow(2, float64(-2)))},
+				PositiveValues: &dsproto.Store{
 					ContiguousBinIndexOffset: 1,
 					ContiguousBinCounts:      []float64{0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 11, 1, 1, 1, 1, 10},
 				},
-				NegativeValues: &chproto.Store{
+				NegativeValues: &dsproto.Store{
 					ContiguousBinIndexOffset: 1,
 					ContiguousBinCounts:      []float64{0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 11, 1, 1, 1, 1, 10},
 				},
