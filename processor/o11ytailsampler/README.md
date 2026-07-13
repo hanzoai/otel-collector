@@ -1,4 +1,4 @@
-# Signoz Tail Sampler
+# O11y Tail Sampler
 
 This sampler is re-write of tail sampler from open-telemetry-contrib. The primary reason for re-write is to support hierachy of policies and priority based evaluation. 
 

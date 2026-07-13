@@ -13,6 +13,9 @@ const (
 	PathTypesTableTypeColumn     = "type"
 	PathTypesTableLastSeenColumn = "last_seen"
 
+	LocalFieldKeysTable       = "field_keys"
+	DistributedFieldKeysTable = "distributed_field_keys"
+
 	// field_keys table column names (values kept byte-identical to the schema
 	// shared with the metadata exporter's distributed_field_keys writer).
 	FieldKeysTableNameColumn     = "field_name"

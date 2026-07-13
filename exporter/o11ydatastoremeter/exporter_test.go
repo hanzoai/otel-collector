@@ -88,7 +88,7 @@ func Test_prepareBatchGaugeWithNoRecordedValue(t *testing.T) {
 			unit:        "bytes",
 			typ:         pmetric.MetricTypeGauge,
 			isMonotonic: false,
-			labels:      "{\"__name__\":\"system.memory.usage0\",\"__scope.name__\":\"go.signoz.io/app/reader\",\"__scope.schema_url__\":\"scope.schema_url\",\"__scope.version__\":\"1.0.0\",\"__temporality__\":\"Unspecified\",\"gauge.attr_0\":\"1\",\"resource.attr_0\":\"value0\",\"scope.attr_0\":\"value0\"}",
+			labels:      "{\"__name__\":\"system.memory.usage0\",\"__scope.name__\":\"go.o11y.io/app/reader\",\"__scope.schema_url__\":\"scope.schema_url\",\"__scope.version__\":\"1.0.0\",\"__temporality__\":\"Unspecified\",\"gauge.attr_0\":\"1\",\"resource.attr_0\":\"value0\",\"scope.attr_0\":\"value0\"}",
 		},
 	}
 	assert.Equal(t, len(expectedSamples), len(batch.samples))

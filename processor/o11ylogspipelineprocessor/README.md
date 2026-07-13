@@ -1,4 +1,4 @@
-# Signoz Logs Pipeline Processor
+# O11y Logs Pipeline Processor
 
 An otel processor for powering Hanzo O11y logs pipelines.
 

@@ -3,7 +3,7 @@ package metadataexporter
 import (
 	"sync"
 
-	"github.com/SigNoz/signoz-otel-collector/utils"
+	"github.com/hanzoai/otel-collector/utils"
 )
 
 // bitmasks for compact per-leaf type aggregation across a batch.
