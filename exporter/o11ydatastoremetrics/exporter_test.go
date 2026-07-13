@@ -13,7 +13,7 @@ import (
 
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/google/uuid"
-	cmock "github.com/hanzoai/mock"
+	cmock "github.com/hanzo-ds/mock"
 	"go.uber.org/zap/zaptest"
 
 	chproto "github.com/hanzo-ds/native/proto"
