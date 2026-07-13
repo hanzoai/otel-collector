@@ -11,7 +11,7 @@ import (
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/plogsgen"
 	"github.com/hanzoai/otel-collector/utils"
 	lru "github.com/hashicorp/golang-lru/v2"
-	mockhouse "github.com/hanzoai/mock"
+	mockhouse "github.com/hanzo-ds/mock"
 )
 
 // buildLogs constructs a plog.Logs with count log records, using plogsgen for bodies.

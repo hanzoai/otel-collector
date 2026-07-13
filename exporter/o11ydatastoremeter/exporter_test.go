@@ -5,7 +5,7 @@ import (
 	"log"
 	"testing"
 
-	cmock "github.com/hanzoai/mock"
+	cmock "github.com/hanzo-ds/mock"
 	"go.uber.org/zap/zaptest"
 
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/pmetricsgen"
