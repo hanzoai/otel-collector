@@ -11,7 +11,7 @@ import (
 	"github.com/hanzoai/otel-collector/constants"
 	"github.com/hanzoai/otel-collector/o11ycol"
 	"github.com/google/uuid"
-	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/v2"
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/rawbytes"
 	"github.com/open-telemetry/opamp-go/client"
