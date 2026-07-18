@@ -1622,8 +1622,8 @@ github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c h1:6rhixN/i8
 github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c/go.mod h1:NMPJylDgVpX0MLRlPy15sqSwOFv/U1GZ2m21JhFfek0=
 github.com/hamba/avro/v2 v2.30.0 h1:OaIdh0+dZIJ331FO/+YYBwZZRdGVyyHuRSyHsjZLJoA=
 github.com/hamba/avro/v2 v2.30.0/go.mod h1:X6gDhYv6DQVAT56VqOKuW+PLnQrEQqGB9l1nhlMdAdQ=
-github.com/hanzo-ds/go v1.0.0 h1:KYG5w1unGOal/G0eK6XrcGY1K5G3z4+x+PgpS+yj1SI=
-github.com/hanzo-ds/go v1.0.0/go.mod h1:CNQfHeWrtKwsiKqoX8quhGCvj2mp5JOB1ZHIhi+J268=
+github.com/hanzo-ds/go v1.0.1 h1:fNYIqO1Shb2rUUJDAceAIBDHrK2jEMJrQWFrbY3Rn0E=
+github.com/hanzo-ds/go v1.0.1/go.mod h1:CNQfHeWrtKwsiKqoX8quhGCvj2mp5JOB1ZHIhi+J268=
 github.com/hanzo-ds/mock v0.14.3 h1:z82cTtCqfWS2XELCd9CvXPTObRHiWxLfQbCWe4QKQos=
 github.com/hanzo-ds/mock v0.14.3/go.mod h1:e4/Onlu7dbV1kJWxlfefPLcRDb35bvN7Uj/I4+quEVc=
 github.com/hanzo-ds/native v0.72.0 h1:lQhH2dza3foJCHN6scIVsEpqdj/xzI1N0QlI94vtWh8=
