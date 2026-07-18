@@ -19,7 +19,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
-	github.com/hanzo-ds/go v1.0.0
+	github.com/hanzo-ds/go v1.0.1
 	github.com/hanzo-ds/mock v0.14.3
 	github.com/hanzo-ds/native v0.72.0
 	github.com/hashicorp/golang-lru v1.0.2
