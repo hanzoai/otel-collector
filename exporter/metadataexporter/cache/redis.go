@@ -12,7 +12,7 @@ import (
 )
 
 type RedisKeyCache struct {
-	redisClient *redis.Client
+	redisClient *kv.Client
 	tenantID    string
 	logger      *zap.Logger
 
@@ -76,7 +76,7 @@ const (
 )
 
 func NewRedisKeyCache(opts RedisKeyCacheOptions) (*RedisKeyCache, error) {
-	client := redis.NewClient(&redis.Options{
+	client := kv.NewClient(&kv.Options{
 		Addr:     opts.Addr,
 		Username: opts.Username,
 		Password: opts.Password,
@@ -212,7 +212,7 @@ func (c *RedisKeyCache) AddAttrsToResource(ctx context.Context, resourceFp uint6
 
 	// 2) Check how many attributes we have for this resource
 	card, err := c.redisClient.SCard(ctx, attrsKey).Result()
-	if err != nil && err != redis.Nil {
+	if err != nil && err != kv.Nil {
 		return err
 	}
 	if card+int64(len(attrFps)) > int64(c.getMaxAttrs(ds)) {
@@ -312,9 +312,9 @@ func (c *RedisKeyCache) CardinalityLimitExceededMulti(ctx context.Context, resou
 
 	out := make([]bool, len(resourceFps))
 	for i, result := range results {
-		cardCmd, ok := result.(*redis.IntCmd)
+		cardCmd, ok := result.(*kv.IntCmd)
 		if !ok {
-			return nil, fmt.Errorf("expected *redis.IntCmd, got %T", result)
+			return nil, fmt.Errorf("expected *kv.IntCmd, got %T", result)
 		}
 		card, err := cardCmd.Result()
 		if err != nil {
