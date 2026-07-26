@@ -2418,8 +2418,6 @@ github.com/open-telemetry/opentelemetry-collector-contrib/receiver/receivercreat
 github.com/open-telemetry/opentelemetry-collector-contrib/receiver/receivercreator v0.144.0/go.mod h1:B/kHP5R8LArk9QEzmh62RTE7Agmekiht1w0YRQkqzVE=
 github.com/open-telemetry/opentelemetry-collector-contrib/receiver/redfishreceiver v0.144.0 h1:x7SJamd/LLVsYYFSD3NPFVo8+7P8IUit09vPdzUrlfE=
 github.com/open-telemetry/opentelemetry-collector-contrib/receiver/redfishreceiver v0.144.0/go.mod h1:m/tkIHcHDFFzWRqBnXVfp9WXLS26PqbiCFP6EtCWdT0=
-github.com/open-telemetry/opentelemetry-collector-contrib/receiver/redisreceiver v0.144.0 h1:W934/Bpw1HXucn6ZbaeRSJp41ExI6FLbtKkWIbduytc=
-github.com/open-telemetry/opentelemetry-collector-contrib/receiver/redisreceiver v0.144.0/go.mod h1:oF4zqNhZzGQGM+jAzFJUN39jP9X6C5zMMW43nu11N5E=
 github.com/open-telemetry/opentelemetry-collector-contrib/receiver/riakreceiver v0.144.0 h1:xraxWh8pvbnbM0y+LIDuI+NqnCZhGb6A/FCZMA8LtQ0=
 github.com/open-telemetry/opentelemetry-collector-contrib/receiver/riakreceiver v0.144.0/go.mod h1:dbeewKYtjfaZeOetJu2bPYi+UC+E1sqSbg2iQd9fAz8=
 github.com/open-telemetry/opentelemetry-collector-contrib/receiver/saphanareceiver v0.144.0 h1:ucCWrzLTiQzvNMR1DgZdVTpFDHiuC3xxUHGScYX2iXM=
@@ -2594,8 +2592,6 @@ github.com/rabbitmq/amqp091-go v1.10.0 h1:STpn5XsHlHGcecLmMFCtg7mqq0RnD+zFr4uzuk
 github.com/rabbitmq/amqp091-go v1.10.0/go.mod h1:Hy4jKW5kQART1u+JkDTF9YYOQUHXqMuhrgxOEeS7G4o=
 github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 h1:bsUq1dX0N8AOIL7EB/X911+m4EHsnWEHeJ0c+3TTBrg=
 github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
-github.com/redis/go-redis/v9 v9.17.2 h1:P2EGsA4qVIM3Pp+aPocCJ7DguDHhqrXNhVcEp4ViluI=
-github.com/redis/go-redis/v9 v9.17.2/go.mod h1:u410H11HMLoB+TP67dz8rL9s6QW2j76l0//kSOd3370=
 github.com/relvacode/iso8601 v1.7.0 h1:BXy+V60stMP6cpswc+a93Mq3e65PfXCgDFfhvNNGrdo=
 github.com/relvacode/iso8601 v1.7.0/go.mod h1:FlNp+jz+TXpyRqgmM7tnzHHzBnz776kmAH2h3sZCn0I=
 github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0/go.mod h1:qqbHyh8v60DhA7CoWK5oRCqLrMHRGoxYCSS9EjAz6Eo=
