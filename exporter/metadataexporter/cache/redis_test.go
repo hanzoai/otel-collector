@@ -3,26 +3,28 @@ package metadataexporter
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"testing"
 	"time"
 
-	"github.com/go-redis/redismock/v9"
+	"github.com/alicebob/miniredis/v2"
+	"github.com/hanzokv/go/v9"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pipeline"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest/observer"
 )
 
-// A helper to build the RedisKeyCache with a mocked client.
-func buildMockRedisKeyCache(_ *testing.T, mockFn func(redismock.ClientMock)) (*RedisKeyCache, redismock.ClientMock) {
-	db, mock := redismock.NewClientMock()
-	// The caller can define mock expectations
-	if mockFn != nil {
-		mockFn(mock)
-	}
+// buildRedisKeyCache wires a cache to an in-process Redis. miniredis speaks the
+// real protocol, so the cache issues the same SADD/SCARD/SMISMEMBER/PFADD/
+// PFCOUNT/EXPIRE/KEYS it issues in production — including through a pipeline.
+func buildRedisKeyCache(t *testing.T) (*RedisKeyCache, *miniredis.Miniredis) {
+	t.Helper()
+	srv := miniredis.RunT(t)
 
 	cache := &RedisKeyCache{
-		redisClient: db,
+		redisClient: kv.NewClient(&kv.Options{Addr: srv.Addr()}),
 		tenantID:    "testTenant",
 		logger:      zap.NewNop(),
 
@@ -40,177 +42,215 @@ func buildMockRedisKeyCache(_ *testing.T, mockFn func(redismock.ClientMock)) (*R
 		metricsMaxTotalCardinality:       20,
 		logsMaxTotalCardinality:          20,
 	}
-	return cache, mock
+	t.Cleanup(func() { require.NoError(t, cache.Close(context.Background())) })
+	return cache, srv
+}
+
+// seedHLL registers n distinct members in the HyperLogLog at key, so PFCount
+// reports n.
+func seedHLL(t *testing.T, c *RedisKeyCache, key string, n int) {
+	t.Helper()
+	members := make([]any, n)
+	for i := range members {
+		members[i] = "seed-" + strconv.Itoa(i)
+	}
+	require.NoError(t, c.redisClient.PFAdd(context.Background(), key, members...).Err())
+	require.Equal(t, int64(n), c.redisClient.PFCount(context.Background(), key).Val())
+}
+
+func TestNewRedisKeyCache(t *testing.T) {
+	srv := miniredis.RunT(t)
+	addr := srv.Addr()
+
+	cache, err := NewRedisKeyCache(RedisKeyCacheOptions{
+		Addr:     addr,
+		TenantID: "testTenant",
+		Logger:   zap.NewNop(),
+	})
+	require.NoError(t, err)
+	require.NoError(t, cache.Close(context.Background()))
+
+	// The constructor pings, so a dead server must surface as an error rather
+	// than a cache that fails on first use.
+	srv.Close()
+	_, err = NewRedisKeyCache(RedisKeyCacheOptions{Addr: addr, Logger: zap.NewNop()})
+	require.Error(t, err)
 }
 
 func TestRedisKeyCache_AddAttrsToResource_NewResource_Success(t *testing.T) {
 	ctx := context.Background()
+	cache, srv := buildRedisKeyCache(t)
+
 	epochWindow := getCurrentEpochWindowMillis()
 	resourceHLLKey := fmt.Sprintf("testTenant:metadata:traces:%d:resources:hll", epochWindow)
 	attrsKey := fmt.Sprintf("testTenant:metadata:traces:%d:resource:1000", epochWindow)
 	attrsHLLKey := fmt.Sprintf("testTenant:metadata:traces:%d:attrs:hll", epochWindow)
 
-	cache, mock := buildMockRedisKeyCache(t, func(m redismock.ClientMock) {
-		// 1) First check if resource exists
-		m.ExpectPFCount(resourceHLLKey).SetVal(0)
+	require.NoError(t, cache.AddAttrsToResource(ctx, 1000, []uint64{1, 2}, pipeline.SignalTraces))
 
-		// 3) Then check existing attributes count
-		m.ExpectSCard(attrsKey).SetVal(0)
-
-		// 2) Then check resource count
-		m.ExpectPFAdd(resourceHLLKey, "1000").SetVal(0)
-		m.ExpectExpire(resourceHLLKey, 10*time.Second).SetVal(true)
-
-		m.ExpectSAdd(attrsKey, "1", "2").SetVal(2)
-		m.ExpectExpire(attrsKey, 10*time.Second).SetVal(true)
-
-		m.ExpectPFAdd(attrsHLLKey, "1", "2").SetVal(0)
-		m.ExpectExpire(attrsHLLKey, 10*time.Second).SetVal(true)
-	})
-
-	err := cache.AddAttrsToResource(ctx, 1000, []uint64{1, 2}, pipeline.SignalTraces)
+	members, err := srv.Members(attrsKey)
 	require.NoError(t, err)
+	assert.ElementsMatch(t, []string{"1", "2"}, members)
 
-	err = mock.ExpectationsWereMet()
-	require.NoError(t, err)
+	assert.Equal(t, int64(1), cache.redisClient.PFCount(ctx, resourceHLLKey).Val())
+	assert.Equal(t, int64(2), cache.redisClient.PFCount(ctx, attrsHLLKey).Val())
+
+	// The traces TTL is applied to every key the pipeline touches.
+	for _, key := range []string{resourceHLLKey, attrsKey, attrsHLLKey} {
+		assert.Equal(t, 10*time.Second, srv.TTL(key), "ttl on %s", key)
+	}
 }
 
 func TestRedisKeyCache_AddAttrsToResource_ResourceLimitExceeded(t *testing.T) {
 	ctx := context.Background()
+	cache, srv := buildRedisKeyCache(t)
+
 	epochWindow := getCurrentEpochWindowMillis()
 	resourceHLLKey := fmt.Sprintf("testTenant:metadata:traces:%d:resources:hll", epochWindow)
-	attrsKey := fmt.Sprintf("testTenant:metadata:traces:%d:resource:1000", epochWindow)
+	attrsKey := fmt.Sprintf("testTenant:metadata:traces:%d:resource:2000", epochWindow)
 
-	cache, mock := buildMockRedisKeyCache(t, func(m redismock.ClientMock) {
-		// 1) SIsMember => false (resource not exist)
-		m.ExpectPFCount(resourceHLLKey).SetVal(2)
-		// 2) SCard => 2 (already 2 resources exist)
-		m.ExpectSCard(attrsKey).SetVal(2)
-	})
+	// maxTracesResourceFp is 2, so two known resources already fills the window.
+	seedHLL(t, cache, resourceHLLKey, 2)
 
 	err := cache.AddAttrsToResource(ctx, 2000, []uint64{123}, pipeline.SignalTraces)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "too many resource fingerprints")
-	_ = mock.ExpectationsWereMet()
+	assert.False(t, srv.Exists(attrsKey), "rejected resource must not be written")
 }
 
 func TestRedisKeyCache_AddAttrsToResource_AttrCardinalityExceeded(t *testing.T) {
 	ctx := context.Background()
+	cache, srv := buildRedisKeyCache(t)
+
 	epochWindow := getCurrentEpochWindowMillis()
 	resourceHLLKey := fmt.Sprintf("testTenant:metadata:traces:%d:resources:hll", epochWindow)
 	attrsKey := fmt.Sprintf("testTenant:metadata:traces:%d:resource:3000", epochWindow)
 
-	cache, mock := buildMockRedisKeyCache(t, func(m redismock.ClientMock) {
-		// For an existing resource:
-		m.ExpectPFCount(resourceHLLKey).SetVal(1)
-		// Then we do not check resource set cardinality
-		// Next step is SCard on resource:3000
-		m.ExpectSCard(attrsKey).SetVal(3)
-	})
+	seedHLL(t, cache, resourceHLLKey, 1) // under the resource limit
+	_, err := srv.SetAdd(attrsKey, "1", "2", "3")
+	require.NoError(t, err)
 
-	err := cache.AddAttrsToResource(ctx, 3000, []uint64{99}, pipeline.SignalTraces)
+	// maxTracesCardinalityPerResource is 3 and the resource already holds 3.
+	err = cache.AddAttrsToResource(ctx, 3000, []uint64{99}, pipeline.SignalTraces)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "too many attribute fingerprints")
-	_ = mock.ExpectationsWereMet()
+
+	members, err := srv.Members(attrsKey)
+	require.NoError(t, err)
+	assert.ElementsMatch(t, []string{"1", "2", "3"}, members, "rejected attrs must not be written")
 }
 
 func TestRedisKeyCache_AddAttrsToResource_EmptyList(t *testing.T) {
 	ctx := context.Background()
+	cache, srv := buildRedisKeyCache(t)
 
-	cache, mock := buildMockRedisKeyCache(t, nil) // no mocks needed if we skip commands
+	require.NoError(t, cache.AddAttrsToResource(ctx, 9999, nil, pipeline.SignalTraces))
+	require.NoError(t, cache.AddAttrsToResource(ctx, 9999, []uint64{}, pipeline.SignalTraces))
 
-	// Adding empty list of attributes should do nothing
-	err := cache.AddAttrsToResource(ctx, 9999, nil, pipeline.SignalTraces)
-	require.NoError(t, err)
-
-	// Or we can pass an empty slice:
-	err = cache.AddAttrsToResource(ctx, 9999, []uint64{}, pipeline.SignalTraces)
-	require.NoError(t, err)
-
-	// No Redis calls expected
-	_ = mock.ExpectationsWereMet()
+	assert.Empty(t, srv.Keys(), "an empty attr list must issue no commands")
 }
 
 func TestRedisKeyCache_AttrsExistForResource_Basic(t *testing.T) {
 	ctx := context.Background()
+	cache, srv := buildRedisKeyCache(t)
+
 	epochWindow := getCurrentEpochWindowMillis()
 	attrsKey := fmt.Sprintf("testTenant:metadata:metrics:%d:resource:5555", epochWindow)
-
-	cache, mock := buildMockRedisKeyCache(t, func(m redismock.ClientMock) {
-		// We expect an SMIsMember call
-		members := []interface{}{"10", "20", "30"}
-		m.ExpectSMIsMember(attrsKey, members...).
-			SetVal([]bool{true, false, true})
-	})
+	_, err := srv.SetAdd(attrsKey, "10", "30")
+	require.NoError(t, err)
 
 	exists, err := cache.AttrsExistForResource(ctx, 5555, []uint64{10, 20, 30}, pipeline.SignalMetrics)
 	require.NoError(t, err)
 	assert.Equal(t, []bool{true, false, true}, exists)
-
-	_ = mock.ExpectationsWereMet()
 }
 
 func TestRedisKeyCache_AttrsExistForResource_Empty(t *testing.T) {
-	ctx := context.Background()
-	cache, mock := buildMockRedisKeyCache(t, nil)
+	cache, _ := buildRedisKeyCache(t)
 
-	exists, err := cache.AttrsExistForResource(ctx, 1234, []uint64{}, pipeline.SignalLogs)
+	exists, err := cache.AttrsExistForResource(context.Background(), 1234, []uint64{}, pipeline.SignalLogs)
 	require.NoError(t, err)
-	assert.Nil(t, exists) // or an empty slice
-
-	// No calls
-	_ = mock.ExpectationsWereMet()
+	assert.Nil(t, exists)
 }
 
 func TestRedisKeyCache_ResourcesLimitExceeded(t *testing.T) {
 	ctx := context.Background()
+	cache, _ := buildRedisKeyCache(t)
 
-	epochWindow := getCurrentEpochWindowMillis()
-	resourceHLLKey := fmt.Sprintf("testTenant:metadata:traces:%d:resources:hll", epochWindow)
+	resourceHLLKey := fmt.Sprintf("testTenant:metadata:traces:%d:resources:hll", getCurrentEpochWindowMillis())
 
-	cache, mock := buildMockRedisKeyCache(t, func(m redismock.ClientMock) {
-		m.ExpectPFCount(resourceHLLKey).SetVal(3)
-	})
+	assert.False(t, cache.ResourcesLimitExceeded(ctx, pipeline.SignalTraces))
+	seedHLL(t, cache, resourceHLLKey, 3) // maxTracesResourceFp is 2
+	assert.True(t, cache.ResourcesLimitExceeded(ctx, pipeline.SignalTraces))
+	assert.False(t, cache.ResourcesLimitExceeded(ctx, pipeline.SignalMetrics), "limits are per signal")
+}
 
-	// The function under test:
-	limitExceeded := cache.ResourcesLimitExceeded(ctx, pipeline.SignalTraces)
-	assert.True(t, limitExceeded)
+func TestRedisKeyCache_TotalCardinalityLimitExceeded(t *testing.T) {
+	ctx := context.Background()
+	cache, _ := buildRedisKeyCache(t)
 
-	_ = mock.ExpectationsWereMet()
+	attrsHLLKey := fmt.Sprintf("testTenant:metadata:traces:%d:attrs:hll", getCurrentEpochWindowMillis())
+
+	assert.False(t, cache.TotalCardinalityLimitExceeded(ctx, pipeline.SignalTraces))
+	seedHLL(t, cache, attrsHLLKey, 20) // tracesMaxTotalCardinality is 20
+	assert.True(t, cache.TotalCardinalityLimitExceeded(ctx, pipeline.SignalTraces))
 }
 
 func TestRedisKeyCache_CardinalityLimitExceeded(t *testing.T) {
 	ctx := context.Background()
+	cache, srv := buildRedisKeyCache(t)
+
+	attrsKey := fmt.Sprintf("testTenant:metadata:traces:%d:resource:777", getCurrentEpochWindowMillis())
+
+	assert.False(t, cache.CardinalityLimitExceeded(ctx, 777, pipeline.SignalTraces))
+	_, err := srv.SetAdd(attrsKey, "1", "2", "3") // maxTracesCardinalityPerResource is 3
+	require.NoError(t, err)
+	assert.True(t, cache.CardinalityLimitExceeded(ctx, 777, pipeline.SignalTraces))
+}
+
+// TestRedisKeyCache_CardinalityLimitExceededMulti covers the pipelined path,
+// which reads its results back through a *kv.IntCmd type assertion.
+func TestRedisKeyCache_CardinalityLimitExceededMulti(t *testing.T) {
+	ctx := context.Background()
+	cache, srv := buildRedisKeyCache(t)
+
 	epochWindow := getCurrentEpochWindowMillis()
-	attrsKey := fmt.Sprintf("testTenant:metadata:traces:%d:resource:777", epochWindow)
+	full := fmt.Sprintf("testTenant:metadata:traces:%d:resource:1", epochWindow)
+	partial := fmt.Sprintf("testTenant:metadata:traces:%d:resource:2", epochWindow)
 
-	cache, mock := buildMockRedisKeyCache(t, func(m redismock.ClientMock) {
-		// SCard => 3 for resource=777 => limit is 3 for traces
-		m.ExpectSCard(attrsKey).SetVal(3)
-	})
+	_, err := srv.SetAdd(full, "1", "2", "3")
+	require.NoError(t, err)
+	_, err = srv.SetAdd(partial, "1")
+	require.NoError(t, err)
 
-	exceeded := cache.CardinalityLimitExceeded(ctx, 777, pipeline.SignalTraces)
-	assert.True(t, exceeded)
-
-	_ = mock.ExpectationsWereMet()
+	out, err := cache.CardinalityLimitExceededMulti(ctx, []uint64{1, 2, 3}, pipeline.SignalTraces)
+	require.NoError(t, err)
+	assert.Equal(t, []bool{true, false, false}, out)
 }
 
 func TestRedisKeyCache_Debug(t *testing.T) {
 	ctx := context.Background()
-	epochWindow := getCurrentEpochWindowMillis()
-	resourceSetKey := fmt.Sprintf("testTenant:metadata:traces:%d:resources", epochWindow)
-	attrsKey := fmt.Sprintf("testTenant:metadata:traces:%d:resource:1000", epochWindow)
+	cache, srv := buildRedisKeyCache(t)
 
-	cache, mock := buildMockRedisKeyCache(t, func(m redismock.ClientMock) {
-		// For Debug, we do a KEYS call
-		m.ExpectKeys("testTenant:metadata:*").SetVal([]string{
-			resourceSetKey,
-			attrsKey,
-		})
-		m.ExpectSCard(resourceSetKey).SetVal(1)
-		m.ExpectSCard(attrsKey).SetVal(2)
-	})
+	core, logs := observer.New(zap.DebugLevel)
+	cache.logger = zap.New(core)
+	cache.debug = true
+
+	epochWindow := getCurrentEpochWindowMillis()
+	attrsKey := fmt.Sprintf("testTenant:metadata:traces:%d:resource:1000", epochWindow)
+	attrsHLLKey := fmt.Sprintf("testTenant:metadata:traces:%d:attrs:hll", epochWindow)
+
+	_, err := srv.SetAdd(attrsKey, "1", "2")
+	require.NoError(t, err)
+	seedHLL(t, cache, attrsHLLKey, 4)
 
 	cache.Debug(ctx)
-	_ = mock.ExpectationsWereMet()
+
+	assert.Equal(t, 1, logs.FilterMessage("set cardinality").Len())
+	assert.Equal(t, 1, logs.FilterMessage("HLL cardinality").Len())
+
+	// debug=false is the production default and must stay silent.
+	cache.debug = false
+	before := logs.Len()
+	cache.Debug(ctx)
+	assert.Equal(t, before, logs.Len())
 }
