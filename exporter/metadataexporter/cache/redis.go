@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/hanzokv/go/v9"
 	"go.opentelemetry.io/collector/pipeline"
 	"go.uber.org/zap"
 )
