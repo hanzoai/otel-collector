@@ -7,7 +7,6 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/IBM/sarama v1.46.3
 	github.com/Shopify/sarama v1.38.1
-	github.com/alicebob/miniredis/v2 v2.38.0
 	github.com/apache/thrift v0.23.0
 	github.com/aws/aws-sdk-go v1.55.8
 	github.com/bytedance/sonic v1.15.2
@@ -23,6 +22,7 @@ require (
 	github.com/hanzo-ds/mock v0.14.3
 	github.com/hanzo-ds/native v0.72.0
 	github.com/hanzokv/go/v9 v9.22.0
+	github.com/hanzokv/mock/v9 v9.2.2
 	github.com/hashicorp/golang-lru v1.0.2
 	github.com/hashicorp/golang-lru/v2 v2.0.7
 	github.com/jellydator/ttlcache/v3 v3.4.0
