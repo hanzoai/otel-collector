@@ -193,7 +193,6 @@ require (
 	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/rabbitmqreceiver v0.144.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/receivercreator v0.144.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/redfishreceiver v0.144.0
-	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/redisreceiver v0.144.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/riakreceiver v0.144.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/saphanareceiver v0.144.0
 	github.com/open-telemetry/opentelemetry-collector-contrib/receiver/signalfxreceiver v0.144.0
@@ -670,7 +669,6 @@ require (
 	github.com/prometheus/sigv4 v0.3.0 // indirect
 	github.com/puzpuzpuz/xsync/v3 v3.5.1 // indirect
 	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
-	github.com/redis/go-redis/v9 v9.17.2 // indirect
 	github.com/relvacode/iso8601 v1.7.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
