@@ -30,11 +30,10 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component"
-	"go.opentelemetry.io/collector/config/configgrpc"
 	"go.opentelemetry.io/collector/consumer/consumertest"
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/exporter/exportertest"
-	"go.opentelemetry.io/collector/exporter/otlpexporter"
+	"github.com/hanzoai/otel-collector/exporter/zapexporter"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.opentelemetry.io/collector/pdata/ptrace"
@@ -44,7 +43,6 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 	"go.uber.org/zap/zaptest/observer"
-	"google.golang.org/grpc/metadata"
 
 	"github.com/hanzoai/otel-collector/processor/o11yspanmetricsprocessor/internal/cache"
 	genmetadata "github.com/hanzoai/otel-collector/processor/o11yspanmetricsprocessor/internal/metadata"
@@ -99,8 +97,8 @@ type span struct {
 }
 
 func TestProcessorStart(t *testing.T) {
-	// Create otlp exporters.
-	componentID, mexp, texp := newOTLPExporters(t)
+	// Create the ZAP exporters this build ships.
+	componentID, mexp, texp := newZAPExporters(t)
 
 	for _, tc := range []struct {
 		name            string
@@ -108,9 +106,9 @@ func TestProcessorStart(t *testing.T) {
 		metricsExporter string
 		wantErrorMsg    string
 	}{
-		{"export to active otlp metrics exporter", mexp, "otlp", ""},
-		{"unable to find configured exporter in active exporter list", mexp, "prometheus", "failed to find metrics exporter: 'prometheus'; please configure metrics_exporter from one of: [otlp]"},
-		{"export to active otlp traces exporter should error", texp, "otlp", "the exporter \"otlp\" isn't a metrics exporter"},
+		{"export to active zap metrics exporter", mexp, "zap", ""},
+		{"unable to find configured exporter in active exporter list", mexp, "prometheus", "failed to find metrics exporter: 'prometheus'; please configure metrics_exporter from one of: [zap]"},
+		{"export to active zap traces exporter should error", texp, "zap", "the exporter \"zap\" isn't a metrics exporter"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			// Prepare
@@ -236,7 +234,7 @@ func TestProcessorConsumeTracesErrors(t *testing.T) {
 			traces := buildSampleTrace()
 
 			// Test
-			ctx := metadata.NewIncomingContext(context.Background(), nil)
+			ctx := context.Background()
 			err := p.ConsumeTraces(ctx, traces)
 
 			switch {
@@ -317,7 +315,7 @@ func TestProcessorConsumeTraces(t *testing.T) {
 
 			for _, traces := range tc.traces {
 				// Test
-				ctx := metadata.NewIncomingContext(context.Background(), nil)
+				ctx := context.Background()
 				err := p.ConsumeTraces(ctx, traces)
 
 				// Verify
@@ -355,7 +353,7 @@ func TestMetricKeyCache(t *testing.T) {
 	traces := buildSampleTrace()
 
 	// Test
-	ctx := metadata.NewIncomingContext(context.Background(), nil)
+	ctx := context.Background()
 
 	// 0 key was cached at beginning
 	assert.Zero(t, p.metricKeyToDimensions.Len())
@@ -399,7 +397,7 @@ func TestExcludePatternSkips(t *testing.T) {
 	traces := buildSampleTrace()
 
 	// Test
-	ctx := metadata.NewIncomingContext(context.Background(), nil)
+	ctx := context.Background()
 	err := p.ConsumeTraces(ctx, traces)
 
 	assert.NoError(t, err)
@@ -426,7 +424,7 @@ func BenchmarkProcessorConsumeTraces(b *testing.B) {
 	traces := buildSampleTrace()
 
 	// Test
-	ctx := metadata.NewIncomingContext(context.Background(), nil)
+	ctx := context.Background()
 	for n := 0; n < b.N; n++ {
 		assert.NoError(b, p.ConsumeTraces(ctx, traces))
 	}
@@ -764,20 +762,15 @@ func initSpan(span span, s ptrace.Span) {
 	s.SetSpanID(pcommon.SpanID([8]byte{byte(42)}))
 }
 
-func newOTLPExporters(t *testing.T) (component.ID, exporter.Metrics, exporter.Traces) {
-	otlpExpFactory := otlpexporter.NewFactory()
-	otlpConfig := &otlpexporter.Config{
-		ClientConfig: configgrpc.ClientConfig{
-			Endpoint: "example.com:1234",
-		},
-	}
-	expCreationParams := exportertest.NewNopSettings(component.MustNewType("otlp"))
-	mexp, err := otlpExpFactory.CreateMetrics(context.Background(), expCreationParams, otlpConfig)
+func newZAPExporters(t *testing.T) (component.ID, exporter.Metrics, exporter.Traces) {
+	factory := zapexporter.NewFactory()
+	cfg := factory.CreateDefaultConfig()
+	expCreationParams := exportertest.NewNopSettings(component.MustNewType("zap"))
+	mexp, err := factory.CreateMetrics(context.Background(), expCreationParams, cfg)
 	require.NoError(t, err)
-	texp, err := otlpExpFactory.CreateTraces(context.Background(), expCreationParams, otlpConfig)
+	texp, err := factory.CreateTraces(context.Background(), expCreationParams, cfg)
 	require.NoError(t, err)
-	otlpID := component.NewID(component.MustNewType("otlp"))
-	return otlpID, mexp, texp
+	return component.NewID(component.MustNewType("zap")), mexp, texp
 }
 
 func TestBuildKeySameServiceOperationCharSequence(t *testing.T) {

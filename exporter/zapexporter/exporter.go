@@ -10,11 +10,8 @@ import (
 	"go.opentelemetry.io/collector/consumer/consumererror"
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/pdata/plog"
-	"go.opentelemetry.io/collector/pdata/plog/plogotlp"
 	"go.opentelemetry.io/collector/pdata/pmetric"
-	"go.opentelemetry.io/collector/pdata/pmetric/pmetricotlp"
 	"go.opentelemetry.io/collector/pdata/ptrace"
-	"go.opentelemetry.io/collector/pdata/ptrace/ptraceotlp"
 	"go.uber.org/zap"
 )
 
@@ -49,7 +46,7 @@ func (e *zapExporter) Shutdown(context.Context) error {
 }
 
 func (e *zapExporter) pushTraces(ctx context.Context, td ptrace.Traces) error {
-	body, err := ptraceotlp.NewExportRequestFromTraces(td).MarshalProto()
+	body, err := (&ptrace.ProtoMarshaler{}).MarshalTraces(td)
 	if err != nil {
 		return consumererror.NewPermanent(err)
 	}
@@ -57,7 +54,7 @@ func (e *zapExporter) pushTraces(ctx context.Context, td ptrace.Traces) error {
 }
 
 func (e *zapExporter) pushLogs(ctx context.Context, ld plog.Logs) error {
-	body, err := plogotlp.NewExportRequestFromLogs(ld).MarshalProto()
+	body, err := (&plog.ProtoMarshaler{}).MarshalLogs(ld)
 	if err != nil {
 		return consumererror.NewPermanent(err)
 	}
@@ -65,7 +62,7 @@ func (e *zapExporter) pushLogs(ctx context.Context, ld plog.Logs) error {
 }
 
 func (e *zapExporter) pushMetrics(ctx context.Context, md pmetric.Metrics) error {
-	body, err := pmetricotlp.NewExportRequestFromMetrics(md).MarshalProto()
+	body, err := (&pmetric.ProtoMarshaler{}).MarshalMetrics(md)
 	if err != nil {
 		return consumererror.NewPermanent(err)
 	}

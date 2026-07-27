@@ -6,10 +6,10 @@
 // the binary and brings its own dependency tree whether a pipeline references
 // it or not.
 //
-// The transport is ZAP (zap-proto/http, :4319). OTLP stays as a receiver so
-// third-party OpenTelemetry SDKs can still ship to us, and it is the last thing
-// in this build that links gRPC — retiring it is a matter of moving the
-// remaining OTLP senders onto the ZAP wire, not of editing this file.
+// The transport is ZAP (zap-proto/http, :4319) and only ZAP. The OTLP receiver
+// is gone with it: it served gRPC and HTTP from one component, so keeping it
+// for the HTTP half meant linking gRPC. Senders reach this collector over the
+// ZAP wire.
 package components
 
 import (
@@ -35,7 +35,6 @@ import (
 	"go.opentelemetry.io/collector/processor/batchprocessor"
 	"go.opentelemetry.io/collector/processor/memorylimiterprocessor"
 	"go.opentelemetry.io/collector/receiver/nopreceiver"
-	"go.opentelemetry.io/collector/receiver/otlpreceiver"
 	"go.opentelemetry.io/collector/service/telemetry/otelconftelemetry"
 	"go.uber.org/multierr"
 )
@@ -61,8 +60,6 @@ func Components() (otelcol.Factories, error) {
 	receivers, err := otelcol.MakeFactoryMap(
 		// The canonical transport — Hanzo services ship over the ZAP wire.
 		zapreceiver.NewFactory(),
-		// Interop for third-party OpenTelemetry SDKs.
-		otlpreceiver.NewFactory(),
 		filelogreceiver.NewFactory(),
 		nopreceiver.NewFactory(),
 	)

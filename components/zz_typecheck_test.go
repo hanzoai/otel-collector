@@ -18,7 +18,7 @@ func TestConfiguredComponentsAreRegistered(t *testing.T) {
 		want []string
 	}{
 		{"extension", []string{"o11y_health_check"}},
-		{"receiver", []string{"zap", "otlp", "filelog"}},
+		{"receiver", []string{"zap", "filelog"}},
 		{"processor", []string{"batch", "memory_limiter", "filter", "k8sattributes", "resource", "resourcedetection", "o11yspanmetrics"}},
 		{"exporter", []string{"datastoretraces", "datastorelogsexporter", "o11ydatastoremetrics", "prometheus", "zap"}},
 	} {
