@@ -1,25 +1,7 @@
 receivers:
-  otlp/spanmetrics:
-    protocols:
-      grpc:
-        endpoint: "localhost:12345"
-  otlp:
-    protocols:
-      grpc:
-      http:
-  jaeger:
-    protocols:
-      grpc:
-      thrift_http:
-  hostmetrics:
-    collection_interval: 30s
-    scrapers:
-      cpu:
-      load:
-      memory:
-      disk:
-      filesystem:
-      network:
+  # The ZAP wire — the transport this collector accepts.
+  zap:
+    endpoint: 0.0.0.0:4319
 processors:
   batch:
     send_batch_size: 1000
@@ -51,7 +33,7 @@ processors:
 extensions:
   zpages: {}
 exporters:
-  clickhousetraces:
+  datastoretraces:
     datasource: tcp://localhost:9000/o11y_traces
     retry_on_failure:
       enabled: true
@@ -63,20 +45,20 @@ exporters:
       queue_size: 100
       num_consumers: 5
   o11ydatastoremetrics:
-    dsn: tcp://clickhouse:9000/o11y_metrics
+    dsn: tcp://datastore:9000/o11y_metrics
   prometheus:
     endpoint: "0.0.0.0:8889"
 service:
   extensions: [zpages]
   pipelines:
     traces:
-      receivers: [jaeger, otlp]
+      receivers: [zap]
       processors: [o11yspanmetrics/prometheus, batch]
-      exporters: [clickhousetraces]
+      exporters: [datastoretraces]
     metrics:
-      receivers: [otlp, hostmetrics]
+      receivers: [zap]
       processors: [batch]
       exporters: [o11ydatastoremetrics]
     metrics/spanmetrics:
-      receivers: [otlp/spanmetrics]
+      receivers: [zap]
       exporters: [prometheus]
