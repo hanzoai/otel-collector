@@ -1,9 +1,0 @@
-type: o11yawsfirehose
-
-status:
-  class: receiver
-  stability:
-    alpha: [metrics, logs]
-
-tests:
-  config:

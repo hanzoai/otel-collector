@@ -12,9 +12,9 @@ import (
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componentstatus"
 	"go.opentelemetry.io/collector/consumer"
-	"go.opentelemetry.io/collector/pdata/plog/plogotlp"
-	"go.opentelemetry.io/collector/pdata/pmetric/pmetricotlp"
-	"go.opentelemetry.io/collector/pdata/ptrace/ptraceotlp"
+	"go.opentelemetry.io/collector/pdata/plog"
+	"go.opentelemetry.io/collector/pdata/pmetric"
+	"go.opentelemetry.io/collector/pdata/ptrace"
 	"go.opentelemetry.io/collector/receiver"
 	"go.opentelemetry.io/collector/receiver/receiverhelper"
 	"go.uber.org/zap"
@@ -148,22 +148,29 @@ func (r *zapReceiver) handleTraces(ctx *fasthttp.RequestCtx) {
 		reject(ctx, fasthttp.StatusNotFound, "zapreceiver: traces pipeline not configured")
 		return
 	}
-	req := ptraceotlp.NewExportRequest()
-	if err := unmarshal(ctx, func(b []byte) error { return req.UnmarshalProto(b) }, func(b []byte) error { return req.UnmarshalJSON(b) }); err != nil {
+	var payload ptrace.Traces
+	if err := unmarshal(ctx, func(b []byte) error {
+		var uErr error
+		payload, uErr = (&ptrace.ProtoUnmarshaler{}).UnmarshalTraces(b)
+		return uErr
+	}, func(b []byte) error {
+		var uErr error
+		payload, uErr = (&ptrace.JSONUnmarshaler{}).UnmarshalTraces(b)
+		return uErr
+	}); err != nil {
 		reject(ctx, fasthttp.StatusBadRequest, "zapreceiver: decode traces: "+err.Error())
 		return
 	}
-	td := req.Traces()
 	octx := r.obsT.StartTracesOp(context.Background())
-	n := td.SpanCount()
-	cErr := r.traces.ConsumeTraces(octx, td)
+	n := payload.SpanCount()
+	cErr := r.traces.ConsumeTraces(octx, payload)
 	r.obsT.EndTracesOp(octx, transport, n, cErr)
 	if cErr != nil {
 		reject(ctx, fasthttp.StatusInternalServerError, "zapreceiver: consume traces: "+cErr.Error())
 		return
 	}
-	resp := ptraceotlp.NewExportResponse()
-	writeResponse(ctx, func() ([]byte, error) { return resp.MarshalProto() }, func() ([]byte, error) { return resp.MarshalJSON() })
+	// An OTLP export response with no partial_success means full success.
+	writeResponse(ctx, func() ([]byte, error) { return nil, nil }, func() ([]byte, error) { return []byte(`{}`), nil })
 }
 
 func (r *zapReceiver) handleLogs(ctx *fasthttp.RequestCtx) {
@@ -171,22 +178,29 @@ func (r *zapReceiver) handleLogs(ctx *fasthttp.RequestCtx) {
 		reject(ctx, fasthttp.StatusNotFound, "zapreceiver: logs pipeline not configured")
 		return
 	}
-	req := plogotlp.NewExportRequest()
-	if err := unmarshal(ctx, func(b []byte) error { return req.UnmarshalProto(b) }, func(b []byte) error { return req.UnmarshalJSON(b) }); err != nil {
+	var payload plog.Logs
+	if err := unmarshal(ctx, func(b []byte) error {
+		var uErr error
+		payload, uErr = (&plog.ProtoUnmarshaler{}).UnmarshalLogs(b)
+		return uErr
+	}, func(b []byte) error {
+		var uErr error
+		payload, uErr = (&plog.JSONUnmarshaler{}).UnmarshalLogs(b)
+		return uErr
+	}); err != nil {
 		reject(ctx, fasthttp.StatusBadRequest, "zapreceiver: decode logs: "+err.Error())
 		return
 	}
-	ld := req.Logs()
 	octx := r.obsL.StartLogsOp(context.Background())
-	n := ld.LogRecordCount()
-	cErr := r.logs.ConsumeLogs(octx, ld)
+	n := payload.LogRecordCount()
+	cErr := r.logs.ConsumeLogs(octx, payload)
 	r.obsL.EndLogsOp(octx, transport, n, cErr)
 	if cErr != nil {
 		reject(ctx, fasthttp.StatusInternalServerError, "zapreceiver: consume logs: "+cErr.Error())
 		return
 	}
-	resp := plogotlp.NewExportResponse()
-	writeResponse(ctx, func() ([]byte, error) { return resp.MarshalProto() }, func() ([]byte, error) { return resp.MarshalJSON() })
+	// An OTLP export response with no partial_success means full success.
+	writeResponse(ctx, func() ([]byte, error) { return nil, nil }, func() ([]byte, error) { return []byte(`{}`), nil })
 }
 
 func (r *zapReceiver) handleMetrics(ctx *fasthttp.RequestCtx) {
@@ -194,22 +208,29 @@ func (r *zapReceiver) handleMetrics(ctx *fasthttp.RequestCtx) {
 		reject(ctx, fasthttp.StatusNotFound, "zapreceiver: metrics pipeline not configured")
 		return
 	}
-	req := pmetricotlp.NewExportRequest()
-	if err := unmarshal(ctx, func(b []byte) error { return req.UnmarshalProto(b) }, func(b []byte) error { return req.UnmarshalJSON(b) }); err != nil {
+	var payload pmetric.Metrics
+	if err := unmarshal(ctx, func(b []byte) error {
+		var uErr error
+		payload, uErr = (&pmetric.ProtoUnmarshaler{}).UnmarshalMetrics(b)
+		return uErr
+	}, func(b []byte) error {
+		var uErr error
+		payload, uErr = (&pmetric.JSONUnmarshaler{}).UnmarshalMetrics(b)
+		return uErr
+	}); err != nil {
 		reject(ctx, fasthttp.StatusBadRequest, "zapreceiver: decode metrics: "+err.Error())
 		return
 	}
-	md := req.Metrics()
 	octx := r.obsM.StartMetricsOp(context.Background())
-	n := md.DataPointCount()
-	cErr := r.metrics.ConsumeMetrics(octx, md)
+	n := payload.DataPointCount()
+	cErr := r.metrics.ConsumeMetrics(octx, payload)
 	r.obsM.EndMetricsOp(octx, transport, n, cErr)
 	if cErr != nil {
 		reject(ctx, fasthttp.StatusInternalServerError, "zapreceiver: consume metrics: "+cErr.Error())
 		return
 	}
-	resp := pmetricotlp.NewExportResponse()
-	writeResponse(ctx, func() ([]byte, error) { return resp.MarshalProto() }, func() ([]byte, error) { return resp.MarshalJSON() })
+	// An OTLP export response with no partial_success means full success.
+	writeResponse(ctx, func() ([]byte, error) { return nil, nil }, func() ([]byte, error) { return []byte(`{}`), nil })
 }
 
 // unmarshal decodes the request body as OTLP protobuf (default) or JSON.
