@@ -17,7 +17,7 @@ import (
 	"github.com/hanzoai/otel-collector/exporter/datastoretracesexporter"
 	"github.com/hanzoai/otel-collector/exporter/o11ydatastoremetrics"
 	"github.com/hanzoai/otel-collector/exporter/zapexporter"
-	"github.com/hanzoai/otel-collector/extension/healthcheckextension"
+	o11yhealthcheckextension "github.com/hanzoai/otel-collector/extension/healthcheckextension"
 	"github.com/hanzoai/otel-collector/processor/o11yspanmetricsprocessor"
 	"github.com/hanzoai/otel-collector/receiver/zapreceiver"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/prometheusexporter"
@@ -48,7 +48,11 @@ func Components() (otelcol.Factories, error) {
 	var errs []error
 
 	extensions, err := otelcol.MakeFactoryMap(
-		healthcheckextension.NewFactory(),
+		// "o11y_health_check" — the fork's, and the only one. Upstream's
+		// "health_check" is a second way to do the same thing, and its release
+		// train does not line up with the contrib version the rest of this
+		// build pins.
+		o11yhealthcheckextension.NewFactory(),
 		pprofextension.NewFactory(),
 		zpagesextension.NewFactory(),
 	)
