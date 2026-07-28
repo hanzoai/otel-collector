@@ -51,7 +51,7 @@ func TestZapReceiverAllSignals(t *testing.T) {
 	if addr == "" {
 		t.Fatal("no listen addr")
 	}
-	tr := zaphttp.NewTransport(addr)
+	tr := zaphttp.Dial("tcp", addr)
 	defer tr.CloseIdleConnections()
 
 	post := func(path string, body []byte) int {
