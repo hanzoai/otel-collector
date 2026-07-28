@@ -1,6 +1,6 @@
 module github.com/hanzoai/otel-collector
 
-go 1.26.4
+go 1.26.5
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.21.0
@@ -234,7 +234,7 @@ require (
 	github.com/valyala/fasthttp v1.70.0
 	github.com/vjeantet/grok v1.0.1
 	github.com/xdg-go/scram v1.2.0
-	github.com/zap-proto/http v0.2.0
+	github.com/zap-proto/http v0.3.1
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/collector/client v1.50.0
 	go.opentelemetry.io/collector/component v1.50.0
