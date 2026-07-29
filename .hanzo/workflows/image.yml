@@ -1,0 +1,86 @@
+name: image
+# THE builder for ghcr.io/hanzoai/otel-collector, on Hanzo's own forge.
+#
+#   git.hanzo.ai push (incl. mirror-sync from GitHub) → act_runner
+#   → buildx → ghcr.io/hanzoai/otel-collector:sha-<7>
+#
+# WHY THIS FILE EXISTS. c98ce63 ("ci: remove GitHub CI — native git.hanzo.ai +
+# cd.hanzo.ai only") deleted .github/workflows/cicd.yml and never added the
+# native replacement, so `git ls-files | grep workflows` returned ZERO and every
+# commit since built nothing anywhere. Measured 2026-07-29: the otel-agent
+# DaemonSet still runs :v0.1.0 on all 18 nodes, and the fix that lets the agent
+# talk to the fleet (f3e3372, zap-proto/http v0.3.1) sat unbuilt on main while
+# o11y_logs.logs_v2 went 37h without a write. This is the repair.
+#
+# Dockerfile.selfbuild, not Dockerfile. The plain one COPYs .build/<os>-<arch>/
+# hanzo-otel-collector, a binary a pre-build step produced; nothing here
+# produces it, so that path builds an image with no binary in it. selfbuild
+# compiles in-image and runs the zapreceiver+zapexporter tests as a build gate,
+# so a green run means the ZAP surface this distro adds over upstream actually
+# passed.
+#
+# No GIT_AUTH_TOKEN. The only non-stdlib roots are github.com/zap-proto/{http,go},
+# which resolve on proxy.golang.org (verified 200 for v0.3.1) — this module pulls
+# nothing from the private hanzoai/* namespace, so there is no secret to leak or
+# to forget to provision.
+#
+# Tagged by COMMIT SHA only. A semver tag that gets re-pushed leaves two digests
+# behind one name, and with imagePullPolicy: IfNotPresent a node keeps whichever
+# it cached first — that is how platform's v4.4.5 came to mean two different
+# builds. A SHA cannot move.
+#
+# No kubectl rollout here. The DaemonSet's image is a reviewed pin in
+# hanzoai/universe under ArgoCD selfHeal, so a patch from a runner is reverted on
+# the next poll — and this runner holds no kubeconfig. Rollout is that pin.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: image-otel-collector-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: [hanzo-build-linux-amd64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: meta
+        run: echo "tag=sha-$(echo "$GITHUB_SHA" | cut -c1-7)" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+          driver-opts: network=host
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GHCR_USER }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./cmd/o11yotelcollector/Dockerfile.selfbuild
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: ghcr.io/hanzoai/otel-collector:${{ steps.meta.outputs.tag }}
+
+      # build-push-action can exit 0 before the manifest is resolvable at the
+      # registry. Prove the image actually pulls, so a green run always means a
+      # usable image rather than a future ImagePullBackOff.
+      - name: Verify the pushed image resolves
+        run: |
+          set -euo pipefail
+          img="ghcr.io/hanzoai/otel-collector:${{ steps.meta.outputs.tag }}"
+          for i in 1 2 3 4 5 6; do
+            if docker manifest inspect "$img" >/dev/null 2>&1; then
+              echo "$img is pullable"; exit 0
+            fi
+            echo "manifest not visible yet (attempt $i/6) — retrying"; sleep 5
+          done
+          echo "::error::$img not pullable after push"; exit 1
