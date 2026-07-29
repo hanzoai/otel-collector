@@ -718,7 +718,7 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	github.com/yuin/gopher-lua v1.1.1 // indirect
-	github.com/zap-proto/go v1.1.0 // indirect
+	github.com/zap-proto/go v1.3.0 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
 	gitlab.com/gitlab-org/api/client-go v0.161.1 // indirect
 	go.etcd.io/bbolt v1.4.3 // indirect
