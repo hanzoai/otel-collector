@@ -32,7 +32,7 @@ func newExporter(set exporter.Settings, cfg *Config) *zapExporter {
 
 // Start dials nothing eagerly; the pooled ZAP transport connects lazily.
 func (e *zapExporter) Start(context.Context, component.Host) error {
-	e.tr = zaphttp.NewTransport(e.cfg.Endpoint)
+	e.tr = zaphttp.Dial("tcp", e.cfg.Endpoint)
 	if t := e.cfg.TimeoutConfig.Timeout; t > 0 {
 		e.tr.SetReadTimeout(t)
 	}
