@@ -24,17 +24,29 @@ name: image
 # nothing from the private hanzoai/* namespace, so there is no secret to leak or
 # to forget to provision.
 #
-# Tagged by COMMIT SHA only. A semver tag that gets re-pushed leaves two digests
-# behind one name, and with imagePullPolicy: IfNotPresent a node keeps whichever
-# it cached first — that is how platform's v4.4.5 came to mean two different
-# builds. A SHA cannot move.
+# TWO TAG SHAPES, one rule: a published tag never moves.
+#
+#   main push → sha-<7>   traceability. Every commit gets an image.
+#   v* tag    → vX.Y.Z    the production pin. What a DaemonSet is allowed to name.
+#
+# The original note here said SHA-only, because a re-pushed semver leaves two
+# digests behind one name and imagePullPolicy: IfNotPresent makes a node keep
+# whichever it cached first — that is how platform's v4.4.5 came to mean two
+# different builds. That danger is real, but the cure is not banning semver: a
+# SHA in a production manifest says nothing about what changed or whether it is
+# newer than what it replaces, and reviewing one is guesswork.
+#
+# So semver is built here and made IMMUTABLE by refusing to overwrite: the guard
+# below fails the run if the tag already resolves at the registry. Re-pushing a
+# moved tag cannot silently republish; cut the next patch instead.
 #
 # No kubectl rollout here. The DaemonSet's image is a reviewed pin in
-# hanzoai/universe under ArgoCD selfHeal, so a patch from a runner is reverted on
-# the next poll — and this runner holds no kubeconfig. Rollout is that pin.
+# hanzoai/universe under Hanzo CD selfHeal, so a patch from a runner is reverted
+# on the next poll — and this runner holds no kubeconfig. Rollout is that pin.
 on:
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
 
 concurrency:
@@ -47,8 +59,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # A tag ref publishes its own name; a branch push publishes the SHA.
       - id: meta
-        run: echo "tag=sha-$(echo "$GITHUB_SHA" | cut -c1-7)" >> "$GITHUB_OUTPUT"
+        run: |
+          set -euo pipefail
+          case "$GITHUB_REF" in
+            refs/tags/*) tag="${GITHUB_REF#refs/tags/}" ;;
+            *)           tag="sha-$(echo "$GITHUB_SHA" | cut -c1-7)" ;;
+          esac
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - uses: docker/setup-buildx-action@v3
         with:
@@ -60,6 +79,23 @@ jobs:
           registry: ghcr.io
           username: ${{ secrets.GHCR_USER }}
           password: ${{ secrets.GHCR_TOKEN }}
+
+      # Immutability gate — AFTER login, or the inspect fails for want of
+      # credentials and an already-published tag reads as unpublished, which is
+      # precisely the overwrite this is here to stop.
+      #
+      # SHA tags are exempt: the same commit rebuilt is the same source, so a
+      # re-run after an infrastructure failure must not be blocked.
+      - name: Refuse to overwrite a published version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -euo pipefail
+          img="ghcr.io/hanzoai/otel-collector:${{ steps.meta.outputs.tag }}"
+          if docker manifest inspect "$img" >/dev/null 2>&1; then
+            echo "::error::$img is already published. A released version never moves — cut the next patch."
+            exit 1
+          fi
+          echo "$img is unpublished — proceeding"
 
       - uses: docker/build-push-action@v6
         with:
