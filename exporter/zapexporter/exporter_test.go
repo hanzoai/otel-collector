@@ -3,7 +3,9 @@ package zapexporter
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net"
+	"strings"
 	"strconv"
 	"sync"
 	"testing"
@@ -256,5 +258,75 @@ func TestSendFailureIsRetryable(t *testing.T) {
 	err := e.pushLogs(context.Background(), ld)
 	if err == nil {
 		t.Fatal("a send to a dead collector returned nil — the batch would be dropped silently")
+	}
+}
+
+// TestTransportLadder pins the locality rule: a socket path is UDS, a host:port
+// is TCP, and "quic" is available rather than ErrTransportUnavailable.
+//
+// The QUIC arm is the load-bearing one. luxfi/zap only serves TransportQUIC when
+// the quic subpackage has been linked in so its init registers the factory; miss
+// that import and every remote hop silently falls back to an error at Start,
+// which is how a cross-machine hop ends up plaintext without anyone noticing.
+func TestTransportLadder(t *testing.T) {
+	for _, tc := range []struct {
+		endpoint, transport, want string
+	}{
+		{"/run/hanzo/o11y-logs.sock", "", "uds"},
+		{"@o11y-logs", "", "uds"},
+		{"cloud.hanzo.svc:4318", "", "tcp"},
+		{"cloud.hanzo.svc:4318", "quic", "quic+x25519mlkem768"},
+	} {
+		cfg := NewFactory().CreateDefaultConfig().(*Config)
+		cfg.Endpoint, cfg.Transport = tc.endpoint, tc.transport
+		if err := cfg.Validate(); err != nil {
+			t.Fatalf("validate %q/%q: %v", tc.endpoint, tc.transport, err)
+		}
+		e := newExporter(exportertest.NewNopSettings(typeStr), cfg)
+		if got := e.transportName(); got != tc.want {
+			t.Fatalf("endpoint %q transport %q: want %s, got %s", tc.endpoint, tc.transport, tc.want, got)
+		}
+	}
+}
+
+// TestQUICTransportIsLinkedAndNeedsTLS pins BOTH halves of the QUIC story, and
+// the second half is the one that bites.
+//
+// The factory IS registered (the anonymous quic import in factory.go), so the
+// failure is NOT ErrTransportUnavailable. But Start still refuses without
+// NodeConfig.TLS carrying server certificates — QUIC has no plaintext mode. So
+// selecting "quic" is necessary and not sufficient: the agent needs a TLS
+// identity, which is a KMS-provisioned cert, not a config flag. This test states
+// that plainly so nobody reads the config comment and assumes a remote hop is
+// encrypted merely because transport says quic.
+func TestQUICTransportIsLinkedAndNeedsTLS(t *testing.T) {
+	n := luxzap.NewNode(luxzap.NodeConfig{
+		NodeID:      "quic-linkage-probe",
+		ServiceType: "_o11y._tcp",
+		Port:        0,
+		NoDiscovery: true,
+		Transport:   luxzap.TransportQUIC,
+	})
+	err := n.Start()
+	if err == nil {
+		n.Stop()
+		t.Fatal("QUIC started with no TLS material — luxfi/zap used to require a server cert; if that changed, drop the TLS deploy-gate from Config's docs")
+	}
+	if errors.Is(err, luxzap.ErrTransportUnavailable) {
+		t.Fatalf("QUIC factory not registered — is _ \"github.com/luxfi/zap/quic\" still imported? %v", err)
+	}
+	if !strings.Contains(err.Error(), "TLS") {
+		t.Fatalf("expected a TLS-material error, got: %v", err)
+	}
+}
+
+// TestQUICOnASocketPathIsRefused: asking for QUIC on a UDS path is a config
+// error, not a silent downgrade. Someone who wanted an encrypted remote hop and
+// typed a socket path should hear it from validation.
+func TestQUICOnASocketPathIsRefused(t *testing.T) {
+	cfg := NewFactory().CreateDefaultConfig().(*Config)
+	cfg.Endpoint, cfg.Transport = "/run/hanzo/o11y.sock", "quic"
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("quic on a unix socket validated — the transport request was silently ignored")
 	}
 }
