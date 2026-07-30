@@ -8,12 +8,18 @@ import (
 	"go.opentelemetry.io/collector/config/configretry"
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
+
+	// Registers the QUIC transport factory at init so Config.Transport "quic" is
+	// actually available; without it luxfi/zap returns ErrTransportUnavailable.
+	// QUIC is the REMOTE hop: its TLS 1.3 negotiates X25519MLKEM768 (X-Wing) by
+	// default on Go 1.26, so cross-machine telemetry is quantum-secure.
+	_ "github.com/luxfi/zap/quic"
 )
 
 var typeStr = component.MustNewType("zap")
 
 const (
-	defaultEndpoint = "otel-collector.hanzo.svc:4319"
+	defaultEndpoint = "cloud.hanzo.svc:4318"
 	stability       = component.StabilityLevelBeta
 )
 

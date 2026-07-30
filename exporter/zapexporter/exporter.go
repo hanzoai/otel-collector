@@ -46,22 +46,44 @@ func (e *zapExporter) Start(context.Context, component.Host) error {
 	if id := e.settings.ID.String(); id != "" {
 		nodeID = "otel-agent-" + strings.ReplaceAll(id, "/", "-")
 	}
-	e.node = luxzap.NewNode(luxzap.NodeConfig{
+	cfg := luxzap.NodeConfig{
 		NodeID:      nodeID,
 		ServiceType: "_o11y._tcp",
 		Port:        0,
 		NoDiscovery: true,
-	})
+	}
+	// A UDS endpoint needs no transport selection — luxfi/zap's Network() reads
+	// the address shape, so a socket path dials unix on both ends. QUIC is the
+	// remote case, and its TLS 1.3 negotiates X25519MLKEM768 (X-Wing) by default
+	// on Go 1.26, so a cross-machine hop is quantum-secure without this exporter
+	// configuring any crypto.
+	if e.cfg.Transport == "quic" {
+		cfg.Transport = luxzap.TransportQUIC
+	}
+	e.node = luxzap.NewNode(cfg)
 	if err := e.node.Start(); err != nil {
-		return fmt.Errorf("zapexporter: zap node start: %w", err)
+		return fmt.Errorf("zapexporter: zap node start (transport=%s): %w", e.transportName(), err)
 	}
 	if err := e.connect(); err != nil {
 		e.settings.Logger.Debug("OTLZ exporter: initial connect failed; will retry on export",
 			zap.String("endpoint", e.cfg.Endpoint), zap.Error(err))
 	}
 	e.settings.Logger.Info("OTLZ exporter ready (wire=luxfi/zap envelope, JSON batch)",
-		zap.String("endpoint", e.cfg.Endpoint))
+		zap.String("endpoint", e.cfg.Endpoint),
+		zap.String("transport", e.transportName()))
 	return nil
+}
+
+// transportName reports the transport actually in use, for the one log line an
+// operator reads to confirm a hop is not silently plaintext across machines.
+func (e *zapExporter) transportName() string {
+	if isSocketPath(e.cfg.Endpoint) {
+		return "uds"
+	}
+	if e.cfg.Transport == "quic" {
+		return "quic+x25519mlkem768"
+	}
+	return "tcp"
 }
 
 func (e *zapExporter) Shutdown(context.Context) error {
