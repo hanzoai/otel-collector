@@ -288,10 +288,22 @@ func translateSpan(s ptrace.Span) span {
 	tid := s.TraceID()
 	sid := s.SpanID()
 	dst := span{
-		TraceID:     fmt.Sprintf("%x", tid[:]),
-		SpanID:      fmt.Sprintf("%x", sid[:]),
-		Name:        s.Name(),
-		Kind:        s.Kind().String(),
+		TraceID: fmt.Sprintf("%x", tid[:]),
+		SpanID:  fmt.Sprintf("%x", sid[:]),
+		Name:    s.Name(),
+		// LOWERCASE, because that is the vocabulary the receiver reads.
+		//
+		// pdata renders SpanKind title-cased ("Server"), and the o11y receiver
+		// matches "server" or "SPAN_KIND_SERVER" and defaults everything else to
+		// "internal". "Server" is neither, so every span this exporter sent —
+		// server, client, producer, consumer alike — landed in event.span as
+		// kind='internal'. Verified end-to-end 2026-08-02: a span sent with
+		// kind=SPAN_KIND_SERVER stored as internal.
+		//
+		// Nothing errors on that, which is why it survived: the rows arrive, the
+		// trace renders, and only the entry/exit distinction is gone — so no
+		// latency question that starts "at the edge" can be asked of the data.
+		Kind:        strings.ToLower(s.Kind().String()),
 		StartUnixNs: int64(s.StartTimestamp()),
 		EndUnixNs:   int64(s.EndTimestamp()),
 		Attributes:  attrsOf(s.Attributes()),
