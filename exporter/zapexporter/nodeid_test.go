@@ -9,6 +9,7 @@ import (
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/exporter/exportertest"
 	"go.opentelemetry.io/collector/pdata/plog"
+	"go.opentelemetry.io/collector/pdata/ptrace"
 )
 
 // fleetSettings reproduces the production situation these tests exist for: N
@@ -123,5 +124,28 @@ func TestNodeIDIsUniquePerHostAndComponent(t *testing.T) {
 	e := newExporter(fleetSettings(), &Config{})
 	if x, y := e.nodeID(), e.nodeID(); x == y {
 		t.Fatalf("blank hostname produced a reusable identity %q — collisions return", x)
+	}
+}
+
+// TestSpanKindIsTheReceiversVocabulary pins the wire's span-kind casing.
+//
+// pdata renders SpanKind title-cased; the o11y receiver matches lowercase (or
+// the SPAN_KIND_* form) and silently defaults anything else to "internal". Sent
+// title-cased, EVERY span — server, client, producer, consumer — stored as
+// internal, with no error anywhere to say so.
+func TestSpanKindIsTheReceiversVocabulary(t *testing.T) {
+	for kind, want := range map[ptrace.SpanKind]string{
+		ptrace.SpanKindServer:   "server",
+		ptrace.SpanKindClient:   "client",
+		ptrace.SpanKindProducer: "producer",
+		ptrace.SpanKindConsumer: "consumer",
+		ptrace.SpanKindInternal: "internal",
+	} {
+		s := ptrace.NewSpan()
+		s.SetKind(kind)
+		if got := translateSpan(s).Kind; got != want {
+			t.Errorf("kind %v went on the wire as %q, receiver expects %q "+
+				"(anything else silently becomes internal)", kind, got, want)
+		}
 	}
 }
