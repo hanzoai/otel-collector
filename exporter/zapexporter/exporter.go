@@ -3,6 +3,9 @@ package zapexporter
 import (
 	"context"
 	"fmt"
+	"math/rand/v2"
+	"os"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -38,16 +41,54 @@ func newExporter(set exporter.Settings, cfg *Config) *zapExporter {
 	return &zapExporter{cfg: cfg, settings: set}
 }
 
+// hostname is the per-process half of the ZAP node identity. A var so a test can
+// stand two "hosts" up inside one process; nothing in production reassigns it.
+var hostname = os.Hostname
+
+// nodeID is this exporter's identity on the ZAP wire, and it MUST be unique
+// across every process that dials the same receiver.
+//
+// luxfi/zap keys its connection table by peer NodeID and admits exactly ONE
+// connection per ID: handleConn sees the duplicate and returns WITHOUT writing a
+// handshake reply ("Don't send handshake - outgoing side will get EOF"), so the
+// loser reads EOF mid-handshake. An ID derived only from the component ID is the
+// same string in every copy of one config, so N senders sharing a config get one
+// winner and N-1 permanently locked out — they are not slow or throttled, they
+// are refused, forever, with a message that reads like a network fault.
+//
+// Measured 2026-08-01 before this fix: of 25 otel-agent DaemonSet pods all
+// claiming "otel-agent-zap", exactly ONE had zero errors; the other 24 logged
+// `zapexporter: connect cloud.hanzo.svc:4318: EOF` ~26x/min each until their
+// sending queues overflowed, discarding ~88% of the fleet's logs. The queue was
+// the symptom; this identity was the cause.
+//
+// Hostname is the cross-process half — in Kubernetes it is the pod name, unique
+// per node for a DaemonSet. The component ID is the in-process half, so two zap
+// exporters in one collector aimed at one receiver stay distinct. Both halves
+// are DERIVED, never configured: a config knob here would just be a way to set
+// the same value on every node, which is precisely the bug it would exist to
+// prevent.
+func (e *zapExporter) nodeID() string {
+	host, err := hostname()
+	if err != nil || host == "" {
+		// A missing hostname must not silently re-collide. A random suffix keeps
+		// this process distinguishable; the cost is a new identity per restart,
+		// which is strictly better than being refused by the receiver.
+		host = "unknown-" + strconv.FormatUint(rand.Uint64(), 36)
+	}
+	id := "otel-agent-" + host
+	if cid := e.settings.ID.String(); cid != "" {
+		id += "-" + strings.ReplaceAll(cid, "/", "-")
+	}
+	return id
+}
+
 // Start brings up the local ZAP node. A failed dial is deliberately NOT fatal:
 // this runs as a DaemonSet on every node and the collector may be unreachable at
 // boot, so it must not take the agent down — send() reconnects.
 func (e *zapExporter) Start(context.Context, component.Host) error {
-	nodeID := "otel-agent"
-	if id := e.settings.ID.String(); id != "" {
-		nodeID = "otel-agent-" + strings.ReplaceAll(id, "/", "-")
-	}
 	cfg := luxzap.NodeConfig{
-		NodeID:      nodeID,
+		NodeID:      e.nodeID(),
 		ServiceType: "_o11y._tcp",
 		Port:        0,
 		NoDiscovery: true,
