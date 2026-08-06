@@ -1,9 +1,11 @@
 # Hanzo CI/CD — canonical build/test/deploy config for the O11y OTel Collector.
 #
-# ONE file, read by BOTH GitHub Actions (via .github/workflows/cicd.yml, which
+# ONE file, read by BOTH the forge caller (.hanzo/workflows/cicd.yml, which
 # imports the reusable hanzoai/ci workflow) AND platform.hanzo.ai. The build runs
-# on our self-hosted arc pool (hanzo-build-linux-amd64) — ZERO GitHub-hosted
-# minutes; GitHub only orchestrates, our infra does the work.
+# on the git-runner fleet at git.hanzo.ai — the only pool serving
+# hanzo-build-linux-amd64. There is no arc pool; arc was retired 2026-08-01, and
+# github.com has no runner for that label, which is why the caller lives under
+# .hanzo/workflows and not .github/workflows.
 #
 # This is the going-forward pattern for every native-PaaS repo: a root hanzo.yml
 # + a ~7-line cicd.yml. See README.md § "CI/CD — canonical pattern".
@@ -28,6 +30,13 @@ images:
     repo: ghcr.io/hanzoai/o11y-schema-migrator
     context: .
     dockerfile: cmd/o11yschemamigrator/Dockerfile.selfbuild
+    # imgver DERIVES each tag as published+1, but this image has never been
+    # published, so there was nothing to derive from and it refused rather than
+    # ship a sha — correctly. The collector beside it needs no `version:` because
+    # the registry already answers for it (declared=none published=1.3.0 -> 1.3.1).
+    # This seeds the sequence once; every later tag comes from the registry, not
+    # from this line, so it does not need bumping by hand.
+    version: 0.1.0
 
 # NOTE: no `test:` here. The reusable runs `test:` on a bare arc runner (no Go
 # toolchain; DinD daemon, so bind-mounts don't cross), so the ZAP-surface gate
