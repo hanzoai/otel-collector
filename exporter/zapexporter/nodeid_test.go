@@ -2,6 +2,7 @@ package zapexporter
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"go.opentelemetry.io/collector/component"
@@ -115,7 +116,9 @@ func TestNodeIDIsUniquePerHostAndComponent(t *testing.T) {
 	if a, b := idOn("node-a"), idOn("node-b"); a == b {
 		t.Fatalf("same identity on two hosts: %q — every agent would be refused but one", a)
 	}
-	if id := idOn("node-a"); id != "otel-agent-node-a-zap" {
+	// Host and component must both stay legible; the trailing boot nonce is the
+	// third axis (TestNodeIDChangesAcrossProcesses) and is not pinned to a value.
+	if id := idOn("node-a"); !strings.HasPrefix(id, "otel-agent-node-a-zap-") {
 		t.Fatalf("identity should name the host and the component, got %q", id)
 	}
 
@@ -124,6 +127,37 @@ func TestNodeIDIsUniquePerHostAndComponent(t *testing.T) {
 	e := newExporter(fleetSettings(), &Config{})
 	if x, y := e.nodeID(), e.nodeID(); x == y {
 		t.Fatalf("blank hostname produced a reusable identity %q — collisions return", x)
+	}
+}
+
+// TestNodeIDChangesAcrossProcesses is the RESTART axis, and it is the one that
+// cost four incidents in a single day.
+//
+// Hostname is unique per pod but STABLE across a container restart inside that
+// pod, so without a per-process nonce a restarted collector reclaims an identity
+// the receiver may still hold — and the duplicate rule refuses the new process
+// with EOF. The refusal never clears, so the pod crash-loops until it is deleted.
+// Measured 2026-08-08: otel-gateway logged `connect 10.124.0.71:4319: EOF` 56
+// times over 10 restarts and delivered nothing until a manual delete.
+func TestNodeIDChangesAcrossProcesses(t *testing.T) {
+	origHost := hostname
+	defer func() { hostname = origHost }()
+	hostname = func() (string, error) { return "same-pod", nil }
+
+	e := newExporter(fleetSettings(), &Config{})
+	first := e.nodeID()
+
+	// The NEXT process in the same pod: same hostname, same component, new boot.
+	origNonce := bootNonce
+	defer func() { bootNonce = origNonce }()
+	bootNonce = "secondboot"
+	second := e.nodeID()
+
+	if first == second {
+		t.Fatalf("a restart reused the identity %q — the receiver refuses the duplicate with EOF and the pod crash-loops", first)
+	}
+	if !strings.HasPrefix(second, "otel-agent-same-pod-") {
+		t.Fatalf("the nonce must be a suffix, not a replacement for host+component; got %q", second)
 	}
 }
 
