@@ -80,8 +80,27 @@ func (e *zapExporter) nodeID() string {
 	if cid := e.settings.ID.String(); cid != "" {
 		id += "-" + strings.ReplaceAll(cid, "/", "-")
 	}
-	return id
+	// The RESTART half. Hostname is unique per pod but NOT per process: a
+	// container that restarts inside its pod comes back with the same name and
+	// reclaims an identity the receiver may still be holding — and the duplicate
+	// rule above then refuses the new process with EOF. That refusal never clears
+	// from the sender's side, so the pod crash-loops and the only cure is
+	// deleting it so a new name is minted.
+	//
+	// Measured 2026-08-08: otel-gateway logged
+	// `connect 10.124.0.71:4319: EOF` 56 times across 10 restarts and delivered
+	// nothing until it was deleted by hand — four separate incidents in one day,
+	// each ended by the same manual delete.
+	//
+	// bootNonce is fixed for the life of this process and different in the next,
+	// so a restart arrives as a NEW peer rather than a duplicate of a corpse. The
+	// cost is a short-lived stale entry the receiver reaps on its own, which is
+	// strictly better than a sender that can never reconnect.
+	return id + "-" + bootNonce
 }
+
+// bootNonce identifies this PROCESS, not this host. See nodeID.
+var bootNonce = strconv.FormatUint(rand.Uint64(), 36)
 
 // Start brings up the local ZAP node. A failed dial is deliberately NOT fatal:
 // this runs as a DaemonSet on every node and the collector may be unreachable at
