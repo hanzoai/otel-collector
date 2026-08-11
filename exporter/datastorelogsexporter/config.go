@@ -42,7 +42,7 @@ type Config struct {
 	QueueBatchConfig             configoptional.Optional[exporterhelper.QueueBatchConfig] `mapstructure:"sending_queue"`
 
 	// DSN is the Datastore server Data Source Name.
-	// For tcp protocol reference: [Datastore/datastore-go#dsn](https://github.com/ClickHouse/clickhouse-go#dsn).
+	// For tcp protocol reference: [hanzo-ds/go#dsn](https://github.com/hanzo-ds/go#dsn).
 	DSN                 string `mapstructure:"dsn"`
 	UseNewSchema        bool   `mapstructure:"use_new_schema"`
 	LogLevelConcurrency *int   `mapstructure:"log_level_concurrency"`

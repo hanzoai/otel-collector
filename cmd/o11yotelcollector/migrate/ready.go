@@ -158,7 +158,7 @@ func (r *ready) CheckDatastore(ctx context.Context) error {
 		addrPort := netip.AddrPortFrom(addr, host.port)
 		connectionOpts := r.connOpts
 		// cannot pass all the address here as this is used for failover/ load-balancing. at any point of them one is selected and connection is established
-		// ref: https://github.com/ClickHouse/clickhouse-go/blob/main/datastore.go#L275
+		// ref: https://github.com/hanzo-ds/go/blob/main/conn.go
 		connectionOpts.Addr = []string{addrPort.String()}
 		conn, err := datastore.Open(connectionOpts)
 		if err != nil {
