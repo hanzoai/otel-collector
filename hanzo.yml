@@ -44,19 +44,6 @@ images:
 # collector's Dockerfile.selfbuild build stage instead — where the toolchain and
 # source already are, and a failing test fails the image. One gate, one place.
 
-# On push to main, roll the in-cluster collector Deployment to the freshly-built
-# immutable tag. (The otel-collector-config ConfigMap + the otel-agent DaemonSet
-# are applied from hanzoai/universe; this only rolls the Deployment image.)
-deploy:
-  namespace: hanzo
-  on: [main]
-  services:
-    # The Deployment is otel-gateway; ghcr.io/hanzoai/otel-collector is what it
-    # runs. Naming the image here rolled nothing — there is no Deployment by
-    # that name, and the server said so.
-    - name: otel-gateway
-      image: collector
-
 # Deploy credentials (KUBECONFIG) are org-scoped in KMS; the build/push path uses
 # the automatic GitHub workflow token, so KMS is only needed for the deploy step.
 kms:
