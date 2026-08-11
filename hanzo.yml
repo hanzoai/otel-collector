@@ -11,7 +11,7 @@
 # + a ~7-line cicd.yml. See README.md § "CI/CD — canonical pattern".
 
 images:
-  # The ZAP-native O11y collector. filelog / OTLP / ZAP in, ClickHouse
+  # The ZAP-native O11y collector. filelog / OTLP / ZAP in, datastore
   # (hanzoai/datastore) out. Dockerfile.selfbuild is a self-contained multi-stage
   # build that COMPILES the collector in-image — including receiver/zapreceiver +
   # exporter/zapexporter — so no CI pre-build step is needed (unlike ./Dockerfile,
@@ -24,7 +24,7 @@ images:
     dockerfile: cmd/o11yotelcollector/Dockerfile.selfbuild
     tag-suffix: zap-native
 
-  # ClickHouse schema migrator — creates/updates the o11y_logs / o11y_traces /
+  # Schema migrator — creates/updates the o11y_logs / o11y_traces /
   # o11y_metrics DDL in hanzoai/datastore. Self-building (mirrors the collector).
   - name: schema-migrator
     repo: ghcr.io/hanzoai/o11y-schema-migrator
@@ -51,7 +51,10 @@ deploy:
   namespace: hanzo
   on: [main]
   services:
-    - name: otel-collector
+    # The Deployment is otel-gateway; ghcr.io/hanzoai/otel-collector is what it
+    # runs. Naming the image here rolled nothing — there is no Deployment by
+    # that name, and the server said so.
+    - name: otel-gateway
       image: collector
 
 # Deploy credentials (KUBECONFIG) are org-scoped in KMS; the build/push path uses
