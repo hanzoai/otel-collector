@@ -478,7 +478,7 @@ func (a AlterTableModifySettings) ShouldWaitForDistributionQueue() (bool, string
 
 func (a AlterTableModifySettings) IsMutation() bool {
 	// Modifying table settings is not a mutation. It simply updates the metadata of the table.
-	// https://github.com/ClickHouse/ClickHouse/issues/86993#issuecomment-3280106638
+	// The engine treats a settings change as metadata only, not a data rewrite.
 	return false
 }
 
