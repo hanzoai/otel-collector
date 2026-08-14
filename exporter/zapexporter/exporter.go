@@ -2,12 +2,15 @@ package zapexporter
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand/v2"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
+	"time"
 
 	luxzap "github.com/luxfi/zap"
 	"go.opentelemetry.io/collector/component"
@@ -32,13 +35,62 @@ type zapExporter struct {
 	cfg      *Config
 	settings exporter.Settings
 
+	// mu guards node and peerID and is NEVER held across network I/O. It used
+	// to wrap the whole of send(), which meant one call parked in the kernel
+	// held every other consumer behind it: the exporter went to zero
+	// throughput and zero errors at the same time, which is the one
+	// combination no queue and no retry budget can survive. Measured on the
+	// busiest node in the fleet, 135s after a cloud restart: 9,854 records
+	// accepted, 0 sent, 0 failed, queue climbing toward its ceiling.
 	mu     sync.Mutex
 	node   *luxzap.Node
 	peerID string
+
+	// dialing keeps at most one dial in flight. A second caller is turned
+	// away rather than queued, because queueing behind a dial is the same
+	// trap as the mutex: the dial's handshake read has no deadline.
+	dialing atomic.Bool
+
+	// stalls counts consecutive attempts abandoned on the caller's deadline.
+	// See resetNode for what it is for.
+	stalls atomic.Int64
 }
+
+// stallsBeforeReset is how many consecutive deadline-abandoned attempts mean
+// the connection is not slow but wedged. At the exporter's 5s timeout this is
+// ~15s of no progress plus backoff — far above any normal slow write, far
+// below the tens of minutes a wedged connection was observed to hold.
+const stallsBeforeReset = 3
+
+// initialDialTimeout bounds the best-effort dial in Start. See Start.
+const initialDialTimeout = 5 * time.Second
 
 func newExporter(set exporter.Settings, cfg *Config) *zapExporter {
 	return &zapExporter{cfg: cfg, settings: set}
+}
+
+// within runs fn and stops waiting when ctx does.
+//
+// luxfi/zap's TCP path takes no deadline anywhere: ConnectDirectID dials with
+// a 5s timeout and then does a plain blocking handshake read, Conn.Send writes
+// with no write deadline, and Node.Send accepts a context it consults only on
+// the QUIC path. So a peer that accepts the connection and then stops reading
+// — exactly what cloud looks like while it restarts — parks the caller
+// indefinitely, and the exporter's own timeout setting cannot touch it.
+//
+// This is the only place that can bound it. fn keeps running (there is no way
+// to interrupt a blocking read on a socket nobody set a deadline on), but the
+// exporter stops waiting and reports a retryable failure instead of going
+// silent. The goroutine ends when the kernel finally gives up on the socket.
+func within(ctx context.Context, fn func() error) error {
+	done := make(chan error, 1)
+	go func() { done <- fn() }()
+	select {
+	case err := <-done:
+		return err
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
 // hostname is the per-process half of the ZAP node identity. A var so a test can
@@ -68,7 +120,7 @@ var hostname = os.Hostname
 // are DERIVED, never configured: a config knob here would just be a way to set
 // the same value on every node, which is precisely the bug it would exist to
 // prevent.
-func (e *zapExporter) nodeID() string {
+func (e *zapExporter) nodeID(incarnation string) string {
 	host, err := hostname()
 	if err != nil || host == "" {
 		// A missing hostname must not silently re-collide. A random suffix keeps
@@ -92,22 +144,64 @@ func (e *zapExporter) nodeID() string {
 	// nothing until it was deleted by hand — four separate incidents in one day,
 	// each ended by the same manual delete.
 	//
-	// bootNonce is fixed for the life of this process and different in the next,
-	// so a restart arrives as a NEW peer rather than a duplicate of a corpse. The
-	// cost is a short-lived stale entry the receiver reaps on its own, which is
-	// strictly better than a sender that can never reconnect.
-	return id + "-" + bootNonce
+	// The incarnation is minted per node instance and never reused, so both a
+	// process restart and an in-place rebuild arrive as a NEW peer rather than a
+	// duplicate of a corpse. The cost is a short-lived stale entry the receiver
+	// reaps on its own, which is strictly better than a sender that can never
+	// reconnect.
+	return id + "-" + incarnation
 }
 
-// bootNonce identifies this PROCESS, not this host. See nodeID.
-var bootNonce = strconv.FormatUint(rand.Uint64(), 36)
+// newIncarnation identifies one NODE INSTANCE — not this host, and not this
+// process either.
+//
+// Per-process was already right for the restart case nodeID describes. It is
+// not enough once the exporter can rebuild its node in place to escape a
+// wedged connection: a rebuild inside one process would reuse the process's
+// nonce, the receiver would still be holding the old registration, and the
+// duplicate rule above would refuse the new node with EOF — permanently,
+// trading a stall that ends when TCP gives up for one that never ends. Minting
+// the nonce per node instance keeps every rebuild a genuinely new peer, and a
+// process that never rebuilds is unaffected: its first node mints one nonce
+// and keeps it.
+func newIncarnation() string { return strconv.FormatUint(rand.Uint64(), 36) }
 
 // Start brings up the local ZAP node. A failed dial is deliberately NOT fatal:
 // this runs as a DaemonSet on every node and the collector may be unreachable at
 // boot, so it must not take the agent down — send() reconnects.
-func (e *zapExporter) Start(context.Context, component.Host) error {
+func (e *zapExporter) Start(ctx context.Context, _ component.Host) error {
+	node, err := e.startNode()
+	if err != nil {
+		return err
+	}
+	e.mu.Lock()
+	e.node = node
+	e.mu.Unlock()
+	// The initial dial is best-effort and must not hold up startup. It is not
+	// merely slow when the peer is unreachable: a peer that accepts the socket
+	// and never answers the handshake parks this call forever (luxfi/zap sets no
+	// read deadline), so an unbounded dial here means a collector that never
+	// reports ready and never tails a single file. Bounded, a boot-time
+	// unreachable collector costs one timeout and send() picks it up later,
+	// which is what the comment above has always promised.
+	dialCtx, cancel := context.WithTimeout(ctx, initialDialTimeout)
+	defer cancel()
+	if err := e.connect(dialCtx); err != nil {
+		e.settings.Logger.Debug("OTLZ exporter: initial connect failed; will retry on export",
+			zap.String("endpoint", e.cfg.Endpoint), zap.Error(err))
+	}
+	e.settings.Logger.Info("OTLZ exporter ready (wire=luxfi/zap envelope, JSON batch)",
+		zap.String("endpoint", e.cfg.Endpoint),
+		zap.String("transport", e.transportName()))
+	return nil
+}
+
+// startNode builds and starts one ZAP node with a fresh identity. Both the
+// initial Start and a post-stall rebuild go through here, so the two can never
+// drift on transport selection or identity.
+func (e *zapExporter) startNode() (*luxzap.Node, error) {
 	cfg := luxzap.NodeConfig{
-		NodeID:      e.nodeID(),
+		NodeID:      e.nodeID(newIncarnation()),
 		ServiceType: "_o11y._tcp",
 		Port:        0,
 		NoDiscovery: true,
@@ -120,18 +214,11 @@ func (e *zapExporter) Start(context.Context, component.Host) error {
 	if e.cfg.Transport == "quic" {
 		cfg.Transport = luxzap.TransportQUIC
 	}
-	e.node = luxzap.NewNode(cfg)
-	if err := e.node.Start(); err != nil {
-		return fmt.Errorf("zapexporter: zap node start (transport=%s): %w", e.transportName(), err)
+	node := luxzap.NewNode(cfg)
+	if err := node.Start(); err != nil {
+		return nil, fmt.Errorf("zapexporter: zap node start (transport=%s): %w", e.transportName(), err)
 	}
-	if err := e.connect(); err != nil {
-		e.settings.Logger.Debug("OTLZ exporter: initial connect failed; will retry on export",
-			zap.String("endpoint", e.cfg.Endpoint), zap.Error(err))
-	}
-	e.settings.Logger.Info("OTLZ exporter ready (wire=luxfi/zap envelope, JSON batch)",
-		zap.String("endpoint", e.cfg.Endpoint),
-		zap.String("transport", e.transportName()))
-	return nil
+	return node, nil
 }
 
 // transportName reports the transport actually in use, for the one log line an
@@ -148,49 +235,152 @@ func (e *zapExporter) transportName() string {
 
 func (e *zapExporter) Shutdown(context.Context) error {
 	e.mu.Lock()
-	defer e.mu.Unlock()
-	if e.node != nil {
-		e.node.Stop()
+	node := e.node
+	e.node, e.peerID = nil, ""
+	e.mu.Unlock()
+	if node != nil {
+		// Outside the lock: Stop closes conns, and closing a wedged one can
+		// block for as long as its socket does.
+		node.Stop()
 	}
 	return nil
 }
 
-func (e *zapExporter) connect() error {
+// connect dials once at startup. Failure is not fatal; send() dials on demand.
+func (e *zapExporter) connect(ctx context.Context) error {
+	_, err := e.peer(ctx)
+	return err
+}
+
+// peer returns a peer ID to send to, dialing if there is not one cached.
+//
+// At most one dial runs at a time and it is bounded by ctx. A caller that
+// arrives while a dial is in flight is told to retry rather than made to wait:
+// the dial can block for as long as the peer's TCP stack feels like it, and
+// making every other consumer share that fate is what took the exporter to
+// zero throughput.
+func (e *zapExporter) peer(ctx context.Context) (string, error) {
+	e.mu.Lock()
+	id, node := e.peerID, e.node
+	e.mu.Unlock()
+	if id != "" {
+		return id, nil
+	}
+	if node == nil {
+		return "", errors.New("zap node not started")
+	}
+	if !e.dialing.CompareAndSwap(false, true) {
+		return "", errors.New("dial already in flight")
+	}
+	err := within(ctx, func() error {
+		defer e.dialing.Store(false)
+		if err := node.ConnectDirect(e.cfg.Endpoint); err != nil {
+			return err
+		}
+		peers := node.Peers()
+		if len(peers) == 0 {
+			return fmt.Errorf("connected to %s but no peer ID", e.cfg.Endpoint)
+		}
+		e.mu.Lock()
+		if e.node == node {
+			e.peerID = peers[0]
+		}
+		e.mu.Unlock()
+		return nil
+	})
+	if err != nil {
+		// The dial goroutine owns the flag on the paths it reaches; if we
+		// abandoned it on ctx, it will clear the flag when it finally returns.
+		return "", err
+	}
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	return e.connectLocked()
+	return e.peerID, nil
 }
 
-func (e *zapExporter) connectLocked() error {
-	if e.peerID != "" {
-		return nil
+// forget drops the cached peer if it is still the one that just failed.
+func (e *zapExporter) forget(id string) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	if e.peerID == id {
+		e.peerID = ""
 	}
-	if err := e.node.ConnectDirect(e.cfg.Endpoint); err != nil {
-		return err
+}
+
+// resetNode abandons the current ZAP node and builds a new one.
+//
+// luxfi/zap has no way to drop a single peer: Node exposes Start, Stop, Send,
+// Peers and ConnectDirect, and ConnectDirect is documented idempotent — it
+// "returns the existing peer's NodeID and drops the duplicate dial" — so
+// redialing a wedged peer hands back the same wedged Conn, whose per-conn
+// mutex every subsequent send then queues on. Rebuilding the node is the only
+// way to let go of a connection that has stopped draining.
+//
+// That is not a theoretical state. After a cloud restart an agent logged
+// "Connected to peer" and then sent zero records for 34 minutes with no error
+// on any path, while its queue filled toward the ceiling where it would begin
+// dropping. Only the process restarting cleared it. This does that much, and
+// only that much, without taking the agent down.
+func (e *zapExporter) resetNode() {
+	e.mu.Lock()
+	old := e.node
+	e.peerID = ""
+	e.mu.Unlock()
+
+	if old != nil {
+		go old.Stop() // may block on the same wedged socket; do not wait on it
 	}
-	peers := e.node.Peers()
-	if len(peers) == 0 {
-		return fmt.Errorf("zapexporter: connected to %s but no peer ID", e.cfg.Endpoint)
+	node, err := e.startNode()
+	if err != nil {
+		e.settings.Logger.Warn("OTLZ exporter: could not rebuild the ZAP node after a stall",
+			zap.String("endpoint", e.cfg.Endpoint), zap.Error(err))
+		return
 	}
-	e.peerID = peers[0]
-	return nil
+	e.mu.Lock()
+	e.node = node
+	e.mu.Unlock()
+	e.stalls.Store(0)
+	e.settings.Logger.Info("OTLZ exporter: rebuilt the ZAP node after a stalled connection",
+		zap.String("endpoint", e.cfg.Endpoint))
+}
+
+// noteStall records a deadline-abandoned attempt and rebuilds the node once
+// enough of them have happened in a row to mean wedged rather than slow.
+func (e *zapExporter) noteStall() {
+	if e.stalls.Add(1) >= stallsBeforeReset {
+		e.resetNode()
+	}
 }
 
 // send delivers one envelope, redialing if the cached peer is stale.
 //
 // A failure is returned as RETRYABLE (exporterhelper backs off and retries with
 // the batch intact) rather than swallowed. Dropping a node's logs quietly is how
-// a fleet loses two days of telemetry without one error surfacing.
+// a fleet loses two days of telemetry without one error surfacing — and a send
+// that never returns is the same loss wearing a healthier face, because the
+// queue behind it fills and starts refusing while every counter reads zero.
 func (e *zapExporter) send(ctx context.Context, msg *luxzap.Message) error {
-	e.mu.Lock()
-	defer e.mu.Unlock()
-	if err := e.connectLocked(); err != nil {
+	peerID, err := e.peer(ctx)
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			e.noteStall()
+		}
 		return fmt.Errorf("zapexporter: connect %s: %w", e.cfg.Endpoint, err)
 	}
-	if err := e.node.Send(ctx, e.peerID, msg); err != nil {
-		e.peerID = "" // stale connection; next call redials
+	e.mu.Lock()
+	node := e.node
+	e.mu.Unlock()
+	if node == nil {
+		return errors.New("zapexporter: zap node not started")
+	}
+	if err := within(ctx, func() error { return node.Send(ctx, peerID, msg) }); err != nil {
+		e.forget(peerID) // stale connection; next call redials
+		if errors.Is(err, context.DeadlineExceeded) {
+			e.noteStall()
+		}
 		return fmt.Errorf("zapexporter: send to %s: %w", e.cfg.Endpoint, err)
 	}
+	e.stalls.Store(0)
 	return nil
 }
 

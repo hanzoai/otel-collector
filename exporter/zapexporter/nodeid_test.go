@@ -110,7 +110,7 @@ func TestNodeIDIsUniquePerHostAndComponent(t *testing.T) {
 	idOn := func(host string) string {
 		hostname = func() (string, error) { return host, nil }
 		e := newExporter(fleetSettings(), &Config{})
-		return e.nodeID()
+		return e.nodeID(newIncarnation())
 	}
 
 	if a, b := idOn("node-a"), idOn("node-b"); a == b {
@@ -125,7 +125,7 @@ func TestNodeIDIsUniquePerHostAndComponent(t *testing.T) {
 	// A blank hostname must not fall back to a shared constant.
 	hostname = func() (string, error) { return "", nil }
 	e := newExporter(fleetSettings(), &Config{})
-	if x, y := e.nodeID(), e.nodeID(); x == y {
+	if x, y := e.nodeID(newIncarnation()), e.nodeID(newIncarnation()); x == y {
 		t.Fatalf("blank hostname produced a reusable identity %q — collisions return", x)
 	}
 }
@@ -145,13 +145,12 @@ func TestNodeIDChangesAcrossProcesses(t *testing.T) {
 	hostname = func() (string, error) { return "same-pod", nil }
 
 	e := newExporter(fleetSettings(), &Config{})
-	first := e.nodeID()
+	first := e.nodeID(newIncarnation())
 
-	// The NEXT process in the same pod: same hostname, same component, new boot.
-	origNonce := bootNonce
-	defer func() { bootNonce = origNonce }()
-	bootNonce = "secondboot"
-	second := e.nodeID()
+	// The NEXT process in the same pod: same hostname, same component, new
+	// incarnation. The incarnation is also what a post-stall node rebuild mints,
+	// so this axis now covers both a restart and an in-place rebuild.
+	second := e.nodeID(newIncarnation())
 
 	if first == second {
 		t.Fatalf("a restart reused the identity %q — the receiver refuses the duplicate with EOF and the pod crash-loops", first)
