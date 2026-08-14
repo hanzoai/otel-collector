@@ -51,9 +51,13 @@ type zapExporter struct {
 	// trap as the mutex: the dial's handshake read has no deadline.
 	dialing atomic.Bool
 
-	// stalls counts consecutive attempts abandoned on the caller's deadline.
-	// See resetNode for what it is for.
+	// stalls counts consecutive attempts that made no progress — abandoned on the
+	// caller's deadline, or refused outright. See resetNode for what it is for.
 	stalls atomic.Int64
+
+	// lastReset is when the node was last rebuilt, as UnixNano. It is the floor
+	// under rebuild frequency: see resetNode.
+	lastReset atomic.Int64
 }
 
 // stallsBeforeReset is how many consecutive deadline-abandoned attempts mean
@@ -64,6 +68,49 @@ const stallsBeforeReset = 3
 
 // initialDialTimeout bounds the best-effort dial in Start. See Start.
 const initialDialTimeout = 5 * time.Second
+
+// minResetInterval is the floor under how often the node may be rebuilt.
+//
+// A rebuild is the right answer to a connection that will never work again, and
+// the wrong answer to a receiver that is merely down: while cloud is restarting,
+// EVERY dial fails, so an unfloored budget would mint a fresh identity several
+// times a second across every agent in the fleet and hand the receiver a crowd
+// of dead registrations to reap the moment it came back. Thirty seconds is far
+// longer than a wedge takes to detect (three failures at a 5s timeout) and far
+// shorter than an operator would take to notice, so a real refusal costs one
+// rebuild and an outage costs two a minute.
+const minResetInterval = 30 * time.Second
+
+// errDialInFlight and errNoNode are the two failures that mean "ask again",
+// not "this connection is finished". They must never count toward the stall
+// budget: the first is ordinary concurrency between the three signal pipelines
+// sharing this exporter, and counting it would let healthy parallelism trigger
+// rebuilds.
+var (
+	errDialInFlight = errors.New("dial already in flight")
+	errNoNode       = errors.New("zap node not started")
+)
+
+// stalled reports whether an attempt made no progress for a reason a new node
+// could fix.
+//
+// The budget's original reading was context.DeadlineExceeded only, which covers
+// a peer that accepts the socket and stops answering. It does not cover the
+// other half, and the other half is the one with no way out: luxfi/zap admits
+// exactly ONE connection per peer NodeID, so an agent whose registration the
+// receiver still holds is answered with EOF at handshake — the dial fails
+// immediately, cleanly, and forever, since redialing presents the same refused
+// identity. A budget that ignores that error waits for a deadline that never
+// comes, which is why a wedged agent stayed wedged with its queue at the
+// ceiling until it was deleted by hand.
+//
+// So: everything counts EXCEPT the two "ask again" sentinels above.
+func stalled(err error) bool {
+	if err == nil {
+		return false
+	}
+	return !errors.Is(err, errDialInFlight) && !errors.Is(err, errNoNode)
+}
 
 func newExporter(set exporter.Settings, cfg *Config) *zapExporter {
 	return &zapExporter{cfg: cfg, settings: set}
@@ -267,10 +314,10 @@ func (e *zapExporter) peer(ctx context.Context) (string, error) {
 		return id, nil
 	}
 	if node == nil {
-		return "", errors.New("zap node not started")
+		return "", errNoNode
 	}
 	if !e.dialing.CompareAndSwap(false, true) {
-		return "", errors.New("dial already in flight")
+		return "", errDialInFlight
 	}
 	err := within(ctx, func() error {
 		defer e.dialing.Store(false)
@@ -322,6 +369,18 @@ func (e *zapExporter) forget(id string) {
 // dropping. Only the process restarting cleared it. This does that much, and
 // only that much, without taking the agent down.
 func (e *zapExporter) resetNode() {
+	// The floor, and the serialiser. Three signal pipelines share this exporter
+	// and all of them can be failing at once, so the compare-and-swap is what
+	// makes concurrent stalls produce ONE rebuild rather than three.
+	now := time.Now().UnixNano()
+	last := e.lastReset.Load()
+	if last != 0 && now-last < int64(minResetInterval) {
+		return
+	}
+	if !e.lastReset.CompareAndSwap(last, now) {
+		return
+	}
+
 	e.mu.Lock()
 	old := e.node
 	e.peerID = ""
@@ -362,7 +421,7 @@ func (e *zapExporter) noteStall() {
 func (e *zapExporter) send(ctx context.Context, msg *luxzap.Message) error {
 	peerID, err := e.peer(ctx)
 	if err != nil {
-		if errors.Is(err, context.DeadlineExceeded) {
+		if stalled(err) {
 			e.noteStall()
 		}
 		return fmt.Errorf("zapexporter: connect %s: %w", e.cfg.Endpoint, err)
@@ -371,11 +430,11 @@ func (e *zapExporter) send(ctx context.Context, msg *luxzap.Message) error {
 	node := e.node
 	e.mu.Unlock()
 	if node == nil {
-		return errors.New("zapexporter: zap node not started")
+		return errNoNode
 	}
 	if err := within(ctx, func() error { return node.Send(ctx, peerID, msg) }); err != nil {
 		e.forget(peerID) // stale connection; next call redials
-		if errors.Is(err, context.DeadlineExceeded) {
+		if stalled(err) {
 			e.noteStall()
 		}
 		return fmt.Errorf("zapexporter: send to %s: %w", e.cfg.Endpoint, err)
