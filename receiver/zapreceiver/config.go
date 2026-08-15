@@ -2,7 +2,8 @@ package zapreceiver
 
 import (
 	"errors"
-	"strings"
+
+	"github.com/luxfi/zap"
 )
 
 // Config configures the ZAP-native OTLP receiver.
@@ -10,22 +11,17 @@ type Config struct {
 	// Endpoint is what the ZAP listener binds. The wire is ZAP frames
 	// (zap-proto/http), not OTLP-HTTP/gRPC.
 	//
-	// A host:port binds TCP. A filesystem path, or a unix:// URL, binds a Unix
-	// socket instead — which is how a process on the same host reaches the
-	// agent without a port. Default "0.0.0.0:4319".
+	// A host:port binds TCP; a path binds a Unix socket, which is how a
+	// process on the same host reaches the agent without a port. Default
+	// "0.0.0.0:4319".
 	Endpoint string `mapstructure:"endpoint"`
 }
 
-// Network returns the net.Listen network and address for Endpoint. Anything
-// that looks like a path is a socket; everything else is TCP.
+// Network returns the net.Listen network and address for Endpoint, from
+// luxfi/zap's rule — the one the dialer uses too, so a node cannot bind one
+// transport and be dialled on another.
 func (c *Config) Network() (network, address string) {
-	if strings.HasPrefix(c.Endpoint, "unix://") {
-		return "unix", strings.TrimPrefix(c.Endpoint, "unix://")
-	}
-	if strings.HasPrefix(c.Endpoint, "/") || strings.HasPrefix(c.Endpoint, "./") {
-		return "unix", c.Endpoint
-	}
-	return "tcp", c.Endpoint
+	return zap.Network(c.Endpoint), c.Endpoint
 }
 
 // Validate implements component.ConfigValidator.

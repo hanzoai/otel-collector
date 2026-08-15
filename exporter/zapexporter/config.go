@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/luxfi/zap"
+
 	"go.opentelemetry.io/collector/config/configoptional"
 	"go.opentelemetry.io/collector/config/configretry"
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
@@ -65,17 +67,5 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// isSocketPath mirrors luxfi/zap's Network(): an absolute, explicitly relative,
-// or abstract-namespace address is a socket path, and none of those is a legal
-// host:port. Kept in lockstep with that function — the shape rule must not have
-// two definitions that can disagree.
-func isSocketPath(addr string) bool {
-	switch {
-	case len(addr) > 0 && addr[0] == '/',
-		len(addr) > 0 && addr[0] == '@',
-		len(addr) > 1 && addr[0] == '.' && addr[1] == '/',
-		len(addr) > 2 && addr[0] == '.' && addr[1] == '.' && addr[2] == '/':
-		return true
-	}
-	return false
-}
+// isSocketPath asks luxfi/zap, which owns the rule.
+func isSocketPath(addr string) bool { return zap.Network(addr) == "unix" }

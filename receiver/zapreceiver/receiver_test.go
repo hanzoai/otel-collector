@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -210,14 +211,15 @@ func TestZapReceiverUnixSocket(t *testing.T) {
 	_ = rcv2.Shutdown(context.Background())
 }
 
-// TestZapReceiverNetwork covers the endpoint spellings.
+// TestZapReceiverNetwork covers the endpoint spellings luxfi/zap defines.
 func TestZapReceiverNetwork(t *testing.T) {
 	for _, tc := range []struct{ endpoint, network, address string }{
 		{"0.0.0.0:4319", "tcp", "0.0.0.0:4319"},
 		{"127.0.0.1:0", "tcp", "127.0.0.1:0"},
 		{"/run/hanzo/otel.sock", "unix", "/run/hanzo/otel.sock"},
-		{"unix:///run/hanzo/otel.sock", "unix", "/run/hanzo/otel.sock"},
 		{"./otel.sock", "unix", "./otel.sock"},
+		{"../otel.sock", "unix", "../otel.sock"},
+		{"@otel", "unix", "@otel"},
 	} {
 		c := &Config{Endpoint: tc.endpoint}
 		network, address := c.Network()
@@ -225,4 +227,54 @@ func TestZapReceiverNetwork(t *testing.T) {
 			t.Errorf("%q -> %q %q, want %q %q", tc.endpoint, network, address, tc.network, tc.address)
 		}
 	}
+}
+
+// TestZapReceiverRefusesLiveSocket proves a second receiver does not take an
+// address a live one is serving. A socket left by a dead process is cleared;
+// one someone is listening on is not.
+func TestZapReceiverRefusesLiveSocket(t *testing.T) {
+	base, err := os.MkdirTemp("", "zr")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.RemoveAll(base) }()
+	sock := filepath.Join(base, "o.sock")
+
+	factory := NewFactory()
+	cfg := factory.CreateDefaultConfig().(*Config)
+	cfg.Endpoint = sock
+	set := receivertest.NewNopSettings(typeStr)
+
+	first, err := factory.CreateTraces(context.Background(), set, cfg, new(consumertest.TracesSink))
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if err := first.Start(context.Background(), componenttest.NewNopHost()); err != nil {
+		t.Fatalf("start first: %v", err)
+	}
+	defer func() { _ = first.Shutdown(context.Background()) }()
+
+	// A distinct config, or the factory hands back the receiver already built
+	// for this one and Start is a no-op.
+	rival := factory.CreateDefaultConfig().(*Config)
+	rival.Endpoint = sock
+	second, err := factory.CreateTraces(context.Background(), set, rival, new(consumertest.TracesSink))
+	if err != nil {
+		t.Fatalf("create second: %v", err)
+	}
+	err = second.Start(context.Background(), componenttest.NewNopHost())
+	if err == nil {
+		_ = second.Shutdown(context.Background())
+		t.Fatal("second receiver took an address the first is serving")
+	}
+	if !strings.Contains(err.Error(), "already served") {
+		t.Fatalf("refused for the wrong reason: %v", err)
+	}
+
+	// The first is still the one listening.
+	c, err := net.Dial("unix", sock)
+	if err != nil {
+		t.Fatalf("first receiver stopped serving: %v", err)
+	}
+	_ = c.Close()
 }
