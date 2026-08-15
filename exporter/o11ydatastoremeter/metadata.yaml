@@ -1,4 +1,4 @@
-type: o11yclickhousemeter
+type: o11ydatastoremeter
 
 status:
   class: exporter

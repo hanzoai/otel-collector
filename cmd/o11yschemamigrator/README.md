@@ -1,16 +1,16 @@
 # O11y Schema Migrator
 
-This is a tool to manage the ClickHouse schema migrations.
+This is a tool to manage the Datastore schema migrations.
 
 ## Why we wrote this?
 
-We initially adopted https://github.com/golang-migrate/migrate to manage the ClickHouse schema migrations. However, we faced the following issues:
+We initially adopted https://github.com/golang-migrate/migrate to manage the Datastore schema migrations. However, we faced the following issues:
 
-1. No support for Clickhouse cluster mode.
+1. No support for Datastore cluster mode.
 2. Schema migrations that trigger the mutations on the tables would cause the migrations to fail.
 3. Race condition when running the migrations in parallel from multiple collector instances.
 
-### Mutations in Clickhouse
+### Mutations in Datastore
 
 From the Clickhouse docs https://clickhouse.com/docs/optimize/avoid-mutations:
 
@@ -40,7 +40,7 @@ Every schema migration using ON CLUSTER creates entries in the `system.distribut
 When we run materialization migrations on the tables, intra-shard insert would fail because the insert is performed on the old table schema. See more here https://github.com/hanzoai/o11y/issues/4566.
 
 
-These challenges necessitated a more mutation-aware migration approach with better detection and handling capabilities for ClickHouse's specific behavior.
+These challenges necessitated a more mutation-aware migration approach with better detection and handling capabilities for Datastore's specific behavior.
 
 ## What does this tool do?
 
@@ -116,7 +116,7 @@ The async mode is used to run the migrations in the background and do not block 
 
 #### DSN
 
-The DSN is the ClickHouse connection string.
+The DSN is the Datastore connection string.
 
 ```bash
 ... --dsn "tcp://localhost:9000" ...

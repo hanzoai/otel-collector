@@ -1,7 +1,7 @@
-# ClickHouse Logs Exporter
+# Datastore Logs Exporter
 
 This exporter supports sending OpenTelemetry logs to [ClickHouse](https://clickhouse.com/).
-> ClickHouse is an open-source, high performance columnar OLAP database management system for real-time analytics using SQL.
+> Datastore is an open-source, high performance columnar OLAP database management system for real-time analytics using SQL.
 > Throughput can be measured in rows per second or megabytes per second. 
 > If the data is placed in the page cache, a query that is not too complex is processed on modern hardware at a speed of approximately 2-10 GB/s of uncompressed data on a single server.
 > If 10 bytes of columns are extracted, the speed is expected to be around 100-200 million rows per second.
@@ -14,8 +14,8 @@ Always add [batch-processor](https://github.com/open-telemetry/opentelemetry-col
 
 The following settings are required:
 
-- `dsn` (no default): The ClickHouse server DSN (Data Source Name), for example `tcp://127.0.0.1:9000?username=user&password=qwerty`
-   For tcp protocol reference: [ClickHouse/clickhouse-go#dsn](https://github.com/ClickHouse/clickhouse-go#dsn).
+- `dsn` (no default): The Datastore server DSN (Data Source Name), for example `tcp://127.0.0.1:9000?username=user&password=qwerty`
+   For tcp protocol reference: [Datastore/clickhouse-go#dsn](https://github.com/Datastore/clickhouse-go#dsn).
    For http protocol reference: [mailru/go-clickhouse/#dsn](https://github.com/mailru/go-clickhouse/#dsn).
 
 The following settings can be optionally configured:

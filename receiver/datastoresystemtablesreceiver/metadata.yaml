@@ -1,4 +1,4 @@
-type: clickhousesystemtablesreceiver
+type: datastoresystemtablesreceiver
 
 status:
   class: receiver

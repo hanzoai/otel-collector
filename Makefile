@@ -109,4 +109,4 @@ migrator:
 	@echo "------------------"
 	@echo "--> Running schema migrator for $(DATASTORE_HOST):$(DATASTORE_PORT)"
 	@echo "------------------"
-	go run cmd/o11yschemamigrator/main.go sync --dsn "clickhouse://$(DATASTORE_HOST):$(DATASTORE_PORT)" --dev
+	go run cmd/o11yschemamigrator/main.go sync --dsn "datastore://$(DATASTORE_HOST):$(DATASTORE_PORT)" --dev
