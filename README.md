@@ -4,7 +4,7 @@
 
 The Hanzo distribution of the OpenTelemetry Collector. Ingests traces / metrics /
 logs over **ZAP-native** (`zap-proto/http`, `:4319`) plus OTLP (`:4317`/`:4318`)
-and writes to the one hanzoai/datastore (ClickHouse). Adds `receiver/zapreceiver`
+and writes to the one hanzoai/datastore (Datastore). Adds `receiver/zapreceiver`
 + `exporter/zapexporter` over upstream.
 
 ## CI/CD — canonical pattern (one and only one way)

@@ -1,6 +1,6 @@
-# Clickhouse System Tables Receiver
+# Datastore System Tables Receiver
 
-Connects to clickhouse to collect monitoring data from clickhouse system tables
+Connects to datastore to collect monitoring data from datastore system tables
 
 Only collects logs from query_log table right now.
 Support for other system tables like query_views_log, query_thread_log etc may be added later as needed.
@@ -10,11 +10,11 @@ Support for other system tables like query_views_log, query_thread_log etc may b
 
 ```yaml
 receivers:
-  clickhousesystemtablesreceiver:
+  datastoresystemtablesreceiver:
     # required
-    dsn: tcp://clickhouse:9000/
+    dsn: tcp://datastore:9000/
 
-    # optional. Should be set to name of the cluster when scraping query logs from a clustered Clickhouse deployment
+    # optional. Should be set to name of the cluster when scraping query logs from a clustered Datastore deployment
     cluster_name: "cluster-name"
 
     query_log_scrape_config:

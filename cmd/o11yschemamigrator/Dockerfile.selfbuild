@@ -1,4 +1,4 @@
-# Self-contained multi-stage build of the O11y ClickHouse schema migrator.
+# Self-contained multi-stage build of the O11y Datastore schema migrator.
 #
 # Unlike ./Dockerfile (which COPYs a binary a CI pre-build-command produced), this
 # compiles the migrator in-image, so the canonical Hanzo CI (hanzoai/ci reads the

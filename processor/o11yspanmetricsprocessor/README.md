@@ -71,14 +71,14 @@ The processor supports time-bucketed keys that enable timestamp-aware metrics. *
 processors:
   o11yspanmetrics/delta:
     time_bucket_interval: 1m  # 1 minute buckets
-    metrics_exporter: o11yclickhousemetrics
+    metrics_exporter: o11ydatastoremetrics
     aggregation_temporality: AGGREGATION_TEMPORALITY_DELTA
     metrics_flush_interval: 60s
 
 # Cumulative temporality (no time bucketing to prevent memory issues)
 processors:
   o11yspanmetrics/cumulative:
-    metrics_exporter: o11yclickhousemetrics
+    metrics_exporter: o11ydatastoremetrics
     aggregation_temporality: AGGREGATION_TEMPORALITY_CUMULATIVE
     metrics_flush_interval: 60s
 ```
