@@ -79,7 +79,7 @@ processors:
 extensions:
   zpages: {}
 exporters:
-  clickhousetraces:
+  datastoretraces:
     datasource: tcp://localhost:9000/o11y_traces
     retry_on_failure:
       enabled: true
@@ -94,7 +94,7 @@ exporters:
     sending_queue:
       enabled: false
     dsn: tcp://localhost:9000/o11y_metrics
-  clickhouselogsexporter:
+  datastorelogsexporter:
     dsn: tcp://localhost:9000/o11y_logs
     timeout: 10s
     sending_queue:
@@ -108,7 +108,7 @@ service:
     traces:
       receivers: [jaeger, otlp]
       processors: [o11yspanmetrics/delta, batch]
-      exporters: [clickhousetraces]
+      exporters: [datastoretraces]
     metrics:
       receivers: [otlp, hostmetrics]
       processors: [batch]
@@ -116,7 +116,7 @@ service:
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [clickhouselogsexporter]
+      exporters: [datastorelogsexporter]
     metrics/spanmetrics:
       receivers: [otlp/spanmetrics]
       exporters: [prometheus]
