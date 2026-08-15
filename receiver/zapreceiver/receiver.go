@@ -8,7 +8,9 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/valyala/fasthttp"
 	zaphttp "github.com/zap-proto/http"
@@ -90,12 +92,13 @@ func (r *zapReceiver) Start(_ context.Context, host component.Host) error {
 		if len(address) > 100 {
 			return fmt.Errorf("zapreceiver: socket path is %d bytes, over the ~100 the kernel allows: %s", len(address), address)
 		}
-		// A socket left behind by a previous process refuses the bind.
-		_ = os.Remove(address)
-		if dir := filepath.Dir(address); dir != "." {
+		if dir := filepath.Dir(address); dir != "." && !strings.HasPrefix(address, "@") {
 			if err := os.MkdirAll(dir, 0o755); err != nil {
 				return fmt.Errorf("zapreceiver: mkdir %s: %w", dir, err)
 			}
+		}
+		if err := clearDeadSocket(address); err != nil {
+			return fmt.Errorf("zapreceiver: %w", err)
 		}
 	}
 	ln, err := net.Listen(network, address)
@@ -128,6 +131,31 @@ func (r *zapReceiver) Start(_ context.Context, host component.Host) error {
 	r.settings.Logger.Info("ZAP-native OTLP receiver started (wire=zap, not http/grpc)",
 		zap.String("endpoint", r.addr))
 	return nil
+}
+
+// clearDeadSocket removes a socket a previous process left behind, which would
+// otherwise fail the bind with EADDRINUSE while nothing is listening. A socket
+// something IS listening on is left alone, so two collectors cannot silently
+// take each other's address.
+func clearDeadSocket(path string) error {
+	if strings.HasPrefix(path, "@") {
+		return nil // abstract sockets have no filesystem entry
+	}
+	fi, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return fmt.Errorf("stat %s: %w", path, err)
+	}
+	if fi.Mode()&os.ModeSocket == 0 {
+		return fmt.Errorf("%s exists and is not a socket", path)
+	}
+	if c, err := net.DialTimeout("unix", path, 200*time.Millisecond); err == nil {
+		_ = c.Close()
+		return fmt.Errorf("%s is already served by a live receiver", path)
+	}
+	return os.Remove(path)
 }
 
 // Shutdown stops the listener and waits for the serve loop to return.
