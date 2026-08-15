@@ -2,6 +2,9 @@ package zapreceiver
 
 import (
 	"context"
+	"net"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -144,4 +147,82 @@ func oneMetric() pmetric.Metrics {
 	dp := m.SetEmptyGauge().DataPoints().AppendEmpty()
 	dp.SetIntValue(1)
 	return md
+}
+
+// TestZapReceiverUnixSocket proves the receiver binds a Unix socket when the
+// endpoint is a path, and that the socket accepts connections. The request path
+// itself is transport-agnostic — zaphttp.Server takes a net.Conn — and is
+// covered over TCP by TestZapReceiverAllSignals.
+func TestZapReceiverUnixSocket(t *testing.T) {
+	// A short path on purpose: sun_path is ~104 bytes and TempDir() alone can
+	// spend most of that.
+	base, err := os.MkdirTemp("", "zr")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = os.RemoveAll(base) }()
+	sock := filepath.Join(base, "n", "o.sock")
+
+	factory := NewFactory()
+	cfg := factory.CreateDefaultConfig().(*Config)
+	cfg.Endpoint = sock
+
+	if network, address := cfg.Network(); network != "unix" || address != sock {
+		t.Fatalf("Network() = %q %q, want unix %q", network, address, sock)
+	}
+
+	set := receivertest.NewNopSettings(typeStr)
+	rcv, err := factory.CreateTraces(context.Background(), set, cfg, new(consumertest.TracesSink))
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	if err := rcv.Start(context.Background(), componenttest.NewNopHost()); err != nil {
+		t.Fatalf("start: %v", err)
+	}
+	defer func() { _ = rcv.Shutdown(context.Background()) }()
+
+	// The directory did not exist before Start; the socket must.
+	fi, err := os.Stat(sock)
+	if err != nil {
+		t.Fatalf("stat socket: %v", err)
+	}
+	if fi.Mode()&os.ModeSocket == 0 {
+		t.Fatalf("%s is not a socket (mode %v)", sock, fi.Mode())
+	}
+
+	conn, err := net.Dial("unix", sock)
+	if err != nil {
+		t.Fatalf("dial: %v", err)
+	}
+	_ = conn.Close()
+
+	// A stale socket from a previous process must not block a rebind.
+	if err := rcv.Shutdown(context.Background()); err != nil {
+		t.Fatalf("shutdown: %v", err)
+	}
+	rcv2, err := factory.CreateTraces(context.Background(), set, cfg, new(consumertest.TracesSink))
+	if err != nil {
+		t.Fatalf("recreate: %v", err)
+	}
+	if err := rcv2.Start(context.Background(), componenttest.NewNopHost()); err != nil {
+		t.Fatalf("rebind over a stale socket: %v", err)
+	}
+	_ = rcv2.Shutdown(context.Background())
+}
+
+// TestZapReceiverNetwork covers the endpoint spellings.
+func TestZapReceiverNetwork(t *testing.T) {
+	for _, tc := range []struct{ endpoint, network, address string }{
+		{"0.0.0.0:4319", "tcp", "0.0.0.0:4319"},
+		{"127.0.0.1:0", "tcp", "127.0.0.1:0"},
+		{"/run/hanzo/otel.sock", "unix", "/run/hanzo/otel.sock"},
+		{"unix:///run/hanzo/otel.sock", "unix", "/run/hanzo/otel.sock"},
+		{"./otel.sock", "unix", "./otel.sock"},
+	} {
+		c := &Config{Endpoint: tc.endpoint}
+		network, address := c.Network()
+		if network != tc.network || address != tc.address {
+			t.Errorf("%q -> %q %q, want %q %q", tc.endpoint, network, address, tc.network, tc.address)
+		}
+	}
 }

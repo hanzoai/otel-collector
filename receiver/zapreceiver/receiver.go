@@ -3,8 +3,11 @@ package zapreceiver
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"net"
+	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/valyala/fasthttp"
@@ -45,6 +48,7 @@ type zapReceiver struct {
 
 	mu   sync.Mutex
 	srv  *zaphttp.Server
+	ln   net.Listener
 	addr string
 	wg   sync.WaitGroup
 }
@@ -79,36 +83,75 @@ func (r *zapReceiver) Start(_ context.Context, host component.Host) error {
 	if r.srv != nil {
 		return nil
 	}
-	ln, err := net.Listen("tcp", r.cfg.Endpoint)
-	if err != nil {
-		return fmt.Errorf("zapreceiver: listen %s: %w", r.cfg.Endpoint, err)
+	network, address := r.cfg.Network()
+	if network == "unix" {
+		// sun_path is 104 bytes on darwin/BSD and 108 on linux. Past that the
+		// bind fails with "invalid argument", which says nothing about length.
+		if len(address) > 100 {
+			return fmt.Errorf("zapreceiver: socket path is %d bytes, over the ~100 the kernel allows: %s", len(address), address)
+		}
+		// A socket left behind by a previous process refuses the bind.
+		_ = os.Remove(address)
+		if dir := filepath.Dir(address); dir != "." {
+			if err := os.MkdirAll(dir, 0o755); err != nil {
+				return fmt.Errorf("zapreceiver: mkdir %s: %w", dir, err)
+			}
+		}
 	}
+	ln, err := net.Listen(network, address)
+	if err != nil {
+		return fmt.Errorf("zapreceiver: listen %s %s: %w", network, address, err)
+	}
+	if network == "unix" {
+		// The emitting process is not always the same user as the collector.
+		if err := os.Chmod(address, 0o666); err != nil {
+			return fmt.Errorf("zapreceiver: chmod %s: %w", address, err)
+		}
+	}
+	srv := &zaphttp.Server{Handler: r.handle}
 	r.addr = ln.Addr().String()
-	r.srv = &zaphttp.Server{Handler: r.handle}
+	r.ln = ln
+	r.srv = srv
 
 	r.wg.Add(1)
+	// srv and ln are captured: Shutdown clears the fields, and the goroutine
+	// must not read them while it is stopping.
 	go func() {
 		defer r.wg.Done()
-		if serveErr := r.srv.Serve(ln); serveErr != nil {
-			r.settings.Logger.Error("zapreceiver serve stopped", zap.Error(serveErr))
-			componentstatus.ReportStatus(host, componentstatus.NewFatalErrorEvent(serveErr))
+		serveErr := srv.Serve(ln)
+		if serveErr == nil || errors.Is(serveErr, net.ErrClosed) {
+			return
 		}
+		r.settings.Logger.Error("zapreceiver serve stopped", zap.Error(serveErr))
+		componentstatus.ReportStatus(host, componentstatus.NewFatalErrorEvent(serveErr))
 	}()
 	r.settings.Logger.Info("ZAP-native OTLP receiver started (wire=zap, not http/grpc)",
 		zap.String("endpoint", r.addr))
 	return nil
 }
 
-// Shutdown stops the ZAP-HTTP listener.
+// Shutdown stops the listener and waits for the serve loop to return.
 func (r *zapReceiver) Shutdown(context.Context) error {
 	r.mu.Lock()
-	srv := r.srv
+	srv, ln := r.srv, r.ln
+	r.srv, r.ln = nil, nil
 	r.mu.Unlock()
 	if srv == nil {
 		return nil
 	}
+	// Close the listener, not only the server: Serve blocks in Accept on a
+	// listener the server did not open, so closing the server alone leaves the
+	// accept loop parked and wg.Wait below never returns.
+	if ln != nil {
+		_ = ln.Close()
+	}
 	err := srv.Close()
 	r.wg.Wait()
+	// The server closes the same listener, so a clean stop reports it as
+	// already closed.
+	if errors.Is(err, net.ErrClosed) {
+		return nil
+	}
 	return err
 }
 
