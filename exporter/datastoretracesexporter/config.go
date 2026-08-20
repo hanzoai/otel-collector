@@ -35,7 +35,11 @@ type Config struct {
 	BackOffConfig                configretry.BackOffConfig                                `mapstructure:"retry_on_failure"`
 	QueueBatchConfig             configoptional.Optional[exporterhelper.QueueBatchConfig] `mapstructure:"sending_queue"`
 
-	Datasource string `mapstructure:"datasource"`
+	// DSN is the datastore connection string. Named `dsn` to match the logs
+	// exporter: two names for one concept meant every pipeline author had to
+	// remember which exporter wanted which key, and a wrong key silently yields
+	// an empty connection string rather than a config error.
+	DSN string `mapstructure:"dsn"`
 	// LowCardinalExceptionGrouping is a flag to enable exception grouping by serviceName + exceptionType. Default is false.
 	LowCardinalExceptionGrouping bool `mapstructure:"low_cardinal_exception_grouping"`
 	UseNewSchema                 bool `mapstructure:"use_new_schema"`

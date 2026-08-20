@@ -2,9 +2,28 @@
 
 # Hanzo O11y Otel Collector
 
-Hanzo OpenTelemetry Collector distro. ZAP-native (`zap-proto/http` :4319) +
-OTLP (:4317/:4318) in → hanzoai/datastore (ClickHouse) out. Adds
+Hanzo OpenTelemetry Collector distro → hanzoai/datastore out. Adds
 `receiver/zapreceiver` + `exporter/zapexporter` over upstream.
+
+## The OTLZ wire is a luxfi/zap envelope — NOT zap-proto/http
+
+`exporter/zapexporter` sends a JSON batch inside a **luxfi/zap** envelope, tagged
+by MsgType in the **upper 8 bits of the flags field** (`FinishWithFlags(t<<8)`):
+`MsgSpanBatch=1`, `MsgMetricBatch=2`, `MsgLogBatch=3`. That is what o11y's
+`pkg/zap{,log,metric}receiver` dispatch on, and what `luxfi/trace` emits. The
+receiver replies with NOTHING, so the sender uses `Send`, never `Call`.
+
+This line used to say `zap-proto/http :4319`, and that error cost two days of
+telemetry: the exporter marshalled OTLP protobuf and POSTed it to `/v1/logs` over
+`zap-proto/http`, so the collector's zap.Node never saw an envelope type it knew,
+its handler was never invoked, nothing was written back, and the agent sat in
+`read response` until timeout. `o11y_logs.logs_v2` took 0 rows while the agent
+retried on backoff. Two `zap-proto` version bumps chased the wrong library —
+the receiver does not speak that protocol at any version.
+
+Ports: the collector binds traces on **:4317** and logs on **:4318** (separate,
+because each receiver opens its own listener and two on one address is
+`address already in use`, which killed the whole pipeline).
 
 ## CI = root `hanzo.yml` + `.github/workflows/cicd.yml` importing `hanzoai/ci`
 

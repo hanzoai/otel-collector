@@ -117,7 +117,7 @@ func createTracesExporter(
 }
 
 func newDatastoreClient(ctx context.Context, cfg *Config) (datastore.Conn, error) {
-	options, err := datastore.ParseDSN(cfg.Datasource)
+	options, err := datastore.ParseDSN(cfg.DSN)
 	if err != nil {
 		return nil, err
 	}
