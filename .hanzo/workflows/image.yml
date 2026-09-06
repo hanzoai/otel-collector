@@ -69,6 +69,11 @@ jobs:
           esac
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
+      # arm64 is emulated on this amd64 pool. Dockerfile.selfbuild's builder stage
+      # is not pinned to BUILDPLATFORM, so its `go test`, its `go build` and the
+      # runtime apt-get all execute as arm64; without binfmt they exec-format-error.
+      - uses: docker/setup-qemu-action@v3
+
       - uses: docker/setup-buildx-action@v3
         with:
           driver: docker-container
@@ -101,7 +106,9 @@ jobs:
         with:
           context: .
           file: ./cmd/o11yotelcollector/Dockerfile.selfbuild
-          platforms: linux/amd64
+          # Both, because the fleet is both: the otel-agent DaemonSet also lands on
+          # spark (arm64), where an amd64-only image is an ImagePullBackOff.
+          platforms: linux/amd64,linux/arm64
           push: true
           provenance: false
           tags: ghcr.io/hanzoai/otel-collector:${{ steps.meta.outputs.tag }}
