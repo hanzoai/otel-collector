@@ -3,7 +3,7 @@
 # ONE file, read by BOTH the forge caller (.hanzo/workflows/cicd.yml, which
 # imports the reusable hanzoai/ci workflow) AND platform.hanzo.ai. The build runs
 # on the git-runner fleet at git.hanzo.ai — the only pool serving
-# hanzo-build-linux-amd64. There is no arc pool; arc was retired 2026-08-01, and
+# linux-amd64. There is no arc pool; arc was retired 2026-08-01, and
 # github.com has no runner for that label, which is why the caller lives under
 # .hanzo/workflows and not .github/workflows.
 #
