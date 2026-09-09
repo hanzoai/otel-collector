@@ -1,6 +1,6 @@
 module github.com/hanzoai/otel-collector
 
-go 1.26.5
+go 1.26.8
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.21.0
