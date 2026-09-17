@@ -81,11 +81,9 @@ func NewLogParserCollection(settings component.TelemetrySettings, options ...Log
 		return nil, err
 	}
 	lpc := &LogParserCollection{
-		parserCollection: parserCollection{
-			settings:       settings,
-			resourceParser: rp,
-			scopeParser:    sp,
-		},
+		settings:       settings,
+		resourceParser: rp,
+		scopeParser:    sp,
 	}
 
 	for _, op := range options {

@@ -88,9 +88,7 @@ func TestNewExporter_err_auth_type(t *testing.T) {
 		ProtocolVersion: "2.0.0",
 		Authentication: Authentication{
 			TLS: &configtls.ClientConfig{
-				Config: configtls.Config{
-					CAFile: "/doesnotexist",
-				},
+				CAFile: "/doesnotexist",
 			},
 		},
 		Encoding: defaultEncoding,
@@ -261,7 +259,7 @@ func TestLogBodyBytesGetConvertedToTextString(t *testing.T) {
 	testBody := []byte("test log")
 
 	logs := testdata.GenerateLogsManyLogRecordsSameResource(testLogCount)
-	for i := 0; i < testLogCount; i++ {
+	for i := range testLogCount {
 		lr := logs.ResourceLogs().At(0).ScopeLogs().At(0).LogRecords().At(i)
 		logBodyBytes := lr.Body().SetEmptyBytes()
 		logBodyBytes.Append(testBody...)
@@ -274,7 +272,7 @@ func TestLogBodyBytesGetConvertedToTextString(t *testing.T) {
 			return err
 		}
 
-		for i := 0; i < testLogCount; i++ {
+		for i := range testLogCount {
 			lr := producedLogs.ResourceLogs().At(0).ScopeLogs().At(0).LogRecords().At(i)
 			producedBody := lr.Body().AsRaw()
 			producedBodyStr, ok := producedBody.(string)

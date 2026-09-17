@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component"
-	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/config/confignet"
 	"go.opentelemetry.io/collector/config/configoptional"
 	"go.opentelemetry.io/collector/config/configtls"
@@ -43,18 +42,14 @@ func TestLoadConfig(t *testing.T) {
 				assert.NoError(t, err)
 				require.Equal(t, &Config{
 					RecordType: configType,
-					ServerConfig: confighttp.ServerConfig{
-						NetAddr: confignet.AddrConfig{
-							Endpoint:  "0.0.0.0:4433",
-							Transport: "tcp",
-						},
-						TLS: configoptional.Some(configtls.ServerConfig{
-							Config: configtls.Config{
-								CertFile: "server.crt",
-								KeyFile:  "server.key",
-							},
-						}),
+					NetAddr: confignet.AddrConfig{
+						Endpoint:  "0.0.0.0:4433",
+						Transport: "tcp",
 					},
+					TLS: configoptional.Some(configtls.ServerConfig{
+						CertFile: "server.crt",
+						KeyFile:  "server.key",
+					}),
 				}, cfg)
 			}
 		})

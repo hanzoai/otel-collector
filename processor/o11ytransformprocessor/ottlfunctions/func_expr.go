@@ -33,10 +33,10 @@ func exprFunc(expression string) (ottl.ExprFunc[*ottllog.TransformContext], erro
 		return nil, fmt.Errorf("could not compile expression %s: %w", expression, err)
 	}
 
-	return func(ctx context.Context, tCtx *ottllog.TransformContext) (interface{}, error) {
+	return func(ctx context.Context, tCtx *ottllog.TransformContext) (any, error) {
 		// Need to match https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/pkg/stanza/docs/types/entry.md
 		// for parity
-		exprEnv := map[string]interface{}{
+		exprEnv := map[string]any{
 			"attributes":    tCtx.GetLogRecord().Attributes().AsRaw(),
 			"resource":      tCtx.GetResource().Attributes().AsRaw(),
 			"body":          tCtx.GetLogRecord().Body().AsRaw(),
@@ -54,7 +54,7 @@ func exprFunc(expression string) (ottl.ExprFunc[*ottllog.TransformContext], erro
 		if v, ok := output.(int); ok {
 			output = int64(v)
 
-		} else if v, isSlice := output.([]interface{}); isSlice && len(v) > 0 {
+		} else if v, isSlice := output.([]any); isSlice && len(v) > 0 {
 			// if slice of ints, convert to slice of int64
 			if _, isInt := v[0].(int); isInt {
 				int64Slice := []int64{}

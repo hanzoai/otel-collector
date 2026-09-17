@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component"
-	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/config/confignet"
 	"go.opentelemetry.io/collector/config/configoptional"
 	"go.opentelemetry.io/collector/config/configtls"
@@ -33,39 +32,31 @@ func TestLoadConfig(t *testing.T) {
 		{
 			id: component.NewIDWithName(metadata.Type, "endpoint"),
 			expected: &Config{
-				ServerConfig: confighttp.ServerConfig{
-					NetAddr: confignet.AddrConfig{
-						Endpoint:  "localhost:54321",
-						Transport: "tcp",
-					},
+				NetAddr: confignet.AddrConfig{
+					Endpoint:  "localhost:54321",
+					Transport: "tcp",
 				},
 			},
 		},
 		{
 			id: component.NewIDWithName(metadata.Type, "withtls"),
 			expected: &Config{
-				ServerConfig: confighttp.ServerConfig{
-					NetAddr: confignet.AddrConfig{
-						Endpoint:  ":54321",
-						Transport: "tcp",
-					},
-					TLS: configoptional.Some(configtls.ServerConfig{
-						Config: configtls.Config{
-							CertFile: "/test.crt",
-							KeyFile:  "/test.key",
-						},
-					}),
+				NetAddr: confignet.AddrConfig{
+					Endpoint:  ":54321",
+					Transport: "tcp",
 				},
+				TLS: configoptional.Some(configtls.ServerConfig{
+					CertFile: "/test.crt",
+					KeyFile:  "/test.key",
+				}),
 			},
 		},
 		{
 			id: component.NewIDWithName(metadata.Type, "heroku"),
 			expected: &Config{
-				ServerConfig: confighttp.ServerConfig{
-					NetAddr: confignet.AddrConfig{
-						Endpoint:  ":54321",
-						Transport: "tcp",
-					},
+				NetAddr: confignet.AddrConfig{
+					Endpoint:  ":54321",
+					Transport: "tcp",
 				},
 				Source: "heroku",
 			},
@@ -73,11 +64,9 @@ func TestLoadConfig(t *testing.T) {
 		{
 			id: component.NewIDWithName(metadata.Type, "google"),
 			expected: &Config{
-				ServerConfig: confighttp.ServerConfig{
-					NetAddr: confignet.AddrConfig{
-						Endpoint:  ":54321",
-						Transport: "tcp",
-					},
+				NetAddr: confignet.AddrConfig{
+					Endpoint:  ":54321",
+					Transport: "tcp",
 				},
 				Source: "google",
 			},
@@ -85,11 +74,9 @@ func TestLoadConfig(t *testing.T) {
 		{
 			id: component.NewIDWithName(metadata.Type, "json"),
 			expected: &Config{
-				ServerConfig: confighttp.ServerConfig{
-					NetAddr: confignet.AddrConfig{
-						Endpoint:  ":54321",
-						Transport: "tcp",
-					},
+				NetAddr: confignet.AddrConfig{
+					Endpoint:  ":54321",
+					Transport: "tcp",
 				},
 				Source: "json",
 			},

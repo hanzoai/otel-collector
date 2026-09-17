@@ -4,6 +4,8 @@
 package metrics // import "github.com/hanzoai/otel-collector/processor/o11ytransformprocessor/internal/metrics"
 
 import (
+	"maps"
+
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/ottl"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/ottl/contexts/ottldatapoint"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/ottl/contexts/ottlmetric"
@@ -20,9 +22,7 @@ func DataPointFunctions() map[string]ottl.Factory[*ottldatapoint.TransformContex
 		newConvertSummaryCountValToSumFactory(),
 	)
 
-	for k, v := range datapointFunctions {
-		functions[k] = v
-	}
+	maps.Copy(functions, datapointFunctions)
 
 	return functions
 }
@@ -35,9 +35,6 @@ func MetricFunctions() map[string]ottl.Factory[*ottlmetric.TransformContext] {
 		newExtractCountMetricFactory(),
 	)
 
-	for k, v := range metricFunctions {
-		functions[k] = v
-
-	}
+	maps.Copy(functions, metricFunctions)
 	return functions
 }

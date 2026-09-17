@@ -41,11 +41,9 @@ func TestLoadConfig(t *testing.T) {
 				InitialOffset: "latest",
 				Authentication: kafka.Authentication{
 					TLS: &configtls.ClientConfig{
-						Config: configtls.Config{
-							CAFile:   "ca.pem",
-							CertFile: "cert.pem",
-							KeyFile:  "key.pem",
-						},
+						CAFile:   "ca.pem",
+						CertFile: "cert.pem",
+						KeyFile:  "key.pem",
 					},
 				},
 				Metadata: Metadata{
@@ -81,11 +79,9 @@ func TestLoadConfig(t *testing.T) {
 				InitialOffset: "earliest",
 				Authentication: kafka.Authentication{
 					TLS: &configtls.ClientConfig{
-						Config: configtls.Config{
-							CAFile:   "ca.pem",
-							CertFile: "cert.pem",
-							KeyFile:  "key.pem",
-						},
+						CAFile:   "ca.pem",
+						CertFile: "cert.pem",
+						KeyFile:  "key.pem",
 					},
 				},
 				Metadata: Metadata{

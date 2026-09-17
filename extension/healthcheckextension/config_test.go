@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component"
-	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/config/confignet"
 	"go.opentelemetry.io/collector/config/configoptional"
 	"go.opentelemetry.io/collector/config/configtls"
@@ -35,19 +34,15 @@ func TestLoadConfig(t *testing.T) {
 		{
 			id: component.NewIDWithName(metadata.Type, "1"),
 			expected: &Config{
-				ServerConfig: confighttp.ServerConfig{
-					NetAddr: confignet.AddrConfig{
-						Endpoint:  "localhost:13",
-						Transport: "tcp",
-					},
-					TLS: configoptional.Some(configtls.ServerConfig{
-						Config: configtls.Config{
-							CAFile:   "/path/to/ca",
-							CertFile: "/path/to/cert",
-							KeyFile:  "/path/to/key",
-						},
-					}),
+				NetAddr: confignet.AddrConfig{
+					Endpoint:  "localhost:13",
+					Transport: "tcp",
 				},
+				TLS: configoptional.Some(configtls.ServerConfig{
+					CAFile:   "/path/to/ca",
+					CertFile: "/path/to/cert",
+					KeyFile:  "/path/to/key",
+				}),
 				CheckCollectorPipeline: defaultCheckCollectorPipelineSettings(),
 				Path:                   "/",
 				ResponseBody:           nil,

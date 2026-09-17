@@ -113,8 +113,8 @@ func createExclusionsList(t testing.TB, exclusionsText string) []portpair {
 	require.Len(t, parts, 3)
 	portsText := strings.Split(parts[2], "*")
 	require.Greater(t, len(portsText), 1) // original text may have a suffix like " - Administered port exclusions."
-	lines := strings.Split(portsText[0], "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(portsText[0], "\n")
+	for line := range lines {
 		if strings.TrimSpace(line) != "" {
 			entries := strings.Fields(strings.TrimSpace(line))
 			require.Len(t, entries, 2)

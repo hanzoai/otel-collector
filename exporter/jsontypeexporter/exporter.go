@@ -347,7 +347,7 @@ func (e *jsonTypeExporter) persistTypes(ctx context.Context, typeSet *TypeSet) e
 
 	var iterErr error
 	// Iterate through all collected types and insert them
-	typeSet.types.Range(func(key, value interface{}) bool {
+	typeSet.types.Range(func(key, value any) bool {
 		path := key.(string)
 		typeSet := value.(*utils.ConcurrentSet[string])
 

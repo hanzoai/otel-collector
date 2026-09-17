@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -121,9 +122,7 @@ func (g *Grok) AddPatternsFromMap(m map[string]string) error {
 	g.patternsGuard.Lock()
 	defer g.patternsGuard.Unlock()
 
-	for name, pattern := range m {
-		g.rawPattern[name] = pattern
-	}
+	maps.Copy(g.rawPattern, m)
 	return g.buildPatterns()
 }
 
@@ -240,13 +239,13 @@ func (g *Grok) Parse(pattern, text string) (map[string]string, error) {
 }
 
 // ParseTyped returns a interface{} map with typed captured fields based on provided pattern over the text
-func (g *Grok) ParseTyped(pattern string, text string) (map[string]interface{}, error) {
+func (g *Grok) ParseTyped(pattern string, text string) (map[string]any, error) {
 	gr, err := g.compile(pattern)
 	if err != nil {
 		return nil, err
 	}
 	match := gr.regexp.FindStringSubmatch(text)
-	captures := make(map[string]interface{})
+	captures := make(map[string]any)
 	if len(match) > 0 {
 		for i, segmentName := range gr.regexp.SubexpNames() {
 			if len(segmentName) != 0 {

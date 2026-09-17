@@ -96,9 +96,7 @@ func (wCol *WrappedCollector) Run(ctx context.Context) error {
 	// When we disable graceful shutdown, it doesn't respond to SIGTERM and
 	// SIGINT signals, it runs until the shutdown is invoked or some async error
 	// occurs.
-	wCol.wg.Add(1)
-	go func() {
-		defer wCol.wg.Done()
+	wCol.wg.Go(func() {
 		wCol.logger.Info("Starting collector service")
 		err := svc.Run(ctx)
 		// https://github.com/open-telemetry/opentelemetry-collector/blob/release/v0.66.x/service/collector.go#L124
@@ -110,7 +108,7 @@ func (wCol *WrappedCollector) Run(ctx context.Context) error {
 
 		wCol.reportError(err)
 		colErrorChannel <- err
-	}()
+	})
 
 	// wait until the collector server is in the Running state
 	go func() {

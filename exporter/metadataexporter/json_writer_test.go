@@ -5,14 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"sort"
+	"slices"
 	"testing"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"github.com/DATA-DOG/go-sqlmock"
+	cmock "github.com/hanzo-ds/mock"
 	"github.com/hanzoai/otel-collector/utils"
 	lru "github.com/hashicorp/golang-lru/v2"
-	cmock "github.com/hanzo-ds/mock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/pdata/pcommon"
@@ -128,7 +127,7 @@ func TestWalk_EndToEndTypes(t *testing.T) {
 				"message": map[string]any{"level": "info"},
 				"test":    "value",
 			},
-			cfg: JSONConfig{MaxDepthTraverse: to.Ptr(2), MaxArrayElementsAllowed: to.Ptr(4), MaxKeysAtLevel: to.Ptr(1024)},
+			cfg: JSONConfig{MaxDepthTraverse: new(2), MaxArrayElementsAllowed: new(4), MaxKeysAtLevel: new(1024)},
 			expected: map[string][]utils.FieldDataType{
 				"message": {utils.FieldDataTypeString},
 				"test":    {utils.FieldDataTypeString},
@@ -140,7 +139,7 @@ func TestWalk_EndToEndTypes(t *testing.T) {
 				"message.level": "info",
 				"test":          "value",
 			},
-			cfg: JSONConfig{MaxDepthTraverse: to.Ptr(2), MaxArrayElementsAllowed: to.Ptr(4), MaxKeysAtLevel: to.Ptr(1024)},
+			cfg: JSONConfig{MaxDepthTraverse: new(2), MaxArrayElementsAllowed: new(4), MaxKeysAtLevel: new(1024)},
 			expected: map[string][]utils.FieldDataType{
 				"test": {utils.FieldDataTypeString},
 			},
@@ -153,7 +152,7 @@ func TestWalk_EndToEndTypes(t *testing.T) {
 				"float":  123.456,
 				"bool":   []any{true},
 			},
-			cfg: JSONConfig{MaxDepthTraverse: to.Ptr(2), MaxArrayElementsAllowed: to.Ptr(4), MaxKeysAtLevel: to.Ptr(1024)},
+			cfg: JSONConfig{MaxDepthTraverse: new(2), MaxArrayElementsAllowed: new(4), MaxKeysAtLevel: new(1024)},
 			expected: map[string][]utils.FieldDataType{
 				"string": {utils.FieldDataTypeArrayString},
 				"int":    {utils.FieldDataTypeInt64},
@@ -164,7 +163,7 @@ func TestWalk_EndToEndTypes(t *testing.T) {
 		{
 			name:  "full_test",
 			input: input,
-			cfg:   JSONConfig{MaxDepthTraverse: to.Ptr(100), MaxArrayElementsAllowed: to.Ptr(5), MaxKeysAtLevel: to.Ptr(1024)},
+			cfg:   JSONConfig{MaxDepthTraverse: new(100), MaxArrayElementsAllowed: new(5), MaxKeysAtLevel: new(1024)},
 			expected: map[string][]utils.FieldDataType{
 				"_p":                                              {utils.FieldDataTypeString},
 				"array_objects":                                   {utils.FieldDataTypeArrayJSON},
@@ -216,7 +215,7 @@ func TestWalk_EndToEndTypes(t *testing.T) {
 		{
 			name:  "max_depth_traverse_test",
 			input: input,
-			cfg:   JSONConfig{MaxDepthTraverse: to.Ptr(2), MaxArrayElementsAllowed: to.Ptr(4), MaxKeysAtLevel: to.Ptr(1024)},
+			cfg:   JSONConfig{MaxDepthTraverse: new(2), MaxArrayElementsAllowed: new(4), MaxKeysAtLevel: new(1024)},
 			expected: map[string][]utils.FieldDataType{
 				"_p":                               {utils.FieldDataTypeString},
 				"array_objects":                    {utils.FieldDataTypeArrayJSON},
@@ -264,7 +263,7 @@ func TestWalk_EndToEndTypes(t *testing.T) {
 				path := key.(string)
 				cs := value.(*typesConcurrentSet)
 				types := cs.Keys()
-				sort.Slice(types, func(i, j int) bool { return types[i] < types[j] })
+				slices.Sort(types)
 				got[path] = types
 				return true
 			})
@@ -281,7 +280,7 @@ func TestWalk_EndToEndTypes(t *testing.T) {
 				if !ok {
 					t.Fatalf("missing path in got: %s", path)
 				}
-				sort.Slice(want, func(i, j int) bool { return want[i] < want[j] })
+				slices.Sort(want)
 				assert.ElementsMatch(t, want, gotTypes, fmt.Sprintf("mismatch at path %s", path))
 			}
 		})

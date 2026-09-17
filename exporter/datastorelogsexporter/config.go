@@ -65,17 +65,17 @@ func (cfg *Config) Validate() (err error) {
 		err = multierr.Append(err, errConfigNoDSN)
 	}
 	if cfg.PromotedPathsSyncInterval == nil {
-		cfg.PromotedPathsSyncInterval = utils.ToPointer(defaultPromotedPathsSyncInterval)
+		cfg.PromotedPathsSyncInterval = new(defaultPromotedPathsSyncInterval)
 	}
 
 	if cfg.LogLevelConcurrency == nil {
-		cfg.LogLevelConcurrency = utils.ToPointer(utils.Concurrency())
+		cfg.LogLevelConcurrency = new(utils.Concurrency())
 	}
 	if *cfg.LogLevelConcurrency < 1 {
 		err = multierr.Append(err, errors.New("concurrency must be greater than 0"))
 	}
 	if cfg.MaxAllowedDataAgeDays == nil {
-		cfg.MaxAllowedDataAgeDays = utils.ToPointer(defaultMaxAllowedDataAgeDays)
+		cfg.MaxAllowedDataAgeDays = new(defaultMaxAllowedDataAgeDays)
 	}
 
 	return err

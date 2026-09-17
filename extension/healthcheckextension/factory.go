@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"go.opentelemetry.io/collector/component"
-	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/config/confignet"
 	"go.opentelemetry.io/collector/extension"
 
@@ -29,11 +28,9 @@ func NewFactory() extension.Factory {
 
 func createDefaultConfig() component.Config {
 	return &Config{
-		ServerConfig: confighttp.ServerConfig{
-			NetAddr: confignet.AddrConfig{
-				Endpoint:  fmt.Sprintf("0.0.0.0:%d", defaultPort),
-				Transport: "tcp",
-			},
+		NetAddr: confignet.AddrConfig{
+			Endpoint:  fmt.Sprintf("0.0.0.0:%d", defaultPort),
+			Transport: "tcp",
 		},
 		CheckCollectorPipeline: defaultCheckCollectorPipelineSettings(),
 		Path:                   "/",

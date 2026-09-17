@@ -10,16 +10,16 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	internalmetadata "github.com/hanzoai/otel-collector/exporter/o11ydatastoremetrics/internal/metadata"
 	"github.com/hanzoai/otel-collector/usage"
-	"github.com/google/uuid"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/tag"
 
-	dsproto "github.com/hanzo-ds/native/proto"
 	"github.com/hanzo-ds/go"
 	"github.com/hanzo-ds/go/lib/driver"
+	dsproto "github.com/hanzo-ds/native/proto"
 	"github.com/jellydator/ttlcache/v3"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/exporter"
@@ -1252,7 +1252,7 @@ func (c *datastoreMetricsExporter) writeBatch(ctx context.Context, batch *batch)
 	}()
 
 	var errs []error
-	for i := 0; i < 4; i++ {
+	for range 4 {
 		if err := <-errC; err != nil {
 			errs = append(errs, err)
 		}

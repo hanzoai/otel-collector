@@ -4,6 +4,7 @@ package o11ystanzaentry
 
 import (
 	"fmt"
+	"maps"
 
 	"github.com/goccy/go-json"
 
@@ -169,9 +170,7 @@ func (f BodyField) Merge(entry *entry.Entry, mapValues map[string]any) {
 		currentMap = getNestedMap(currentMap, key)
 	}
 
-	for key, value := range mapValues {
-		currentMap[key] = value
-	}
+	maps.Copy(currentMap, mapValues)
 }
 
 // Delete removes a value from an entry's body using the field.

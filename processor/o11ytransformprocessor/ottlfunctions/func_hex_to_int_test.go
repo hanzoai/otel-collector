@@ -40,7 +40,7 @@ func TestHexToInt(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			target := ottl.StandardStringGetter[any]{
-				Getter: func(ctx context.Context, tCtx any) (interface{}, error) {
+				Getter: func(ctx context.Context, tCtx any) (any, error) {
 					return tt.target, nil
 				},
 			}

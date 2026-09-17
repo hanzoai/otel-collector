@@ -1,7 +1,5 @@
 package schemamigrator
 
-import "github.com/hanzoai/otel-collector/utils"
-
 // move them to TracesMigrations once it's ready to deploy
 var TracesMigrations = []SchemaMigrationRecord{
 	{
@@ -916,7 +914,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 				Table:    "o11y_index_v3",
 				Column: Column{
 					Name:  "resource",
-					Type:  JSONColumnType{MaxDynamicPaths: utils.ToPointer(uint(100))},
+					Type:  JSONColumnType{MaxDynamicPaths: new(uint(100))},
 					Codec: "ZSTD(1)",
 				},
 			},
@@ -925,7 +923,7 @@ var TracesMigrations = []SchemaMigrationRecord{
 				Table:    "distributed_o11y_index_v3",
 				Column: Column{
 					Name:  "resource",
-					Type:  JSONColumnType{MaxDynamicPaths: utils.ToPointer(uint(100))},
+					Type:  JSONColumnType{MaxDynamicPaths: new(uint(100))},
 					Codec: "ZSTD(1)",
 				},
 			},
@@ -1066,11 +1064,11 @@ var TracesMigrations = []SchemaMigrationRecord{
 				Column: Column{
 					Name: "scope",
 					Type: JSONColumnType{
-						MaxDynamicPaths: utils.ToPointer(uint(0)),
+						MaxDynamicPaths: new(uint(0)),
 						Columns: []Column{
 							{Name: "name", Type: ColumnTypeString},
 							{Name: "version", Type: ColumnTypeString},
-							{Name: "attributes", Type: JSONColumnType{MaxDynamicPaths: utils.ToPointer(uint(0))}},
+							{Name: "attributes", Type: JSONColumnType{MaxDynamicPaths: new(uint(0))}},
 						},
 					},
 					Codec: "ZSTD(1)",
@@ -1083,11 +1081,11 @@ var TracesMigrations = []SchemaMigrationRecord{
 				Column: Column{
 					Name: "scope",
 					Type: JSONColumnType{
-						MaxDynamicPaths: utils.ToPointer(uint(0)),
+						MaxDynamicPaths: new(uint(0)),
 						Columns: []Column{
 							{Name: "name", Type: ColumnTypeString},
 							{Name: "version", Type: ColumnTypeString},
-							{Name: "attributes", Type: JSONColumnType{MaxDynamicPaths: utils.ToPointer(uint(0))}},
+							{Name: "attributes", Type: JSONColumnType{MaxDynamicPaths: new(uint(0))}},
 						},
 					},
 					Codec: "ZSTD(1)",

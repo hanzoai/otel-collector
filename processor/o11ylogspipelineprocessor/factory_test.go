@@ -5,7 +5,6 @@ import (
 	"context"
 	"testing"
 
-	o11ylogspipelinestanzaadapter "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/adapter"
 	o11ylogspipelinestanzaoperator "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator"
 	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/collector/component/componenttest"
@@ -29,24 +28,22 @@ func TestCreateDefaultConfig(t *testing.T) {
 func TestCreateProcessor(t *testing.T) {
 	factory := NewFactory()
 	cfg := &Config{
-		BaseConfig: o11ylogspipelinestanzaadapter.BaseConfig{
-			Operators: []o11ylogspipelinestanzaoperator.Config{
-				{
-					Builder: func() *regex.Config {
-						cfg := regex.NewConfig()
-						cfg.Regex = "^(?P<time>\\d{4}-\\d{2}-\\d{2}) (?P<sev>[A-Z]*) (?P<msg>.*)$"
-						sevField := entry.NewAttributeField("sev")
-						sevCfg := helper.NewSeverityConfig()
-						sevCfg.ParseFrom = &sevField
-						cfg.SeverityConfig = &sevCfg
-						timeField := entry.NewAttributeField("time")
-						timeCfg := helper.NewTimeParser()
-						timeCfg.Layout = "%Y-%m-%d"
-						timeCfg.ParseFrom = &timeField
-						cfg.TimeParser = &timeCfg
-						return cfg
-					}(),
-				},
+		Operators: []o11ylogspipelinestanzaoperator.Config{
+			{
+				Builder: func() *regex.Config {
+					cfg := regex.NewConfig()
+					cfg.Regex = "^(?P<time>\\d{4}-\\d{2}-\\d{2}) (?P<sev>[A-Z]*) (?P<msg>.*)$"
+					sevField := entry.NewAttributeField("sev")
+					sevCfg := helper.NewSeverityConfig()
+					sevCfg.ParseFrom = &sevField
+					cfg.SeverityConfig = &sevCfg
+					timeField := entry.NewAttributeField("time")
+					timeCfg := helper.NewTimeParser()
+					timeCfg.Layout = "%Y-%m-%d"
+					timeCfg.ParseFrom = &timeField
+					cfg.TimeParser = &timeCfg
+					return cfg
+				}(),
 			},
 		},
 	}
@@ -59,12 +56,10 @@ func TestCreateProcessor(t *testing.T) {
 func TestInvalidOperators(t *testing.T) {
 	factory := NewFactory()
 	cfg := &Config{
-		BaseConfig: o11ylogspipelinestanzaadapter.BaseConfig{
-			Operators: []o11ylogspipelinestanzaoperator.Config{
-				{
-					// invalid due to missing regex
-					Builder: regex.NewConfig(),
-				},
+		Operators: []o11ylogspipelinestanzaoperator.Config{
+			{
+				// invalid due to missing regex
+				Builder: regex.NewConfig(),
 			},
 		},
 	}

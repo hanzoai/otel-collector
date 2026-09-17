@@ -103,7 +103,7 @@ func TestProbabilisticSampling(t *testing.T) {
 func genRandomTraceIDs(num int) (ids []pcommon.TraceID) {
 	r := rand.New(rand.NewSource(1))
 	ids = make([]pcommon.TraceID, 0, num)
-	for i := 0; i < num; i++ {
+	for range num {
 		traceID := [16]byte{}
 		binary.BigEndian.PutUint64(traceID[:8], r.Uint64())
 		binary.BigEndian.PutUint64(traceID[8:], r.Uint64())

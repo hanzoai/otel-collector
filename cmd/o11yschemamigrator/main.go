@@ -92,7 +92,7 @@ func registerSyncMigrate(cmd *cobra.Command) {
 			logger.Info("Running migrations in sync mode", zap.String("dsn", dsn), zap.Bool("replication", replicationEnabled), zap.String("cluster-name", clusterName), zap.Bool("enable-logs-migrations-v2", constants.EnableLogsMigrationsV2))
 
 			upVersions := []uint64{}
-			for _, version := range strings.Split(cmd.Flags().Lookup("up").Value.String(), ",") {
+			for version := range strings.SplitSeq(cmd.Flags().Lookup("up").Value.String(), ",") {
 				if version == "" {
 					continue
 				}
@@ -105,7 +105,7 @@ func registerSyncMigrate(cmd *cobra.Command) {
 			logger.Info("Up migrations", zap.Any("versions", upVersions))
 
 			downVersions := []uint64{}
-			for _, version := range strings.Split(cmd.Flags().Lookup("down").Value.String(), ",") {
+			for version := range strings.SplitSeq(cmd.Flags().Lookup("down").Value.String(), ",") {
 				if version == "" {
 					continue
 				}
@@ -190,7 +190,7 @@ func registerAsyncMigrate(cmd *cobra.Command) {
 			logger.Info("Running migrations in async mode", zap.String("dsn", dsn), zap.Bool("replication", replicationEnabled), zap.String("cluster-name", clusterName), zap.Bool("enable-logs-migrations-v2", constants.EnableLogsMigrationsV2))
 
 			upVersions := []uint64{}
-			for _, version := range strings.Split(cmd.Flags().Lookup("up").Value.String(), ",") {
+			for version := range strings.SplitSeq(cmd.Flags().Lookup("up").Value.String(), ",") {
 				if version == "" {
 					continue
 				}
@@ -203,7 +203,7 @@ func registerAsyncMigrate(cmd *cobra.Command) {
 			logger.Info("Up migrations", zap.Any("versions", upVersions))
 
 			downVersions := []uint64{}
-			for _, version := range strings.Split(cmd.Flags().Lookup("down").Value.String(), ",") {
+			for version := range strings.SplitSeq(cmd.Flags().Lookup("down").Value.String(), ",") {
 				if version == "" {
 					continue
 				}

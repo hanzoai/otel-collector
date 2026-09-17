@@ -9,12 +9,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/hanzoai/otel-collector/receiver/httplogreceiver/bodyparser"
 	"github.com/hanzoai/otel-collector/receiver/httplogreceiver/internal/metadata"
-	"github.com/gorilla/mux"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componentstatus"
-	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/config/confignet"
 	"go.opentelemetry.io/collector/consumer"
 	"go.opentelemetry.io/collector/receiver"
@@ -36,11 +35,9 @@ func NewFactory() receiver.Factory {
 // CreateDefaultConfig creates a config with type and version
 func createDefaultConfig() component.Config {
 	return &Config{
-		ServerConfig: confighttp.ServerConfig{
-			NetAddr: confignet.AddrConfig{
-				Endpoint:  defaultEndpoint,
-				Transport: "tcp",
-			},
+		NetAddr: confignet.AddrConfig{
+			Endpoint:  defaultEndpoint,
+			Transport: "tcp",
 		},
 		Source: "",
 	}
@@ -145,13 +142,11 @@ func (r *httplogreceiver) Start(ctx context.Context, host component.Host) error 
 	r.server.ReadHeaderTimeout = defaultServerTimeout
 	r.server.WriteTimeout = defaultServerTimeout
 
-	r.shutdownWG.Add(1)
-	go func() {
-		defer r.shutdownWG.Done()
+	r.shutdownWG.Go(func() {
 		if errHTTP := r.server.Serve(ln); !errors.Is(errHTTP, http.ErrServerClosed) && errHTTP != nil {
 			componentstatus.ReportStatus(host, componentstatus.NewFatalErrorEvent(errHTTP))
 		}
-	}()
+	})
 	return nil
 }
 

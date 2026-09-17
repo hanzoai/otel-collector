@@ -44,7 +44,7 @@ func grokParse[K any](target ottl.StringGetter[K], pattern string) (ottl.ExprFun
 		return nil, fmt.Errorf("the pattern supplied to GrokParse is not a valid pattern: %w", err)
 	}
 
-	return func(ctx context.Context, tCtx K) (interface{}, error) {
+	return func(ctx context.Context, tCtx K) (any, error) {
 		val, err := target.Get(ctx, tCtx)
 		if err != nil {
 			return nil, err

@@ -151,8 +151,8 @@ func TestAnalyzePValue_EndToEndTypes(t *testing.T) {
 				"test": "value",
 			},
 			config: &Config{
-				MaxDepthTraverse:        utils.ToPointer(2),
-				MaxArrayElementsAllowed: utils.ToPointer(4),
+				MaxDepthTraverse:        new(2),
+				MaxArrayElementsAllowed: new(4),
 			},
 			expected: map[string][]string{
 				"message": {String},
@@ -166,8 +166,8 @@ func TestAnalyzePValue_EndToEndTypes(t *testing.T) {
 				"test":          "value",
 			},
 			config: &Config{
-				MaxDepthTraverse:        utils.ToPointer(2),
-				MaxArrayElementsAllowed: utils.ToPointer(4),
+				MaxDepthTraverse:        new(2),
+				MaxArrayElementsAllowed: new(4),
 			},
 			expected: map[string][]string{
 				"test": {String},
@@ -182,8 +182,8 @@ func TestAnalyzePValue_EndToEndTypes(t *testing.T) {
 				"bool":   true,
 			},
 			config: &Config{
-				MaxDepthTraverse:        utils.ToPointer(2),
-				MaxArrayElementsAllowed: utils.ToPointer(4),
+				MaxDepthTraverse:        new(2),
+				MaxArrayElementsAllowed: new(4),
 			},
 			expected: map[string][]string{
 				"string": {String},
@@ -196,8 +196,8 @@ func TestAnalyzePValue_EndToEndTypes(t *testing.T) {
 			name:  "full_test",
 			input: input,
 			config: &Config{
-				MaxDepthTraverse:        utils.ToPointer(100),
-				MaxArrayElementsAllowed: utils.ToPointer(5),
+				MaxDepthTraverse:        new(100),
+				MaxArrayElementsAllowed: new(5),
 			},
 			expected: map[string][]string{
 				"_p":                                              {String},
@@ -251,8 +251,8 @@ func TestAnalyzePValue_EndToEndTypes(t *testing.T) {
 			name:  "max_depth_traverse_test",
 			input: input,
 			config: &Config{
-				MaxDepthTraverse:        utils.ToPointer(2),
-				MaxArrayElementsAllowed: utils.ToPointer(4),
+				MaxDepthTraverse:        new(2),
+				MaxArrayElementsAllowed: new(4),
 			},
 			expected: map[string][]string{
 				"_p":                               {String},
@@ -297,7 +297,7 @@ func TestAnalyzePValue_EndToEndTypes(t *testing.T) {
 
 			// Expand masks to final type strings (same mapping as in pushLogs)
 			got := map[string][]string{}
-			typeSet.types.Range(func(key, value interface{}) bool {
+			typeSet.types.Range(func(key, value any) bool {
 				path := key.(string)
 				cs := value.(*utils.ConcurrentSet[string])
 				types := cs.Keys()

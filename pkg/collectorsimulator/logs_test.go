@@ -14,7 +14,7 @@ import (
 
 type ProcessorConfig struct {
 	Name   string
-	Config map[string]interface{}
+	Config map[string]any
 }
 
 func TestLogsProcessingSimulation(t *testing.T) {
@@ -129,14 +129,14 @@ func makeTestConfigGenerator(
 			return nil, err
 		}
 
-		processors := map[string]interface{}{}
+		processors := map[string]any{}
 		if conf["processors"] != nil {
-			processors = conf["processors"].(map[string]interface{})
+			processors = conf["processors"].(map[string]any)
 		}
 		logsProcessors := []string{}
-		svc := conf["service"].(map[string]interface{})
-		svcPipelines := svc["pipelines"].(map[string]interface{})
-		svcLogsPipeline := svcPipelines["logs"].(map[string]interface{})
+		svc := conf["service"].(map[string]any)
+		svcPipelines := svc["pipelines"].(map[string]any)
+		svcLogsPipeline := svcPipelines["logs"].(map[string]any)
 		if svcLogsPipeline["processors"] != nil {
 			logsProcessors = svcLogsPipeline["processors"].([]string)
 		}

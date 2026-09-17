@@ -3,6 +3,7 @@ package bodyparser
 import (
 	"regexp"
 	"strconv"
+	strings0 "strings"
 	"time"
 
 	"go.opentelemetry.io/collector/pdata/pcommon"
@@ -109,7 +110,7 @@ func octetCountingSplitter(data string) []string {
 	index := 0
 	length := len(data)
 	for {
-		lengthStr := ""
+		var lengthStr strings0.Builder
 
 		// ignore tabs and spaces
 		for {
@@ -128,10 +129,10 @@ func octetCountingSplitter(data string) []string {
 				break
 			}
 			index++
-			lengthStr += string(data[i])
+			lengthStr.WriteString(string(data[i]))
 		}
 
-		length, _ := strconv.Atoi(lengthStr)
+		length, _ := strconv.Atoi(lengthStr.String())
 		end := index + length
 		strings = append(strings, data[index+1:end])
 		index = end

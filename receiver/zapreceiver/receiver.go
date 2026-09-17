@@ -116,18 +116,16 @@ func (r *zapReceiver) Start(_ context.Context, host component.Host) error {
 	r.ln = ln
 	r.srv = srv
 
-	r.wg.Add(1)
 	// srv and ln are captured: Shutdown clears the fields, and the goroutine
 	// must not read them while it is stopping.
-	go func() {
-		defer r.wg.Done()
+	r.wg.Go(func() {
 		serveErr := srv.Serve(ln)
 		if serveErr == nil || errors.Is(serveErr, net.ErrClosed) {
 			return
 		}
 		r.settings.Logger.Error("zapreceiver serve stopped", zap.Error(serveErr))
 		componentstatus.ReportStatus(host, componentstatus.NewFatalErrorEvent(serveErr))
-	}()
+	})
 	r.settings.Logger.Info("ZAP-native OTLP receiver started (wire=zap, not http/grpc)",
 		zap.String("endpoint", r.addr))
 	return nil

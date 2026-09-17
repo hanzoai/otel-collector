@@ -4,6 +4,7 @@
 package logs
 
 import (
+	"maps"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,9 +16,7 @@ import (
 
 func Test_LogFunctions(t *testing.T) {
 	expected := ottlfuncs.StandardFuncs[*ottllog.TransformContext]()
-	for name, factory := range O11yLogFunctions() {
-		expected[name] = factory
-	}
+	maps.Copy(expected, O11yLogFunctions())
 
 	actual := LogFunctions()
 	require.Equal(t, len(expected), len(actual))

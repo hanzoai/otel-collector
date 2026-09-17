@@ -16,7 +16,7 @@ func TestQueryLogToLogRecord(t *testing.T) {
 		expectedSeverityText   string
 		expectedTimestamp      pcommon.Timestamp
 		expectedBody           string
-		expectedAttributes     map[string]interface{}
+		expectedAttributes     map[string]any
 	}{
 		{
 			name: "Normal Query",
@@ -29,8 +29,8 @@ func TestQueryLogToLogRecord(t *testing.T) {
 			expectedSeverityText:   "INFO",
 			expectedTimestamp:      pcommon.NewTimestampFromTime(time.Date(2023, 10, 31, 12, 0, 0, 0, time.UTC)),
 			expectedBody:           "SELECT * FROM table",
-			expectedAttributes: map[string]interface{}{
-				"source":                     "datastore",
+			expectedAttributes: map[string]any{
+				"source":                    "datastore",
 				"datastore.query_log.type":  "QueryFinish",
 				"datastore.query_log.query": "SELECT * FROM table",
 				"datastore.query_log.event_time_microseconds": time.Date(2023, 10, 31, 12, 0, 0, 0, time.UTC).Format(time.RFC3339),
@@ -47,8 +47,8 @@ func TestQueryLogToLogRecord(t *testing.T) {
 			expectedSeverityText:   "ERROR",
 			expectedTimestamp:      pcommon.NewTimestampFromTime(time.Date(2023, 10, 31, 13, 0, 0, 0, time.UTC)),
 			expectedBody:           "SELECT * FROM invalid_table",
-			expectedAttributes: map[string]interface{}{
-				"source":                     "datastore",
+			expectedAttributes: map[string]any{
+				"source":                    "datastore",
 				"datastore.query_log.type":  "ExceptionWhileProcessing",
 				"datastore.query_log.query": "SELECT * FROM invalid_table",
 				"datastore.query_log.event_time_microseconds": time.Date(2023, 10, 31, 13, 0, 0, 0, time.UTC).Format(time.RFC3339),
@@ -68,8 +68,8 @@ func TestQueryLogToLogRecord(t *testing.T) {
 			expectedSeverityText:   "INFO",
 			expectedTimestamp:      pcommon.NewTimestampFromTime(time.Date(2023, 10, 31, 14, 0, 0, 0, time.UTC)),
 			expectedBody:           "SELECT * FROM table",
-			expectedAttributes: map[string]interface{}{
-				"source":                                       "datastore",
+			expectedAttributes: map[string]any{
+				"source":                                      "datastore",
 				"datastore.query_log.type":                    "QueryFinish",
 				"datastore.query_log.query":                   "SELECT * FROM table",
 				"datastore.query_log.databases":               "db1,db2",
@@ -91,7 +91,7 @@ func TestQueryLogToLogRecord(t *testing.T) {
 			expectedSeverityText:   "INFO",
 			expectedTimestamp:      pcommon.NewTimestampFromTime(time.Date(2023, 10, 31, 15, 0, 0, 0, time.UTC)),
 			expectedBody:           "SELECT * FROM table",
-			expectedAttributes: map[string]interface{}{
+			expectedAttributes: map[string]any{
 				"datastore.query_log.log_comment.key1": "value1",
 				"datastore.query_log.log_comment.key2": "value2",
 			},
@@ -140,7 +140,7 @@ func TestQueryLogToLogRecord(t *testing.T) {
 	}
 }
 
-func compareAttributeValue(attrVal pcommon.Value, expectedValue interface{}) bool {
+func compareAttributeValue(attrVal pcommon.Value, expectedValue any) bool {
 	switch attrVal.Type() {
 	case pcommon.ValueTypeStr:
 		expectedStr, ok := expectedValue.(string)

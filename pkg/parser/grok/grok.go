@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hanzoai/otel-collector/pkg/grok"
 	o11ylogspipelinestanzaoperator "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator"
 	o11ystanzahelper "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator/helper"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza/entry"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza/operator"
-	"github.com/hanzoai/otel-collector/pkg/grok"
 	"go.opentelemetry.io/collector/component"
 )
 
@@ -122,7 +122,7 @@ func (r *Parser) ProcessBatch(ctx context.Context, entries []*entry.Entry) error
 }
 
 // parse will parse a value using the supplied grok.
-func (r *Parser) parse(value interface{}) (interface{}, error) {
+func (r *Parser) parse(value any) (any, error) {
 	var raw string
 	switch m := value.(type) {
 	case string:
@@ -133,7 +133,7 @@ func (r *Parser) parse(value interface{}) (interface{}, error) {
 	return r.match(raw)
 }
 
-func (r *Parser) match(value string) (interface{}, error) {
+func (r *Parser) match(value string) (any, error) {
 	if r.cache != nil {
 		if x := r.cache.get(value); x != nil {
 			return x, nil
@@ -145,7 +145,7 @@ func (r *Parser) match(value string) (interface{}, error) {
 		return nil, fmt.Errorf("failed to parse log: %v", err.Error())
 	}
 
-	parsedValues := map[string]interface{}{}
+	parsedValues := map[string]any{}
 	for k, v := range values {
 		if r.excludeKeysPresent {
 			if _, ok := r.exclude[k]; ok {

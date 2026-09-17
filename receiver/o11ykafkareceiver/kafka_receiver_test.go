@@ -59,9 +59,7 @@ func TestNewTracesReceiver_err_auth_type(t *testing.T) {
 		ProtocolVersion: "2.0.0",
 		Authentication: kafka.Authentication{
 			TLS: &configtls.ClientConfig{
-				Config: configtls.Config{
-					CAFile: "/doesnotexist",
-				},
+				CAFile: "/doesnotexist",
 			},
 		},
 		Encoding: defaultEncoding,
@@ -120,10 +118,8 @@ func TestTracesReceiverStartConsume(t *testing.T) {
 	require.NoError(t, err)
 
 	handler := &tracesConsumerGroupHandler{
-		ready: make(chan bool),
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		ready:   make(chan bool),
+		metrics: metrics,
 	}
 
 	// Start consume loop in goroutine
@@ -190,9 +186,7 @@ func TestTracesConsumerGroupHandler(t *testing.T) {
 		ready:        make(chan bool),
 		nextConsumer: consumertest.NewNop(),
 		obsrecv:      obsrecv,
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		metrics:      metrics,
 	}
 
 	testSession := testConsumerGroupSession{ctx: context.Background()}
@@ -207,11 +201,9 @@ func TestTracesConsumerGroupHandler(t *testing.T) {
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		require.NoError(t, c.ConsumeClaim(testSession, groupClaim))
-		wg.Done()
-	}()
+	})
 
 	groupClaim.messageChan <- &sarama.ConsumerMessage{}
 	close(groupClaim.messageChan)
@@ -253,12 +245,10 @@ func TestTracesConsumerGroupHandlerWithMemoryLimiter(t *testing.T) {
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		require.Error(t, c.ConsumeClaim(testSession, groupClaim))
 		assert.True(t, group.paused)
-		wg.Done()
-	}()
+	})
 
 	groupClaim.messageChan <- &sarama.ConsumerMessage{}
 	close(groupClaim.messageChan)
@@ -277,9 +267,7 @@ func TestTracesConsumerGroupHandler_session_done(t *testing.T) {
 		ready:        make(chan bool),
 		nextConsumer: consumertest.NewNop(),
 		obsrecv:      obsrecv,
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		metrics:      metrics,
 	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
@@ -296,11 +284,9 @@ func TestTracesConsumerGroupHandler_session_done(t *testing.T) {
 	defer close(groupClaim.messageChan)
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		require.NoError(t, c.ConsumeClaim(testSession, groupClaim))
-		wg.Done()
-	}()
+	})
 
 	groupClaim.messageChan <- &sarama.ConsumerMessage{}
 	cancelFunc()
@@ -318,9 +304,7 @@ func TestTracesConsumerGroupHandler_error_unmarshal(t *testing.T) {
 		ready:        make(chan bool),
 		nextConsumer: consumertest.NewNop(),
 		obsrecv:      obsrecv,
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		metrics:      metrics,
 	}
 
 	wg := sync.WaitGroup{}
@@ -350,9 +334,7 @@ func TestTracesConsumerGroupHandler_error_nextConsumer(t *testing.T) {
 		ready:        make(chan bool),
 		nextConsumer: consumertest.NewErr(consumerError),
 		obsrecv:      obsrecv,
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		metrics:      metrics,
 	}
 
 	wg := sync.WaitGroup{}
@@ -401,9 +383,7 @@ func TestNewMetricsExporter_err_auth_type(t *testing.T) {
 		ProtocolVersion: "2.0.0",
 		Authentication: kafka.Authentication{
 			TLS: &configtls.ClientConfig{
-				Config: configtls.Config{
-					CAFile: "/doesnotexist",
-				},
+				CAFile: "/doesnotexist",
 			},
 		},
 		Encoding: defaultEncoding,
@@ -462,10 +442,8 @@ func TestMetricsReceiverStartConsume(t *testing.T) {
 	require.NoError(t, err)
 
 	handler := &metricsConsumerGroupHandler{
-		ready: make(chan bool),
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		ready:   make(chan bool),
+		metrics: metrics,
 	}
 
 	// Start consume loop in goroutine
@@ -532,9 +510,7 @@ func TestMetricsConsumerGroupHandler(t *testing.T) {
 		ready:        make(chan bool),
 		nextConsumer: consumertest.NewNop(),
 		obsrecv:      obsrecv,
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		metrics:      metrics,
 	}
 
 	testSession := testConsumerGroupSession{ctx: context.Background()}
@@ -549,11 +525,9 @@ func TestMetricsConsumerGroupHandler(t *testing.T) {
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		require.NoError(t, c.ConsumeClaim(testSession, groupClaim))
-		wg.Done()
-	}()
+	})
 
 	groupClaim.messageChan <- &sarama.ConsumerMessage{}
 	close(groupClaim.messageChan)
@@ -595,12 +569,10 @@ func TestMetricsConsumerGroupHandlerWithMemoryLimiter(t *testing.T) {
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		require.Error(t, c.ConsumeClaim(testSession, groupClaim))
 		assert.True(t, group.paused)
-		wg.Done()
-	}()
+	})
 
 	groupClaim.messageChan <- &sarama.ConsumerMessage{}
 	close(groupClaim.messageChan)
@@ -619,9 +591,7 @@ func TestMetricsConsumerGroupHandler_session_done(t *testing.T) {
 		ready:        make(chan bool),
 		nextConsumer: consumertest.NewNop(),
 		obsrecv:      obsrecv,
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		metrics:      metrics,
 	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
@@ -637,11 +607,9 @@ func TestMetricsConsumerGroupHandler_session_done(t *testing.T) {
 	}
 	defer close(groupClaim.messageChan)
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		require.NoError(t, c.ConsumeClaim(testSession, groupClaim))
-		wg.Done()
-	}()
+	})
 
 	groupClaim.messageChan <- &sarama.ConsumerMessage{}
 	cancelFunc()
@@ -659,9 +627,7 @@ func TestMetricsConsumerGroupHandler_error_unmarshal(t *testing.T) {
 		ready:        make(chan bool),
 		nextConsumer: consumertest.NewNop(),
 		obsrecv:      obsrecv,
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		metrics:      metrics,
 	}
 
 	wg := sync.WaitGroup{}
@@ -691,9 +657,7 @@ func TestMetricsConsumerGroupHandler_error_nextConsumer(t *testing.T) {
 		ready:        make(chan bool),
 		nextConsumer: consumertest.NewErr(consumerError),
 		obsrecv:      obsrecv,
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		metrics:      metrics,
 	}
 
 	wg := sync.WaitGroup{}
@@ -741,9 +705,7 @@ func TestNewLogsExporter_err_auth_type(t *testing.T) {
 		ProtocolVersion: "2.0.0",
 		Authentication: kafka.Authentication{
 			TLS: &configtls.ClientConfig{
-				Config: configtls.Config{
-					CAFile: "/doesnotexist",
-				},
+				CAFile: "/doesnotexist",
 			},
 		},
 		Encoding: defaultEncoding,
@@ -802,10 +764,8 @@ func TestLogsReceiverStartConsume(t *testing.T) {
 	require.NoError(t, err)
 
 	handler := &logsConsumerGroupHandler{
-		ready: make(chan bool),
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		ready:   make(chan bool),
+		metrics: metrics,
 	}
 
 	// Start consume loop in goroutine
@@ -872,9 +832,7 @@ func TestLogsConsumerGroupHandler(t *testing.T) {
 		ready:        make(chan bool),
 		nextConsumer: consumertest.NewNop(),
 		obsrecv:      obsrecv,
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		metrics:      metrics,
 	}
 
 	testSession := testConsumerGroupSession{ctx: context.Background()}
@@ -889,11 +847,9 @@ func TestLogsConsumerGroupHandler(t *testing.T) {
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		require.NoError(t, c.ConsumeClaim(testSession, groupClaim))
-		wg.Done()
-	}()
+	})
 
 	groupClaim.messageChan <- &sarama.ConsumerMessage{}
 	close(groupClaim.messageChan)
@@ -935,12 +891,10 @@ func TestLogsConsumerGroupHandlerWithMemoryLimiter(t *testing.T) {
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		require.Error(t, c.ConsumeClaim(testSession, groupClaim))
 		assert.True(t, group.paused)
-		wg.Done()
-	}()
+	})
 
 	groupClaim.messageChan <- &sarama.ConsumerMessage{}
 	close(groupClaim.messageChan)
@@ -959,9 +913,7 @@ func TestLogsConsumerGroupHandler_session_done(t *testing.T) {
 		ready:        make(chan bool),
 		nextConsumer: consumertest.NewNop(),
 		obsrecv:      obsrecv,
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		metrics:      metrics,
 	}
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
@@ -977,11 +929,9 @@ func TestLogsConsumerGroupHandler_session_done(t *testing.T) {
 	}
 	defer close(groupClaim.messageChan)
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
+	wg.Go(func() {
 		require.NoError(t, c.ConsumeClaim(testSession, groupClaim))
-		wg.Done()
-	}()
+	})
 
 	groupClaim.messageChan <- &sarama.ConsumerMessage{}
 	cancelFunc()
@@ -999,9 +949,7 @@ func TestLogsConsumerGroupHandler_error_unmarshal(t *testing.T) {
 		ready:        make(chan bool),
 		nextConsumer: consumertest.NewNop(),
 		obsrecv:      obsrecv,
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		metrics:      metrics,
 	}
 
 	wg := sync.WaitGroup{}
@@ -1031,9 +979,7 @@ func TestLogsConsumerGroupHandler_error_nextConsumer(t *testing.T) {
 		ready:        make(chan bool),
 		nextConsumer: consumertest.NewErr(consumerError),
 		obsrecv:      obsrecv,
-		baseConsumerGroupHandler: baseConsumerGroupHandler{
-			metrics: metrics,
-		},
+		metrics:      metrics,
 	}
 
 	wg := sync.WaitGroup{}
@@ -1106,9 +1052,7 @@ func TestLogsConsumerGroupHandler_unmarshal_text(t *testing.T) {
 				ready:        make(chan bool),
 				nextConsumer: sink,
 				obsrecv:      obsrecv,
-				baseConsumerGroupHandler: baseConsumerGroupHandler{
-					metrics: metrics,
-				},
+				metrics:      metrics,
 			}
 
 			wg := sync.WaitGroup{}

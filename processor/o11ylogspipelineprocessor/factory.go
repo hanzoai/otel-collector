@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	o11ylogspipelinestanzaadapter "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/adapter"
 	o11ylogspipelinestanzaoperator "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/consumer"
@@ -26,9 +25,7 @@ func NewFactory() processor.Factory {
 // Note: This isn't a valid configuration (no operators would lead to no work being done)
 func createDefaultConfig() component.Config {
 	return &Config{
-		BaseConfig: o11ylogspipelinestanzaadapter.BaseConfig{
-			Operators: []o11ylogspipelinestanzaoperator.Config{},
-		},
+		Operators: []o11ylogspipelinestanzaoperator.Config{},
 	}
 }
 

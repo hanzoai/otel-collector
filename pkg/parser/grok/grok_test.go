@@ -59,7 +59,7 @@ func TestParserStringEmpty(t *testing.T) {
 	parser := newTestParser(t, "%{COMMONAPACHELOG}", 0)
 	res, err := parser.parse("invalid")
 	require.NoError(t, err)
-	require.Equal(t, 0, len(res.(map[string]interface{})))
+	require.Equal(t, 0, len(res.(map[string]any)))
 }
 
 func TestParserCache(t *testing.T) {
@@ -86,7 +86,7 @@ func TestParserGrok(t *testing.T) {
 			},
 			&entry.Entry{
 				Body: "a=b",
-				Attributes: map[string]interface{}{
+				Attributes: map[string]any{
 					"data": "b",
 				},
 			},
@@ -102,7 +102,7 @@ func TestParserGrok(t *testing.T) {
 			},
 			&entry.Entry{
 				Body: apacheCommonLog,
-				Attributes: map[string]interface{}{
+				Attributes: map[string]any{
 					"ident":       "-",
 					"httpversion": "2.0",
 					"rawrequest":  "",
@@ -127,7 +127,7 @@ func TestParserGrok(t *testing.T) {
 			},
 			&entry.Entry{
 				Body: "127.0.0.1 200 0.8",
-				Attributes: map[string]interface{}{
+				Attributes: map[string]any{
 					"ip":       "127.0.0.1",
 					"status":   200,
 					"duration": 0.8,
@@ -146,7 +146,7 @@ func TestParserGrok(t *testing.T) {
 			},
 			&entry.Entry{
 				Body: apacheCommonLog,
-				Attributes: map[string]interface{}{
+				Attributes: map[string]any{
 					"auth":      "kshlerin6026",
 					"timestamp": "23/Dec/2022:04:37:05 +0000",
 					"response":  "203",
@@ -165,7 +165,7 @@ func TestParserGrok(t *testing.T) {
 			},
 			&entry.Entry{
 				Body: apacheCommonLog,
-				Attributes: map[string]interface{}{
+				Attributes: map[string]any{
 					"auth":      "kshlerin6026",
 					"timestamp": "23/Dec/2022:04:37:05 +0000",
 					"verb":      "POST",
@@ -186,7 +186,7 @@ func TestParserGrok(t *testing.T) {
 			},
 			&entry.Entry{
 				Body: apacheCommonLog,
-				Attributes: map[string]interface{}{
+				Attributes: map[string]any{
 					"auth":      "kshlerin6026",
 					"timestamp": "23/Dec/2022:04:37:05 +0000",
 					"response":  "203",

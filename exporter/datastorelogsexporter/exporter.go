@@ -26,6 +26,7 @@ import (
 	"github.com/goccy/go-json"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/google/uuid"
 	"github.com/hanzo-ds/go"
 	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/constants"
@@ -34,7 +35,6 @@ import (
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/hanzoai/otel-collector/utils"
 	"github.com/hanzoai/otel-collector/utils/fingerprint"
-	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
 	"github.com/segmentio/ksuid"
 	"go.opencensus.io/stats"
@@ -238,7 +238,7 @@ func (r *resourcesSeenMap) getOrCreateFingerprint(bucket int64, resourceJSON str
 // Errors are handled immediately and iteration stops on first error.
 func (r *resourcesSeenMap) rangeAll(fn func(bucketTs int64, resourceKey, fingerprintVal string) error) error {
 	var err error
-	r.buckets.Range(func(key, value interface{}) bool {
+	r.buckets.Range(func(key, value any) bool {
 		// to break the iteration
 		if err != nil {
 			return false
@@ -254,7 +254,7 @@ func (r *resourcesSeenMap) rangeAll(fn func(bucketTs int64, resourceKey, fingerp
 			return false
 		}
 
-		innerMap.Range(func(resourceKey, fingerprintVal interface{}) bool {
+		innerMap.Range(func(resourceKey, fingerprintVal any) bool {
 			resourceLabels, yes := resourceKey.(string)
 			if !yes {
 				err = fmt.Errorf("expected resourceLables to be string, found %T", resourceKey)
@@ -387,9 +387,7 @@ func (e *datastoreLogsExporter) fetchShouldSkipKeys() {
 	})
 
 	e.doFetchShouldSkipKeys() // Immediate first fetch
-	e.wg.Add(1)
-	go func() {
-		defer e.wg.Done()
+	e.wg.Go(func() {
 		for {
 			select {
 			case <-e.closeChan:
@@ -398,7 +396,7 @@ func (e *datastoreLogsExporter) fetchShouldSkipKeys() {
 				e.doFetchShouldSkipKeys()
 			}
 		}
-	}()
+	})
 }
 
 // fetchPromotedPaths periodically loads promoted JSON paths from Datastore into memory.
@@ -412,9 +410,7 @@ func (e *datastoreLogsExporter) fetchPromotedPaths() {
 		})
 
 		e.doFetchPromotedPaths() // Immediate first fetch
-		e.wg.Add(1)
-		go func() {
-			defer e.wg.Done()
+		e.wg.Go(func() {
 			for {
 				select {
 				case <-e.closeChan:
@@ -423,7 +419,7 @@ func (e *datastoreLogsExporter) fetchPromotedPaths() {
 					e.doFetchPromotedPaths()
 				}
 			}
-		}()
+		})
 	}
 }
 
@@ -802,7 +798,7 @@ producerIteration:
 	close(chErr)
 
 	// store the duration for send the data
-	for i := 0; i < chLen; i++ {
+	for range chLen {
 		sendDuration := <-chDuration
 		e.durationHistogram.Record(
 			ctx,
@@ -815,7 +811,7 @@ producerIteration:
 	}
 
 	// check the errors
-	for i := 0; i < chLen; i++ {
+	for range chLen {
 		if r := <-chErr; r != nil {
 			return fmt.Errorf("StatementSend:%w", r)
 		}

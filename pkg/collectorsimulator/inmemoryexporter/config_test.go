@@ -16,14 +16,14 @@ func TestValidate(t *testing.T) {
 	}{
 		{
 			name: "with id",
-			rawConf: confmap.NewFromStringMap(map[string]interface{}{
+			rawConf: confmap.NewFromStringMap(map[string]any{
 				"id": "test_exporter",
 			}),
 			errorExpected: false,
 		},
 		{
 			name: "empty id",
-			rawConf: confmap.NewFromStringMap(map[string]interface{}{
+			rawConf: confmap.NewFromStringMap(map[string]any{
 				"id": "",
 			}),
 			errorExpected: true,

@@ -23,10 +23,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/hanzo-ds/go"
-	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
+	"github.com/hanzo-ds/go"
+	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/hanzoai/otel-collector/internal/common"
 	"github.com/hanzoai/otel-collector/usage"
 	"github.com/hanzoai/otel-collector/utils"
@@ -454,36 +454,30 @@ func (w *SpanWriter) WriteBatchOfSpansV3(ctx context.Context, batch []*SpanV3, m
 	var wg sync.WaitGroup
 	var chErr = make(chan error, 2)
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		err := w.writeIndexBatchV3(ctx, batch)
 		if err != nil {
 			w.logger.Error("Could not write a batch of spans to index table: ", zap.Error(err))
 			chErr <- err
 		}
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		err := w.writeErrorBatchV3(ctx, batch)
 		if err != nil {
 			w.logger.Error("Could not write a batch of spans to error table: ", zap.Error(err))
 			chErr <- err
 		}
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		err := w.writeTagBatchV3(ctx, batch)
 		if err != nil {
 			w.logger.Error("Could not write a batch of spans to tag/tagKey tables: ", zap.Error(err))
 			// Not returning the error as we don't to block the exporter
 			// chErr <- err
 		}
-	}()
+	})
 
 	wg.Wait()
 
@@ -495,7 +489,7 @@ func (w *SpanWriter) WriteBatchOfSpansV3(ctx context.Context, batch []*SpanV3, m
 	}
 
 	close(chErr)
-	for i := 0; i < 2; i++ {
+	for range 2 {
 		if r := <-chErr; r != nil {
 			return fmt.Errorf("TracesWriteBatchOfSpansV3:%w", r)
 		}

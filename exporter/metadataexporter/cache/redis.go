@@ -221,7 +221,7 @@ func (c *RedisKeyCache) AddAttrsToResource(ctx context.Context, resourceFp uint6
 	}
 
 	// Convert each attrFp to string
-	members := make([]interface{}, len(attrFps))
+	members := make([]any, len(attrFps))
 	for i, a := range attrFps {
 		members[i] = strconv.FormatUint(a, 10)
 	}
@@ -247,7 +247,7 @@ func (c *RedisKeyCache) AttrsExistForResource(ctx context.Context, resourceFp ui
 	resourceFpStr := strconv.FormatUint(resourceFp, 10)
 	attrsKey := c.getAttrsKey(ds, resourceFpStr)
 
-	members := make([]interface{}, len(attrFps))
+	members := make([]any, len(attrFps))
 	for i, a := range attrFps {
 		members[i] = strconv.FormatUint(a, 10)
 	}

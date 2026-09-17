@@ -111,10 +111,10 @@ func NewWrappedLogger(sugar *zap.SugaredLogger) *Logger {
 	}
 }
 
-func (l *Logger) Debugf(ctx context.Context, format string, args ...interface{}) {
+func (l *Logger) Debugf(ctx context.Context, format string, args ...any) {
 	l.SugaredLogger.Debugf(format, args...)
 }
 
-func (l *Logger) Errorf(ctx context.Context, format string, args ...interface{}) {
+func (l *Logger) Errorf(ctx context.Context, format string, args ...any) {
 	l.SugaredLogger.Errorf(format, args...)
 }

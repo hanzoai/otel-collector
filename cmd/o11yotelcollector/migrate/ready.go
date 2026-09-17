@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/hanzo-ds/go"
 	"github.com/hanzoai/otel-collector/cmd/o11yotelcollector/config"
-	"github.com/cenkalti/backoff/v4"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -182,8 +182,7 @@ func (r *ready) CheckKeeper(ctx context.Context) error {
 	query := "SELECT host, port FROM system.zookeeper_connection"
 	rows, err := r.conn.Query(ctx, query)
 	if err != nil {
-		var exception *datastore.Exception
-		if errors.As(err, &exception) {
+		if exception, ok := errors.AsType[*datastore.Exception](err); ok {
 			if exception.Code == 999 {
 				if strings.Contains(exception.Error(), "No node") {
 					return NewRetryableError(err)

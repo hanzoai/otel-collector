@@ -298,7 +298,6 @@ func TestProcessorConsumeTraces(t *testing.T) {
 	for _, tc := range testcases {
 		// Since parallelism is enabled in these tests, to avoid flaky behavior,
 		// instantiate a copy of the test case for t.Run's closure to use.
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// Prepare
 			mexp := &mocks.MetricsExporter{}
@@ -591,7 +590,7 @@ func verifyConsumeMetricsInput(t testing.TB, input pmetric.Metrics, expectedTemp
 	assert.True(t, m.At(0).Sum().IsMonotonic())
 	callsDps := m.At(0).Sum().DataPoints()
 	require.Equal(t, 3, callsDps.Len())
-	for dpi := 0; dpi < 3; dpi++ {
+	for dpi := range 3 {
 		dp := callsDps.At(dpi)
 		assert.Equal(t, int64(numCumulativeConsumptions), dp.IntValue(), "There should only be one metric per Service/operation/kind combination")
 		assert.NotZero(t, dp.StartTimestamp(), "StartTimestamp should be set")
@@ -606,7 +605,7 @@ func verifyConsumeMetricsInput(t testing.TB, input pmetric.Metrics, expectedTemp
 	assert.Equal(t, expectedTemporality, m.At(1).Histogram().AggregationTemporality())
 	latencyDps := m.At(1).Histogram().DataPoints()
 	require.Equal(t, 3, latencyDps.Len())
-	for dpi := 0; dpi < 3; dpi++ {
+	for dpi := range 3 {
 		dp := latencyDps.At(dpi)
 		assert.Equal(t, sampleLatency*float64(numCumulativeConsumptions), dp.Sum(), "Should be a 11ms latency measurement, multiplied by the number of stateful accumulations.")
 		assert.NotZero(t, dp.Timestamp(), "Timestamp should be set")
@@ -842,8 +841,8 @@ func TestBuildKeyWithDimensions(t *testing.T) {
 	for _, tc := range []struct {
 		name            string
 		optionalDims    []dimension
-		resourceAttrMap map[string]interface{}
-		spanAttrMap     map[string]interface{}
+		resourceAttrMap map[string]any
+		spanAttrMap     map[string]any
 		wantKey         string
 	}{
 		{
@@ -869,7 +868,7 @@ func TestBuildKeyWithDimensions(t *testing.T) {
 			optionalDims: []dimension{
 				{name: "foo"},
 			},
-			spanAttrMap: map[string]interface{}{
+			spanAttrMap: map[string]any{
 				"foo": 99,
 			},
 			wantKey: "ab\u0000c\u0000SPAN_KIND_UNSPECIFIED\u0000STATUS_CODE_UNSET\u000099",
@@ -879,7 +878,7 @@ func TestBuildKeyWithDimensions(t *testing.T) {
 			optionalDims: []dimension{
 				{name: "foo"},
 			},
-			resourceAttrMap: map[string]interface{}{
+			resourceAttrMap: map[string]any{
 				"foo": 99,
 			},
 			wantKey: "ab\u0000c\u0000SPAN_KIND_UNSPECIFIED\u0000STATUS_CODE_UNSET\u000099",
@@ -889,10 +888,10 @@ func TestBuildKeyWithDimensions(t *testing.T) {
 			optionalDims: []dimension{
 				{name: "foo"},
 			},
-			spanAttrMap: map[string]interface{}{
+			spanAttrMap: map[string]any{
 				"foo": 100,
 			},
-			resourceAttrMap: map[string]interface{}{
+			resourceAttrMap: map[string]any{
 				"foo": 99,
 			},
 			wantKey: "ab\u0000c\u0000SPAN_KIND_UNSPECIFIED\u0000STATUS_CODE_UNSET\u0000100",
@@ -902,7 +901,7 @@ func TestBuildKeyWithDimensions(t *testing.T) {
 			optionalDims: []dimension{
 				{name: o11yID},
 			},
-			resourceAttrMap: map[string]interface{}{
+			resourceAttrMap: map[string]any{
 				o11yID: testID,
 			},
 			wantKey: "ab\u0000c\u0000SPAN_KIND_UNSPECIFIED\u0000STATUS_CODE_UNSET\u0000test-instance-id",
@@ -912,7 +911,7 @@ func TestBuildKeyWithDimensions(t *testing.T) {
 			optionalDims: []dimension{
 				{name: "http.response.status_code"},
 			},
-			spanAttrMap: map[string]interface{}{
+			spanAttrMap: map[string]any{
 				"http.response.status_code": 200,
 			},
 			wantKey: "ab\u0000c\u0000SPAN_KIND_UNSPECIFIED\u0000STATUS_CODE_UNSET\u0000200",

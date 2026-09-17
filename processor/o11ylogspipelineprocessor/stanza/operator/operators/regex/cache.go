@@ -3,6 +3,7 @@
 package regex
 
 import (
+	"maps"
 	"math"
 	"sync"
 	"sync/atomic"
@@ -100,9 +101,7 @@ func (m *memoryCache) copy() map[string]any {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
-	for k, v := range m.cache {
-		cp[k] = v
-	}
+	maps.Copy(cp, m.cache)
 	return cp
 }
 

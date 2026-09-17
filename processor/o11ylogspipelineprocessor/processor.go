@@ -7,6 +7,7 @@ import (
 	"errors"
 	"math"
 	"runtime"
+	"slices"
 	"sync"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza/adapter"
@@ -104,8 +105,8 @@ func (p *logsPipelineProcessor) Shutdown(ctx context.Context) error {
 	// Call shutdown functions in reverse order of registration: fromConverter
 	// stops first (no new entries), then converterLoop drains, then the
 	// pipeline stops.
-	for i := len(p.shutdownFns) - 1; i >= 0; i-- {
-		fn := p.shutdownFns[i]
+	for _, fn := range slices.Backward(p.shutdownFns) {
+
 		if err := fn(ctx); err != nil {
 			return err
 		}

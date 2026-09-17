@@ -118,8 +118,9 @@ func Concurrency() int {
 	return int(math.Max(1, float64(runtime.GOMAXPROCS(0))))
 }
 
+//go:fix inline
 func ToPointer[T any](v T) *T {
-	return &v
+	return new(v)
 }
 
 func ToLookUpMap[T comparable](s []T) map[T]struct{} {

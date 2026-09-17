@@ -36,9 +36,7 @@ func TestLoadConfig(t *testing.T) {
 		{
 			id: component.NewIDWithName(metadata.Type, ""),
 			expected: &Config{
-				TimeoutConfig: exporterhelper.TimeoutConfig{
-					Timeout: 10 * time.Second,
-				},
+				Timeout: 10 * time.Second,
 				BackOffConfig: configretry.BackOffConfig{
 					Enabled:             true,
 					InitialInterval:     10 * time.Second,

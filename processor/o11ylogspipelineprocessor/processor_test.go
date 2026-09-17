@@ -423,14 +423,14 @@ func TestConcurrentConsumeLogs(t *testing.T) {
 	processSomeLogs := func(count int) {
 		defer wg.Done()
 
-		for i := 0; i < count; i++ {
+		for range count {
 			testPlog := makePlog("test log", map[string]any{})
 			consumeErr := proc.ConsumeLogs(context.Background(), testPlog)
 			require.NoError(consumeErr)
 		}
 	}
 
-	for j := 0; j < 10; j++ {
+	for range 10 {
 		wg.Add(1)
 		go processSomeLogs(10)
 	}

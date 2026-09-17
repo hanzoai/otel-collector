@@ -153,7 +153,7 @@ func (mb *metricBuilder) AddDataPoint(metric cWMetric) {
 			dp.SetDoubleValue(val)
 			dp.SetTimestamp(pcommon.NewTimestampFromTime(time.UnixMilli(metric.Timestamp)))
 			for k, v := range metric.Dimensions {
-				// normalizing before adding dimensions as attributes to ensure 
+				// normalizing before adding dimensions as attributes to ensure
 				// consistent naming of dimensions which may violate AWS standards
 				normalisedKey := normaliseAttributeName(k)
 				dp.Attributes().PutStr(ToSemConvAttributeKey(normalisedKey), v)
@@ -180,8 +180,8 @@ func otlpMetricName(metricNamespace, metricName, statName string) string {
 	// including ns allows for distinguishing between metrics with same
 	// name across multiple namespaces/services
 	// For example, CPUUtilization is available for both EC2 and RDS
-	nsParts := strings.Split(metricNamespace, namespaceDelimiter)
-	for _, p := range nsParts {
+	nsParts := strings.SplitSeq(metricNamespace, namespaceDelimiter)
+	for p := range nsParts {
 		// ignore "AWS" in namespaces like "AWS/EC2" to avoid having
 		// final names like aws_aws_ec2_CPUUtilization
 		if strings.ToLower(p) != conventions.CloudProviderAWS.Value.AsString() && len(p) > 0 {

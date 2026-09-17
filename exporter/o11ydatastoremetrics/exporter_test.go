@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hanzoai/otel-collector/usage"
 	"github.com/google/uuid"
 	cmock "github.com/hanzo-ds/mock"
+	"github.com/hanzoai/otel-collector/usage"
 	"go.uber.org/zap/zaptest"
 
 	dsproto "github.com/hanzo-ds/native/proto"
@@ -202,7 +202,7 @@ func Test_prepareBatchHistogram(t *testing.T) {
 	}
 	cumulativeCount := 0
 	// 20 buckets
-	for i := 0; i < 20; i++ {
+	for i := range 20 {
 		cumulativeCount += 1
 		if i == 5 || i == 12 {
 			cumulativeCount += i - 1
@@ -297,7 +297,7 @@ func Test_prepareBatchHistogram(t *testing.T) {
 	}
 
 	// 20 buckets, one separate ts for each bucket
-	for i := 0; i < 20; i++ {
+	for i := range 20 {
 		expectedTs = append(expectedTs, ts{
 			env:           "",
 			temporality:   pmetric.AggregationTemporalityCumulative,
@@ -759,7 +759,7 @@ func Test_prepareBatchHistogramWithNoRecordedValue(t *testing.T) {
 	}
 	cumulativeCount := 0
 	// 20 buckets
-	for i := 0; i < 20; i++ {
+	for i := range 20 {
 		cumulativeCount += 1
 		if i == 5 || i == 12 {
 			cumulativeCount += i - 1
@@ -857,7 +857,7 @@ func Test_prepareBatchHistogramWithNoRecordedValue(t *testing.T) {
 	}
 
 	// 20 buckets, one separate ts for each bucket
-	for i := 0; i < 20; i++ {
+	for i := range 20 {
 		expectedTs = append(expectedTs, ts{
 			env:           "",
 			temporality:   pmetric.AggregationTemporalityCumulative,
@@ -1198,7 +1198,7 @@ func Test_shutdown(t *testing.T) {
 	conn.ExpectPrepareBatch("INSERT INTO . (env, temporality, metric_name, description, unit, type, is_monotonic, fingerprint, unix_milli, labels, attrs, scope_attrs, resource_attrs, __normalized, inserted_at_unix_milli) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)") //time series query
 	conn.ExpectPrepareBatch("INSERT INTO . (env, temporality, metric_name, fingerprint, unix_milli, count, sum, min, max, sketch, flags, inserted_at_unix_milli) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")                                                                      //exp hist query
 	conn.ExpectPrepareBatch("INSERT INTO . (temporality, metric_name, description, unit, type, is_monotonic, attr_name, attr_type, attr_datatype, attr_string_value, first_reported_unix_milli, last_reported_unix_milli) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")             //metadata query
-	conn.ExpectExec("insert into o11y_metrics.distributed_usage values ($1, $2, $3, $4, $5)")                                                                                                                                                                                     // usage exporter query
+	conn.ExpectExec("insert into o11y_metrics.distributed_usage values ($1, $2, $3, $4, $5)")                                                                                                                                                                                       // usage exporter query
 	conn.ExpectClose()
 	usageCollector := usage.NewUsageCollector(
 		id,
@@ -1234,12 +1234,10 @@ func Test_shutdown(t *testing.T) {
 		log.Fatalf("an error '%s' was not expected when shutting down exporter", err)
 	}
 	errChan := make(chan error, 5)
-	for i := 0; i < 5; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+	for range 5 {
+		wg.Go(func() {
 			errChan <- chExporter.PushMetrics(context.Background(), pmetric.NewMetrics())
-		}()
+		})
 	}
 	wg.Wait()
 	close(errChan)

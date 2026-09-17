@@ -25,7 +25,7 @@ func BenchmarkValueTracker_RealisticLoad(b *testing.B) {
 	keys := make([]string, totalKeys)
 	highCardinalKeyMap := make(map[string]bool)
 
-	for i := 0; i < highCardinalKeys; i++ {
+	for i := range highCardinalKeys {
 		keys[i] = fmt.Sprintf("high-card-key-%d", i)
 		highCardinalKeyMap[keys[i]] = true
 	}
@@ -38,7 +38,7 @@ func BenchmarkValueTracker_RealisticLoad(b *testing.B) {
 	for _, key := range keys {
 		if !highCardinalKeyMap[key] {
 			values := make([]string, normalValuePool)
-			for i := 0; i < normalUniqueVals; i++ {
+			for i := range normalUniqueVals {
 				values[i] = fmt.Sprintf("unique-value-%s-%d", key, i)
 			}
 			for i := normalUniqueVals; i < normalValuePool; i++ {
@@ -55,9 +55,9 @@ func BenchmarkValueTracker_RealisticLoad(b *testing.B) {
 		for j := 0; j < numSpans; j += batchSize {
 			batchSize := min(batchSize, numSpans-j)
 
-			for k := 0; k < batchSize; k++ {
+			for range batchSize {
 				numAttrs := 10 + r.Intn(41)
-				for a := 0; a < numAttrs; a++ {
+				for range numAttrs {
 					key := keys[r.Intn(len(keys))]
 					var value string
 
@@ -73,7 +73,7 @@ func BenchmarkValueTracker_RealisticLoad(b *testing.B) {
 				}
 			}
 
-			for k := 0; k < 10; k++ {
+			for range 10 {
 				key := keys[r.Intn(len(keys))]
 				tracker.GetUniqueValueCount(key)
 			}
@@ -89,7 +89,7 @@ func BenchmarkValueTracker_HighCardinality(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		// Add 100K unique values to a single key
 		key := "high-card-key"
-		for j := 0; j < 100000; j++ {
+		for j := range 100000 {
 			tracker.AddValue(key, fmt.Sprintf("unique-value-%d", j))
 		}
 	}

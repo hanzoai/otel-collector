@@ -13,12 +13,10 @@ type simpleClient struct {
 
 func NewSimpleClient(coll *o11ycol.WrappedCollector, logger *zap.Logger) *simpleClient {
 	return &simpleClient{
-		baseClient: baseClient{
-			coll:    coll,
-			err:     make(chan error),
-			stopped: make(chan bool),
-			logger:  logger.With(zap.String("component", "simple-client")),
-		},
+		coll:    coll,
+		err:     make(chan error),
+		stopped: make(chan bool),
+		logger:  logger.With(zap.String("component", "simple-client")),
 	}
 }
 

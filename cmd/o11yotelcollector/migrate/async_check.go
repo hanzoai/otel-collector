@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/hanzo-ds/go"
 	"github.com/hanzoai/otel-collector/cmd/o11yotelcollector/config"
 	schemamigrator "github.com/hanzoai/otel-collector/cmd/o11yschemamigrator/schema_migrator"
 	"github.com/hanzoai/otel-collector/constants"
-	"github.com/cenkalti/backoff/v4"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -183,9 +184,9 @@ func (cmd *asyncCheck) Check(ctx context.Context) error {
 }
 
 func (cmd *asyncCheck) getLastAsyncMigration(migrations []schemamigrator.SchemaMigrationRecord) (uint64, error) {
-	for i := len(migrations) - 1; i >= 0; i-- {
-		if cmd.migrationManager.IsAsync(migrations[i]) {
-			return migrations[i].MigrationID, nil
+	for _, migration := range slices.Backward(migrations) {
+		if cmd.migrationManager.IsAsync(migration) {
+			return migration.MigrationID, nil
 		}
 	}
 

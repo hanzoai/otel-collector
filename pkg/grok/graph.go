@@ -4,7 +4,6 @@ type graph map[string][]string
 
 func reverseList(s []string) (r []string) {
 	for _, i := range s {
-		i := i
 		defer func() { r = append(r, i) }()
 	}
 	return

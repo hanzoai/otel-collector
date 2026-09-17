@@ -3,19 +3,19 @@ package datastoretracesexporter
 import (
 	"context"
 	"log"
+	"maps"
 	"reflect"
 	"sort"
 	"testing"
 	"time"
 
-	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/hanzoai/otel-collector/pkg/pdatagen/ptracesgen"
 	"github.com/google/uuid"
-	"github.com/jellydator/ttlcache/v3"
+	driver "github.com/hanzo-ds/go/lib/driver"
 	cmock "github.com/hanzo-ds/mock"
+	"github.com/hanzoai/otel-collector/pkg/pdatagen/ptracesgen"
+	"github.com/jellydator/ttlcache/v3"
 	"github.com/stretchr/testify/assert"
-	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/ptrace"
@@ -560,10 +560,10 @@ func Test_newStructuredSpanV3(t *testing.T) {
 				AttributesNumber: map[string]float64{},
 				AttributesBool:   map[string]bool{},
 				ResourcesString: map[string]string{
-					"mymap.map_double":               "20.5",
-					"mymap.map_key":                  "map_val",
-					"service.name":                   "test_service",
-					"num":                            "10",
+					"mymap.map_double":             "20.5",
+					"mymap.map_key":                "map_val",
+					"service.name":                 "test_service",
+					"num":                          "10",
 					"o11y.workspace.internal.test": "test_internal",
 				},
 				BillableResourcesString: map[string]string{
@@ -638,9 +638,7 @@ func Test_newStructuredSpanV3(t *testing.T) {
 			if tt.want.Scope.Version != "" {
 				wantScopeAttrs["scope.version"] = tt.want.Scope.Version
 			}
-			for k, v := range tt.want.Scope.Attributes {
-				wantScopeAttrs[k] = v
-			}
+			maps.Copy(wantScopeAttrs, tt.want.Scope.Attributes)
 			if !reflect.DeepEqual(gotScopeAttrs, wantScopeAttrs) {
 				t.Errorf("scope SpanAttributes mismatch:\ngot = %+v\nwant = %+v", gotScopeAttrs, wantScopeAttrs)
 			}
@@ -697,7 +695,7 @@ func setupTestExporter(t *testing.T, mock driver.Conn) *datastoreTracesExporter 
 	}
 	writerOpts = append(writerOpts, WithExporterID(id))
 
-	exporter, err := newExporter(&Config{}, exporter.Settings{TelemetrySettings: component.TelemetrySettings{Logger: zap.NewNop()}}, writerOpts, exporterOpts)
+	exporter, err := newExporter(&Config{}, exporter.Settings{Logger: zap.NewNop()}, writerOpts, exporterOpts)
 	if err != nil {
 		t.Fatalf("failed to create exporter: %v", err)
 	}
@@ -718,7 +716,7 @@ func TestExporterInit(t *testing.T) {
 	cols = append(cols, cmock.ColumnType{Name: "string_count", Type: "UInt64"})
 	cols = append(cols, cmock.ColumnType{Name: "number_count", Type: "UInt64"})
 
-	rows := cmock.NewRows(cols, [][]interface{}{{"key1", "string", "string", 2, 1}, {"key2", "number", "number", 1, 2}})
+	rows := cmock.NewRows(cols, [][]any{{"key1", "string", "string", 2, 1}, {"key2", "number", "number", 1, 2}})
 
 	mock.ExpectSelect(".*SETTINGS max_threads = 2").WillReturnRows(rows)
 

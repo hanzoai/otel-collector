@@ -16,14 +16,14 @@ func TestExprFunc(t *testing.T) {
 		name     string
 		context  *ottllog.TransformContext
 		expr     string
-		expected interface{}
+		expected any
 		err      bool
 	}{{
 		name: "simple expr",
 		context: makeTestOttlLogContext(
 			"test log body",
-			map[string]interface{}{},
-			map[string]interface{}{},
+			map[string]any{},
+			map[string]any{},
 			0, "INFO", 1,
 		),
 		expr:     "50",
@@ -32,8 +32,8 @@ func TestExprFunc(t *testing.T) {
 		name: "attributes and resources based expr",
 		context: makeTestOttlLogContext(
 			"test log body",
-			map[string]interface{}{"test1": "1"},
-			map[string]interface{}{"test2": "2"},
+			map[string]any{"test1": "1"},
+			map[string]any{"test2": "2"},
 			0, "INFO", 1,
 		),
 		expr:     "attributes.test1 + resource.test2",
@@ -42,8 +42,8 @@ func TestExprFunc(t *testing.T) {
 		name: "body based expr",
 		context: makeTestOttlLogContext(
 			"test log body",
-			map[string]interface{}{},
-			map[string]interface{}{},
+			map[string]any{},
+			map[string]any{},
 			0, "INFO", 1,
 		),
 		expr:     "len(body)",
@@ -52,8 +52,8 @@ func TestExprFunc(t *testing.T) {
 		name: "timestamp based expr",
 		context: makeTestOttlLogContext(
 			"test log body",
-			map[string]interface{}{},
-			map[string]interface{}{},
+			map[string]any{},
+			map[string]any{},
 			7200, "INFO", 1,
 		),
 		expr:     `timestamp - duration("1h")`,
@@ -62,8 +62,8 @@ func TestExprFunc(t *testing.T) {
 		name: "severity text based expr",
 		context: makeTestOttlLogContext(
 			"test log body",
-			map[string]interface{}{},
-			map[string]interface{}{},
+			map[string]any{},
+			map[string]any{},
 			0, "INFO", 1,
 		),
 		expr:     `"sev: " + severity_text`,
@@ -72,8 +72,8 @@ func TestExprFunc(t *testing.T) {
 		name: "severity number based expr",
 		context: makeTestOttlLogContext(
 			"test log body",
-			map[string]interface{}{},
-			map[string]interface{}{},
+			map[string]any{},
+			map[string]any{},
 			0, "INFO", 9,
 		),
 		expr:     `"sev: " + string(severity)`,
@@ -97,8 +97,8 @@ func TestExprFunc(t *testing.T) {
 
 func makeTestOttlLogContext(
 	body string,
-	attributes map[string]interface{},
-	resource map[string]interface{},
+	attributes map[string]any,
+	resource map[string]any,
 	timestampSeconds int64,
 	severityText string,
 	severity plog.SeverityNumber,
@@ -106,7 +106,7 @@ func makeTestOttlLogContext(
 	resourceLogs := plog.NewResourceLogs()
 	scopeLogs := resourceLogs.ScopeLogs().AppendEmpty()
 	logRecord := scopeLogs.LogRecords().AppendEmpty()
-	
+
 	logRecord.Body().SetStr(body)
 	_ = logRecord.Attributes().FromRaw(attributes)
 	_ = resourceLogs.Resource().Attributes().FromRaw(resource)

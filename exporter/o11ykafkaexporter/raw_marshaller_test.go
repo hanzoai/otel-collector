@@ -12,8 +12,9 @@ import (
 	"go.opentelemetry.io/collector/pdata/plog"
 )
 
+//go:fix inline
 func ptr(i int) *int {
-	return &i
+	return new(i)
 }
 
 func Test_RawMarshaler(t *testing.T) {
@@ -70,7 +71,7 @@ func Test_RawMarshaler(t *testing.T) {
 				lr := plog.NewLogRecord()
 				return lr
 			},
-			countExpected: ptr(0),
+			countExpected: new(0),
 			errorExpected: false,
 			marshaled:     []byte{},
 		},

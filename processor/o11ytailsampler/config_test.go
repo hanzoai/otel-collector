@@ -35,28 +35,20 @@ func TestLoadConfig(t *testing.T) {
 			ExpectedNewTracesPerSec: 10,
 			PolicyCfgs: []PolicyGroupCfg{
 				{
-					BasePolicy: BasePolicy{
-						Name:     "test-policy-1",
-						Type:     PolicyGroup,
-						Priority: 1,
-						ProbabilisticCfg: ProbabilisticCfg{
-							SamplingPercentage: 100,
-						},
-						PolicyFilterCfg: PolicyFilterCfg{
-							StringAttributeCfgs: []StringAttributeCfg{
-								{Key: "source", Values: []string{"security"}},
-							},
-						},
+					Name:               "test-policy-1",
+					Type:               PolicyGroup,
+					Priority:           1,
+					SamplingPercentage: 100,
+					StringAttributeCfgs: []StringAttributeCfg{
+						{Key: "source", Values: []string{"security"}},
 					},
 					SubPolicies: []BasePolicy{
 						{
 							Name:     "condition-1",
 							Type:     PolicyGroup,
 							Priority: 1,
-							PolicyFilterCfg: PolicyFilterCfg{
-								StringAttributeCfgs: []StringAttributeCfg{
-									{Key: "source", Values: []string{"security"}},
-								},
+							StringAttributeCfgs: []StringAttributeCfg{
+								{Key: "source", Values: []string{"security"}},
 							},
 						},
 					},

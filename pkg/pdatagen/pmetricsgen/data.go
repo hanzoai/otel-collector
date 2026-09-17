@@ -12,14 +12,14 @@ import (
 // Common function to set up resource and scope attributes
 func setupResourceAndScope(metrics *pmetric.Metrics, numResourceAttrs, numScopeAttrs int, resourceValue, scopeValue string) (*pmetric.ResourceMetrics, *pmetric.ScopeMetrics) {
 	rm := metrics.ResourceMetrics().AppendEmpty()
-	for i := 0; i < numResourceAttrs; i++ {
+	for i := range numResourceAttrs {
 		rm.Resource().Attributes().PutStr("resource.attr_"+strconv.Itoa(i), resourceValue+strconv.Itoa(i))
 	}
 	rm.SetSchemaUrl("resource.schema_url")
 
 	sm := rm.ScopeMetrics().AppendEmpty()
 	sm.SetSchemaUrl("scope.schema_url")
-	for i := 0; i < numScopeAttrs; i++ {
+	for i := range numScopeAttrs {
 		sm.Scope().Attributes().PutStr("scope.attr_"+strconv.Itoa(i), scopeValue+strconv.Itoa(i))
 	}
 	sm.Scope().SetName("go.o11y.hanzo.ai/app/reader")
@@ -153,7 +153,7 @@ func GenerateGaugeMetrics(numMetrics, totalNumDataPoints, numPointAttributes, nu
 
 	const baseTimestamp = 1727286182
 
-	for i := 0; i < numMetrics; i++ {
+	for i := range numMetrics {
 		m := sm.Metrics().AppendEmpty()
 		m.SetName("system.memory.usage" + strconv.Itoa(i))
 		m.SetUnit("bytes")
@@ -177,7 +177,7 @@ func GenerateGaugeMetrics(numMetrics, totalNumDataPoints, numPointAttributes, nu
 
 // Helper function to add data points with common attributes
 func addDataPoints(dpSlice pmetric.NumberDataPointSlice, metricIndex, count, numPointAttributes int, baseTimestamp int64, attrPrefix string, noRecorded bool, useNaN bool) {
-	for j := 0; j < count; j++ {
+	for j := range count {
 		dp := dpSlice.AppendEmpty()
 
 		if useNaN {
@@ -192,7 +192,7 @@ func addDataPoints(dpSlice pmetric.NumberDataPointSlice, metricIndex, count, num
 			dp.SetFlags(pmetric.DefaultDataPointFlags)
 		}
 
-		for k := 0; k < numPointAttributes; k++ {
+		for k := range numPointAttributes {
 			dp.Attributes().PutStr(attrPrefix+strconv.Itoa(k), "1")
 		}
 
@@ -220,7 +220,7 @@ func GenerateSumMetrics(numMetrics, totalNumDataPoints, numPointAttributes, numS
 
 	const baseTimestamp = 1727286182
 
-	for i := 0; i < numMetrics; i++ {
+	for i := range numMetrics {
 		m := sm.Metrics().AppendEmpty()
 		m.SetName("system.cpu.time" + strconv.Itoa(i))
 		m.SetUnit("s")
@@ -275,7 +275,7 @@ func GenerateHistogramMetrics(numMetrics, totalNumDataPoints, numPointAttributes
 
 	const baseTimestamp = 1727286182
 
-	for i := 0; i < numMetrics; i++ {
+	for i := range numMetrics {
 		m := sm.Metrics().AppendEmpty()
 		m.SetName("http.server.duration" + strconv.Itoa(i))
 		m.SetUnit("ms")
@@ -310,7 +310,7 @@ func GenerateHistogramMetrics(numMetrics, totalNumDataPoints, numPointAttributes
 
 // Helper function to add histogram data points
 func addHistogramDataPoints(dpSlice pmetric.HistogramDataPointSlice, count, numPointAttributes int, baseTimestamp int64, attrPrefix string, noRecorded bool, explicitBounds []float64, bucketCounts []uint64, min, max float64) {
-	for j := 0; j < count; j++ {
+	for j := range count {
 		dp := dpSlice.AppendEmpty()
 		dp.SetCount(30)
 		dp.SetSum(35)
@@ -321,7 +321,7 @@ func addHistogramDataPoints(dpSlice pmetric.HistogramDataPointSlice, count, numP
 			dp.SetFlags(pmetric.DefaultDataPointFlags)
 		}
 
-		for k := 0; k < numPointAttributes; k++ {
+		for k := range numPointAttributes {
 			dp.Attributes().PutStr(attrPrefix+strconv.Itoa(k), "1")
 		}
 
@@ -356,7 +356,7 @@ func GenerateExponentialHistogramMetrics(
 	const baseTimestamp = 1727286182
 	fixedPattern := []uint64{0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 11, 1, 1, 1, 1, 10}
 
-	for i := 0; i < numMetrics; i++ {
+	for i := range numMetrics {
 		m := sm.Metrics().AppendEmpty()
 		m.SetName("http.server.duration" + strconv.Itoa(i))
 		m.SetUnit("ms")
@@ -387,7 +387,7 @@ func GenerateExponentialHistogramMetrics(
 
 // Helper function to add exponential histogram data points
 func addExpHistogramDataPoints(dpSlice pmetric.ExponentialHistogramDataPointSlice, count, numPointAttributes int, baseTimestamp int64, attrPrefix string, noRecorded bool, fixedPattern []uint64, numBucketCount int, sumValue float64) {
-	for j := 0; j < count; j++ {
+	for j := range count {
 		dp := dpSlice.AppendEmpty()
 		dp.SetScale(2)
 
@@ -405,7 +405,7 @@ func addExpHistogramDataPoints(dpSlice pmetric.ExponentialHistogramDataPointSlic
 			dp.SetFlags(dp.Flags().WithNoRecordedValue(true))
 		}
 
-		for k := 0; k < numPointAttributes; k++ {
+		for k := range numPointAttributes {
 			dp.Attributes().PutStr(attrPrefix+strconv.Itoa(k), "1")
 		}
 
@@ -434,7 +434,7 @@ func GenerateSummaryMetrics(numMetrics, totalNumDataPoints, numPointAttributes, 
 
 	const baseTimestamp = 1727286182
 
-	for i := 0; i < numMetrics; i++ {
+	for i := range numMetrics {
 		m := sm.Metrics().AppendEmpty()
 		m.SetName("zk.duration" + strconv.Itoa(i))
 		m.SetUnit("ms")
@@ -458,7 +458,7 @@ func GenerateSummaryMetrics(numMetrics, totalNumDataPoints, numPointAttributes, 
 
 // Helper function to add summary data points
 func addSummaryDataPoints(dpSlice pmetric.SummaryDataPointSlice, count, numPointAttributes int, baseTimestamp int64, attrPrefix string, noRecorded bool, numQuantileCount int, useNaN bool) {
-	for j := 0; j < count; j++ {
+	for j := range count {
 		dp := dpSlice.AppendEmpty()
 
 		timestamp := pcommon.NewTimestampFromTime(time.Unix(baseTimestamp+int64(j), 0))
@@ -476,11 +476,11 @@ func addSummaryDataPoints(dpSlice pmetric.SummaryDataPointSlice, count, numPoint
 			dp.SetFlags(dp.Flags().WithNoRecordedValue(true))
 		}
 
-		for k := 0; k < numPointAttributes; k++ {
+		for k := range numPointAttributes {
 			dp.Attributes().PutStr(attrPrefix+strconv.Itoa(k), "1")
 		}
 
-		for q := 0; q < numQuantileCount; q++ {
+		for q := range numQuantileCount {
 			qv := dp.QuantileValues().AppendEmpty()
 			qv.SetQuantile(float64(q) / float64(numQuantileCount))
 			qv.SetValue(float64(j + q))

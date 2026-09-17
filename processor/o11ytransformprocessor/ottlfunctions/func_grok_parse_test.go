@@ -21,7 +21,7 @@ func TestGrokParse(t *testing.T) {
 		{
 			name: "common apache log",
 			target: &ottl.StandardStringGetter[any]{
-				Getter: func(ctx context.Context, tCtx any) (interface{}, error) {
+				Getter: func(ctx context.Context, tCtx any) (any, error) {
 					return `127.0.0.1 - - [23/Apr/2014:22:58:32 +0200] "GET /index.php HTTP/1.1" 404 207`, nil
 				},
 			},
@@ -42,7 +42,7 @@ func TestGrokParse(t *testing.T) {
 		{
 			name: "pattern not found",
 			target: &ottl.StandardStringGetter[any]{
-				Getter: func(ctx context.Context, tCtx any) (interface{}, error) {
+				Getter: func(ctx context.Context, tCtx any) (any, error) {
 					return `Hello world`, nil
 				},
 			},
@@ -77,7 +77,7 @@ func TestGrokParse(t *testing.T) {
 
 func TestGrokParseBadPattern(t *testing.T) {
 	grokFunc, err := grokParse[any](&ottl.StandardStringGetter[any]{
-		Getter: func(ctx context.Context, tCtx any) (interface{}, error) {
+		Getter: func(ctx context.Context, tCtx any) (any, error) {
 			return "foobar", nil
 		}},
 		"%{BAD_GROK_PATTERN}",
@@ -95,7 +95,7 @@ func TestGrokParseBadTarget(t *testing.T) {
 		{
 			name: "target is non-string",
 			target: &ottl.StandardStringGetter[any]{
-				Getter: func(ctx context.Context, tCtx any) (interface{}, error) {
+				Getter: func(ctx context.Context, tCtx any) (any, error) {
 					return 123, nil
 				},
 			},
@@ -104,7 +104,7 @@ func TestGrokParseBadTarget(t *testing.T) {
 		{
 			name: "target is nil",
 			target: &ottl.StandardStringGetter[any]{
-				Getter: func(ctx context.Context, tCtx any) (interface{}, error) {
+				Getter: func(ctx context.Context, tCtx any) (any, error) {
 					return nil, nil
 				},
 			},

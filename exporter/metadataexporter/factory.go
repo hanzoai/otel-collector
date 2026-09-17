@@ -11,7 +11,6 @@ import (
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
 
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore/to"
 	"github.com/hanzoai/otel-collector/exporter/metadataexporter/internal/metadata"
 )
 
@@ -82,9 +81,9 @@ func createDefaultConfig() component.Config {
 		Enabled: false,
 		JSON: JSONConfig{
 			Enabled:                 false,
-			MaxDepthTraverse:        to.Ptr(defaultJSONMaxDepthTraverse),
-			MaxArrayElementsAllowed: to.Ptr(defaultJSONMaxArrayElementsAllowed),
-			MaxKeysAtLevel:          to.Ptr(defaultJSONMaxKeysAtLevel),
+			MaxDepthTraverse:        new(defaultJSONMaxDepthTraverse),
+			MaxArrayElementsAllowed: new(defaultJSONMaxArrayElementsAllowed),
+			MaxKeysAtLevel:          new(defaultJSONMaxKeysAtLevel),
 		},
 	}
 }

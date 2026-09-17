@@ -6,13 +6,14 @@ import (
 	"errors"
 	"fmt"
 	"net/netip"
+	"slices"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/hanzo-ds/go"
 	"github.com/hanzoai/otel-collector/constants"
-	"github.com/cenkalti/backoff/v4"
 	"go.uber.org/zap"
 )
 
@@ -29,12 +30,12 @@ var (
 	ErrDistributionQueueError           = errors.New("distribution_queue has entries with error_count != 0 or is_blocked = 1")
 
 	legacyMigrationsTable = "schema_migrations"
-	O11yLogsDB          = "o11y_logs"
-	O11yMetricsDB       = "o11y_metrics"
-	O11yTracesDB        = "o11y_traces"
-	O11yMetadataDB      = "o11y_metadata"
-	O11yAnalyticsDB     = "o11y_analytics"
-	O11yMeterDB         = "o11y_meter"
+	O11yLogsDB            = "o11y_logs"
+	O11yMetricsDB         = "o11y_metrics"
+	O11yTracesDB          = "o11y_traces"
+	O11yMetadataDB        = "o11y_metadata"
+	O11yAnalyticsDB       = "o11y_analytics"
+	O11yMeterDB           = "o11y_meter"
 	Databases             = []string{O11yTracesDB, O11yMetricsDB, O11yLogsDB, O11yMetadataDB, O11yAnalyticsDB, O11yMeterDB}
 
 	InProgressStatus = "in-progress"
@@ -546,7 +547,7 @@ func (m *MigrationManager) getDistributedDDLQueue(ctx context.Context) ([]Distri
 	query := "SELECT entry, cluster, query, host, port, status, exception_code FROM system.distributed_ddl_queue WHERE status != 'Finished'"
 
 	// 10 attempts is an arbitrary number. If we don't get the DDL queue after 10 attempts, we give up.
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		if err := m.conn.Select(ctx, &ddlQueue, query); err != nil {
 			if exception, ok := err.(*datastore.Exception); ok {
 				if exception.Code == 999 {
@@ -667,11 +668,8 @@ func (m *MigrationManager) shouldRunMigration(db string, migrationID uint64, ver
 	// if versions are provided, we only run the migrations that are in the versions slice
 	if len(versions) != 0 {
 		var doesExist bool
-		for _, version := range versions {
-			if migrationID == version {
-				doesExist = true
-				break
-			}
+		if slices.Contains(versions, migrationID) {
+			doesExist = true
 		}
 		if !doesExist {
 			m.logger.Info("Migration should not run as it is not in the provided versions", zap.Uint64("migration_id", migrationID), zap.Any("versions", versions))

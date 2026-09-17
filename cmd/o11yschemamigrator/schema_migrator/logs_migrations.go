@@ -1,7 +1,5 @@
 package schemamigrator
 
-import "github.com/hanzoai/otel-collector/utils"
-
 var LogsMigrations = []SchemaMigrationRecord{
 	{
 		MigrationID: 1000,
@@ -201,7 +199,7 @@ ORDER BY name ASC`,
 				Table:    "logs_v2",
 				Column: Column{
 					Name:  "resource",
-					Type:  JSONColumnType{MaxDynamicPaths: utils.ToPointer(uint(100))},
+					Type:  JSONColumnType{MaxDynamicPaths: new(uint(100))},
 					Codec: "ZSTD(1)",
 				},
 			},
@@ -210,7 +208,7 @@ ORDER BY name ASC`,
 				Table:    "distributed_logs_v2",
 				Column: Column{
 					Name:  "resource",
-					Type:  JSONColumnType{MaxDynamicPaths: utils.ToPointer(uint(100))},
+					Type:  JSONColumnType{MaxDynamicPaths: new(uint(100))},
 					Codec: "ZSTD(1)",
 				},
 			},

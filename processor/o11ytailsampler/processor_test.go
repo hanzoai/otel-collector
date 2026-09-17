@@ -28,7 +28,7 @@ const (
 
 var testPolicy = []PolicyGroupCfg{
 	{
-		BasePolicy:  BasePolicy{Name: "test-policy", Type: AlwaysSample, Priority: 1},
+		Name: "test-policy", Type: AlwaysSample, Priority: 1,
 		SubPolicies: []BasePolicy{},
 	},
 }
@@ -118,7 +118,7 @@ func TestSamplingPolicyTypicalPath(t *testing.T) {
 	currItem := 0
 	numSpansPerBatchWindow := 10
 	// First evaluations shouldn't have anything to evaluate, until decision wait time passed.
-	for evalNum := 0; evalNum < decisionWaitSeconds; evalNum++ {
+	for evalNum := range decisionWaitSeconds {
 		for ; currItem < numSpansPerBatchWindow*(evalNum+1); currItem++ {
 			require.NoError(t, tsp.ConsumeTraces(context.Background(), batches[currItem]))
 			require.True(t, mtt.Started, "Time ticker was expected to have started")
@@ -179,7 +179,7 @@ func TestSamplingPolicySampled(t *testing.T) {
 	currItem := 0
 	numSpansPerBatchWindow := 10
 	// First evaluations shouldn't have anything to evaluate, until decision wait time passed.
-	for evalNum := 0; evalNum < decisionWaitSeconds; evalNum++ {
+	for evalNum := range decisionWaitSeconds {
 		for ; currItem < numSpansPerBatchWindow*(evalNum+1); currItem++ {
 			require.NoError(t, tsp.ConsumeTraces(context.Background(), batches[currItem]))
 			require.True(t, mtt.Started, "Time ticker was expected to have started")
@@ -248,7 +248,7 @@ func TestSamplingMultiplePolicies(t *testing.T) {
 	currItem := 0
 	numSpansPerBatchWindow := 10
 	// First evaluations shouldn't have anything to evaluate, until decision wait time passed.
-	for evalNum := 0; evalNum < decisionWaitSeconds; evalNum++ {
+	for evalNum := range decisionWaitSeconds {
 		for ; currItem < numSpansPerBatchWindow*(evalNum+1); currItem++ {
 			require.NoError(t, tsp.ConsumeTraces(context.Background(), batches[currItem]))
 			require.True(t, mtt.Started, "Time ticker was expected to have started")
@@ -311,7 +311,7 @@ func TestSamplingPolicyDecisionNotSampled(t *testing.T) {
 	currItem := 0
 	numSpansPerBatchWindow := 10
 	// First evaluations shouldn't have anything to evaluate, until decision wait time passed.
-	for evalNum := 0; evalNum < decisionWaitSeconds; evalNum++ {
+	for evalNum := range decisionWaitSeconds {
 		for ; currItem < numSpansPerBatchWindow*(evalNum+1); currItem++ {
 			require.NoError(t, tsp.ConsumeTraces(context.Background(), batches[currItem]))
 			require.True(t, mtt.Started, "Time ticker was expected to have started")
@@ -454,7 +454,7 @@ func generateIdsAndBatches(numIds int) ([]pcommon.TraceID, []ptrace.Traces) {
 	traceIds := make([]pcommon.TraceID, numIds)
 	spanID := 0
 	var tds []ptrace.Traces
-	for i := 0; i < numIds; i++ {
+	for i := range numIds {
 		traceID := [16]byte{}
 		binary.BigEndian.PutUint64(traceID[:8], 1)
 		binary.BigEndian.PutUint64(traceID[8:], uint64(i+1))
@@ -520,7 +520,7 @@ var _ idbatcher.Batcher = (*syncIDBatcher)(nil)
 
 func newSyncIDBatcher(numBatches uint64) idbatcher.Batcher {
 	batches := make(chan idbatcher.Batch, numBatches)
-	for i := uint64(0); i < numBatches; i++ {
+	for range numBatches {
 		batches <- nil
 	}
 	return &syncIDBatcher{

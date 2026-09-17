@@ -8,10 +8,10 @@ import (
 	"go.opentelemetry.io/collector/pdata/plog"
 	"go.uber.org/zap"
 
+	mockhouse "github.com/hanzo-ds/mock"
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/plogsgen"
 	"github.com/hanzoai/otel-collector/utils"
 	lru "github.com/hashicorp/golang-lru/v2"
-	mockhouse "github.com/hanzo-ds/mock"
 )
 
 // buildLogs constructs a plog.Logs with count log records, using plogsgen for bodies.
@@ -24,7 +24,7 @@ func buildLogs(count int) plog.Logs {
 
 	gen := plogsgen.NewDataGenerator(count, 32)
 	batch, _ := gen.GenerateBatch()
-	for i := 0; i < count; i++ {
+	for i := range count {
 		lr := lrs.AppendEmpty()
 		lr.SetTimestamp(pcommon.Timestamp(0))
 		lr.Body().FromRaw(batch.Rows[i].Body)
@@ -47,10 +47,10 @@ func BenchmarkPushLogs_10k(b *testing.B) {
 
 	// Construct exporter with key cache
 	exp := &jsonTypeExporter{
-		config:   &Config{},
-		logger:   zap.NewNop(),
-		limiter:  make(chan struct{}, utils.Concurrency()),
-		conn:     conn,
+		config:           &Config{},
+		logger:           zap.NewNop(),
+		limiter:          make(chan struct{}, utils.Concurrency()),
+		conn:             conn,
 		cardinalKeyCache: keyCache,
 	}
 	b.ReportAllocs()

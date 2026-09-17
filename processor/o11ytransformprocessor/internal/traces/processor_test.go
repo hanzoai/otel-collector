@@ -656,7 +656,7 @@ func BenchmarkHundredSpans(b *testing.B) {
 			statements: func() []string {
 				var statements []string
 				statements = append(statements, `set(status.code, 1) where name == "operationA"`)
-				for i := 0; i < 99; i++ {
+				for range 99 {
 					statements = append(statements, `keep_keys(attributes, ["http.method"]) where name == "unknownOperation"`)
 				}
 				return statements
@@ -692,7 +692,7 @@ func constructTracesNum(num int) ptrace.Traces {
 	td := ptrace.NewTraces()
 	rs0 := td.ResourceSpans().AppendEmpty()
 	rs0ils0 := rs0.ScopeSpans().AppendEmpty()
-	for i := 0; i < num; i++ {
+	for range num {
 		fillSpanOne(rs0ils0.Spans().AppendEmpty())
 	}
 	return td

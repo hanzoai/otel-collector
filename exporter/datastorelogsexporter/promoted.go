@@ -67,12 +67,12 @@ func handleSinglePath(bodyMap pcommon.Map, promotedMap pcommon.Map, fullPath str
 
 	// Step 2: Split the path into head (first segment) and tail (remaining segments)
 	// Example: "user.id" -> head="user", tail="id"
-	indexOfNextDot := strings.IndexByte(remainingPath, '.')
-	if indexOfNextDot == -1 {
+	before, after, ok := strings.Cut(remainingPath, ".")
+	if !ok {
 		return
 	}
-	head := remainingPath[:indexOfNextDot]
-	tail := remainingPath[indexOfNextDot+1:]
+	head := before
+	tail := after
 
 	// Step 3: Recurse into nested map if it exists
 	// Example: bodyMap["user"] exists and is a map, recurse with tail="id"

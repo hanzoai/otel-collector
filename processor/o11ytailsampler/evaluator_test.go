@@ -16,17 +16,12 @@ import (
 
 func TestDefaultEvaluator(t *testing.T) {
 	cfg := PolicyGroupCfg{
-		BasePolicy: BasePolicy{Name: "security",
-			ProbabilisticCfg: ProbabilisticCfg{
-				SamplingPercentage: 100,
-			},
-			PolicyFilterCfg: PolicyFilterCfg{
-				StringAttributeCfgs: []StringAttributeCfg{
-					{
-						Key:    "source",
-						Values: []string{"audit"},
-					},
-				},
+		Name:               "security",
+		SamplingPercentage: 100,
+		StringAttributeCfgs: []StringAttributeCfg{
+			{
+				Key:    "source",
+				Values: []string{"audit"},
 			},
 		},
 	}
@@ -65,18 +60,12 @@ func TestDefaultEvaluator(t *testing.T) {
 
 func TestProbablisticCfg(t *testing.T) {
 	cfg := PolicyGroupCfg{
-		BasePolicy: BasePolicy{
-			Name: "security",
-			ProbabilisticCfg: ProbabilisticCfg{
-				SamplingPercentage: 100,
-			},
-			PolicyFilterCfg: PolicyFilterCfg{
-				StringAttributeCfgs: []StringAttributeCfg{
-					{
-						Key:    "source",
-						Values: []string{"audit"},
-					},
-				},
+		Name:               "security",
+		SamplingPercentage: 100,
+		StringAttributeCfgs: []StringAttributeCfg{
+			{
+				Key:    "source",
+				Values: []string{"audit"},
 			},
 		},
 	}
@@ -126,31 +115,22 @@ func TestSubPolicyGroupCfg(t *testing.T) {
 	// except those filtered by sub-policy (which has sampling percent 100)
 
 	cfg := PolicyGroupCfg{
-		BasePolicy: BasePolicy{
-			Name: "security",
-			ProbabilisticCfg: ProbabilisticCfg{
-				SamplingPercentage: 0,
+		Name:               "security",
+		SamplingPercentage: 0,
+		StringAttributeCfgs: []StringAttributeCfg{
+			{
+				Key:    "source",
+				Values: []string{"audit"},
 			},
-			PolicyFilterCfg: PolicyFilterCfg{
-				StringAttributeCfgs: []StringAttributeCfg{
-					{
-						Key:    "source",
-						Values: []string{"audit"},
-					},
-				},
-			}},
+		},
 		SubPolicies: []BasePolicy{
 			{
-				Name: "sub-policy",
-				ProbabilisticCfg: ProbabilisticCfg{
-					SamplingPercentage: 100,
-				},
-				PolicyFilterCfg: PolicyFilterCfg{
-					StringAttributeCfgs: []StringAttributeCfg{
-						{
-							Key:    "threat",
-							Values: []string{"true"},
-						},
+				Name:               "sub-policy",
+				SamplingPercentage: 100,
+				StringAttributeCfgs: []StringAttributeCfg{
+					{
+						Key:    "threat",
+						Values: []string{"true"},
 					},
 				},
 			},
@@ -177,37 +157,27 @@ func TestSubPolicyGroupCfgStringFilters(t *testing.T) {
 	// except those filtered by sub-policy (which has sampling percent 100)
 
 	cfg := PolicyGroupCfg{
-		BasePolicy: BasePolicy{
-			Name: "security",
-			ProbabilisticCfg: ProbabilisticCfg{
-				SamplingPercentage: 0,
-			},
-			PolicyFilterCfg: PolicyFilterCfg{
-				StringAttributeCfgs: []StringAttributeCfg{
-					{
-						Key:    "source",
-						Values: []string{"audit"},
-					},
-				},
+		Name:               "security",
+		SamplingPercentage: 0,
+		StringAttributeCfgs: []StringAttributeCfg{
+			{
+				Key:    "source",
+				Values: []string{"audit"},
 			},
 		},
 		SubPolicies: []BasePolicy{
 			{
-				Name: "sub-policy",
-				ProbabilisticCfg: ProbabilisticCfg{
-					SamplingPercentage: 100,
-				},
-				PolicyFilterCfg: PolicyFilterCfg{
-					FilterOp: "and",
-					StringAttributeCfgs: []StringAttributeCfg{
-						{
-							Key:    "threat",
-							Values: []string{"true"},
-						},
-						{
-							Key:    "website",
-							Values: []string{"true"},
-						},
+				Name:               "sub-policy",
+				SamplingPercentage: 100,
+				FilterOp:           "and",
+				StringAttributeCfgs: []StringAttributeCfg{
+					{
+						Key:    "threat",
+						Values: []string{"true"},
+					},
+					{
+						Key:    "website",
+						Values: []string{"true"},
 					},
 				},
 			},
@@ -240,34 +210,26 @@ func TestRootPolicyNotMatch(t *testing.T) {
 	// except those filtered by sub-policy (which has sampling percent 100)
 
 	cfg := PolicyGroupCfg{
-		BasePolicy: BasePolicy{Name: "security",
-			ProbabilisticCfg: ProbabilisticCfg{
-				SamplingPercentage: 100,
+		Name:               "security",
+		SamplingPercentage: 100,
+		StringAttributeCfgs: []StringAttributeCfg{
+			{
+				Key:    "source",
+				Values: []string{"audit"},
 			},
-			PolicyFilterCfg: PolicyFilterCfg{
-				StringAttributeCfgs: []StringAttributeCfg{
-					{
-						Key:    "source",
-						Values: []string{"audit"},
-					},
-				},
-			}},
+		},
 		SubPolicies: []BasePolicy{
 			{
-				Name: "sub-policy",
-				ProbabilisticCfg: ProbabilisticCfg{
-					SamplingPercentage: 100,
-				},
-				PolicyFilterCfg: PolicyFilterCfg{
-					StringAttributeCfgs: []StringAttributeCfg{
-						{
-							Key:    "threat",
-							Values: []string{"true"},
-						},
-						{
-							Key:    "website",
-							Values: []string{"true"},
-						},
+				Name:               "sub-policy",
+				SamplingPercentage: 100,
+				StringAttributeCfgs: []StringAttributeCfg{
+					{
+						Key:    "threat",
+						Values: []string{"true"},
+					},
+					{
+						Key:    "website",
+						Values: []string{"true"},
 					},
 				},
 			},
@@ -302,7 +264,7 @@ func TestRootPolicyNotMatch(t *testing.T) {
 
 }
 
-func newTraceStringAttrs(nodeAttrs map[string]interface{}, spanAttrKey []string, spanAttrValue []string) *sampling.TraceData {
+func newTraceStringAttrs(nodeAttrs map[string]any, spanAttrKey []string, spanAttrValue []string) *sampling.TraceData {
 	traces := ptrace.NewTraces()
 	rs := traces.ResourceSpans().AppendEmpty()
 	//nolint:errcheck
@@ -323,7 +285,7 @@ func generateTraceForTestEval(numIds int, key string, value string) ([]pcommon.T
 	traceIds := make([]pcommon.TraceID, numIds)
 	spanID := 0
 	var tds []ptrace.Traces
-	for i := 0; i < numIds; i++ {
+	for i := range numIds {
 		traceID := [16]byte{}
 		binary.BigEndian.PutUint64(traceID[:8], 1)
 		binary.BigEndian.PutUint64(traceID[8:], uint64(i+1))

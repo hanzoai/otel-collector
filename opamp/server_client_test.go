@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hanzoai/otel-collector/o11ycol"
 	"github.com/gorilla/websocket"
+	"github.com/hanzoai/otel-collector/o11ycol"
 	"github.com/open-telemetry/opamp-go/protobufs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -26,14 +26,14 @@ func TestNewClient(t *testing.T) {
 	srv.OnWSConnect = func(c *websocket.Conn) {
 		conn.Store(c)
 	}
-	var connected int64
+	var connected atomic.Int64
 
 	srv.OnMessage = func(msg *protobufs.AgentToServer) *protobufs.ServerToAgent {
 		fileContents, err := os.ReadFile("testdata/coll-config-path-changed.yaml")
 		assert.NoError(t, err)
-		atomic.AddInt64(&connected, 1)
+		connected.Add(1)
 		var resp *protobufs.ServerToAgent = &protobufs.ServerToAgent{}
-		if atomic.LoadInt64(&connected) == 1 {
+		if connected.Load() == 1 {
 			resp = &protobufs.ServerToAgent{
 				RemoteConfig: &protobufs.AgentRemoteConfig{
 					Config: &protobufs.AgentConfigMap{
@@ -95,6 +95,6 @@ func TestNewClient(t *testing.T) {
 
 	// Wait for the client to connect.
 	assert.Eventually(t, func() bool {
-		return atomic.LoadInt64(&connected) == 1
+		return connected.Load() == 1
 	}, 15*time.Second, 10*time.Millisecond)
 }

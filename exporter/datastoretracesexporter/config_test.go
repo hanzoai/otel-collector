@@ -43,7 +43,7 @@ func Test_loadConfig(t *testing.T) {
 		MinSize:      8192,
 	})
 	assert.Equal(t, &Config{
-		TimeoutConfig: exporterhelper.TimeoutConfig{Timeout: 5 * time.Second},
+		Timeout: 5 * time.Second,
 		BackOffConfig: configretry.BackOffConfig{
 			Enabled:             true,
 			InitialInterval:     5 * time.Second,

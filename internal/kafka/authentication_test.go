@@ -5,7 +5,7 @@ package kafka
 
 import (
 	"context"
-	"sort"
+	"slices"
 	"testing"
 
 	"github.com/IBM/sarama"
@@ -80,7 +80,7 @@ func TestAuthentication(t *testing.T) {
 		},
 		{
 			auth: Authentication{TLS: &configtls.ClientConfig{
-				Config: configtls.Config{CAFile: "/doesnotexists"},
+				CAFile: "/doesnotexists",
 			}},
 			saramaConfig: saramaTLSCfg,
 			err:          "failed to load TLS config",
@@ -142,12 +142,8 @@ func TestAuthentication(t *testing.T) {
 				config.Net.SASL.SCRAMClientGeneratorFunc = test.saramaConfig.Net.SASL.SCRAMClientGeneratorFunc
 				// Normalize TLS CurvePreferences to avoid non-deterministic ordering issues
 				if config.Net.TLS.Config != nil && test.saramaConfig.Net.TLS.Config != nil {
-					sort.Slice(config.Net.TLS.Config.CurvePreferences, func(i, j int) bool {
-						return config.Net.TLS.Config.CurvePreferences[i] < config.Net.TLS.Config.CurvePreferences[j]
-					})
-					sort.Slice(test.saramaConfig.Net.TLS.Config.CurvePreferences, func(i, j int) bool {
-						return test.saramaConfig.Net.TLS.Config.CurvePreferences[i] < test.saramaConfig.Net.TLS.Config.CurvePreferences[j]
-					})
+					slices.Sort(config.Net.TLS.Config.CurvePreferences)
+					slices.Sort(test.saramaConfig.Net.TLS.Config.CurvePreferences)
 				}
 				assert.Equal(t, test.saramaConfig, config)
 			}

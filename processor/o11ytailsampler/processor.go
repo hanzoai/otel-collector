@@ -257,7 +257,7 @@ func (tsp *tailSamplingSpanProcessor) groupSpansByTraceKey(resourceSpans ptrace.
 	for j := 0; j < ilss.Len(); j++ {
 		spans := ilss.At(j).Spans()
 		spansLen := spans.Len()
-		for k := 0; k < spansLen; k++ {
+		for k := range spansLen {
 			span := spans.At(k)
 			key := span.TraceID()
 			idToSpans[key] = append(idToSpans[key], &span)
@@ -276,7 +276,7 @@ func (tsp *tailSamplingSpanProcessor) processTraces(resourceSpans ptrace.Resourc
 		lenSpans := int64(len(spans))
 		lenPolicies := len(tsp.policies)
 		initialDecisions := make([]sampling.Decision, lenPolicies)
-		for i := 0; i < lenPolicies; i++ {
+		for i := range lenPolicies {
 			initialDecisions[i] = sampling.Pending
 		}
 		d, loaded := tsp.idToTrace.Load(id)

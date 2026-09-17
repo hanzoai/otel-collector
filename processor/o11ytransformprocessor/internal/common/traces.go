@@ -128,11 +128,9 @@ func NewTraceParserCollection(settings component.TelemetrySettings, options ...T
 		return nil, err
 	}
 	tpc := &TraceParserCollection{
-		parserCollection: parserCollection{
-			settings:       settings,
-			resourceParser: rp,
-			scopeParser:    sp,
-		},
+		settings:       settings,
+		resourceParser: rp,
+		scopeParser:    sp,
 	}
 
 	for _, op := range options {

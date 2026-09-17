@@ -3,7 +3,6 @@ package jsontypeexporter
 import (
 	"errors"
 
-	"github.com/hanzoai/otel-collector/utils"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/config/configoptional"
 	"go.opentelemetry.io/collector/config/configretry"
@@ -62,10 +61,10 @@ func (cfg *Config) Validate() error {
 	}
 
 	if cfg.MaxDepthTraverse == nil {
-		cfg.MaxDepthTraverse = utils.ToPointer(defaultMaxDepthTraverse)
+		cfg.MaxDepthTraverse = new(defaultMaxDepthTraverse)
 	}
 	if cfg.MaxArrayElementsAllowed == nil {
-		cfg.MaxArrayElementsAllowed = utils.ToPointer(defaultMaxArrayElementsAllowed)
+		cfg.MaxArrayElementsAllowed = new(defaultMaxArrayElementsAllowed)
 	}
 
 	if *cfg.MaxDepthTraverse < 1 {

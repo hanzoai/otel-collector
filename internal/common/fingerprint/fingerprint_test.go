@@ -27,7 +27,7 @@ func TestFingerprintWithExtras(t *testing.T) {
 }
 
 func TestFingerprintSameWithDifferentOrder(t *testing.T) {
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		attrs1 := pcommon.NewMap()
 		attrs1.PutStr("key1", "value1")
 		attrs1.PutStr("key2", "value2")

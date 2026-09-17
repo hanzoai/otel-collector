@@ -27,10 +27,10 @@ import (
 
 func TestNumericTagFilter(t *testing.T) {
 
-	var empty = map[string]interface{}{}
+	var empty = map[string]any{}
 	filter := NewNumericAttributeFilter(zap.NewNop(), "example", math.MinInt32, math.MaxInt32)
 
-	resAttr := map[string]interface{}{}
+	resAttr := map[string]any{}
 	resAttr["example"] = 8
 
 	cases := []struct {
@@ -75,7 +75,7 @@ func TestNumericTagFilter(t *testing.T) {
 	}
 }
 
-func newTraceIntAttrs(nodeAttrs map[string]interface{}, spanAttrKey string, spanAttrValue int64) *TraceData {
+func newTraceIntAttrs(nodeAttrs map[string]any, spanAttrKey string, spanAttrValue int64) *TraceData {
 	traces := ptrace.NewTraces()
 	rs := traces.ResourceSpans().AppendEmpty()
 	//nolint:errcheck

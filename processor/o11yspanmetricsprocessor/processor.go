@@ -484,9 +484,7 @@ func (p *processorImp) Start(ctx context.Context, host component.Host) error {
 	p.logger.Info("Started o11yspanmetricsprocessor")
 
 	p.started = true
-	p.wg.Add(1)
-	go func() {
-		defer p.wg.Done()
+	p.wg.Go(func() {
 		for {
 			select {
 			case <-p.done:
@@ -495,7 +493,7 @@ func (p *processorImp) Start(ctx context.Context, host component.Host) error {
 				p.exportMetrics(ctx)
 			}
 		}
-	}()
+	})
 
 	return nil
 }

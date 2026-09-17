@@ -99,10 +99,8 @@ func (sc *IAMSASLClient) Begin(username, password, _ string) error {
 		credentials.NewChainCredentials([]credentials.Provider{
 			&credentials.EnvProvider{},
 			&credentials.StaticProvider{
-				Value: credentials.Value{
-					AccessKeyID:     username,
-					SecretAccessKey: password,
-				},
+				AccessKeyID:     username,
+				SecretAccessKey: password,
 			},
 		}),
 	)

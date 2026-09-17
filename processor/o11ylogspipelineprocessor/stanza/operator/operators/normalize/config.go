@@ -8,7 +8,6 @@ import (
 
 	o11ylogspipelinestanzaoperator "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator"
 	o11ystanzahelper "github.com/hanzoai/otel-collector/processor/o11ylogspipelineprocessor/stanza/operator/helper"
-	"github.com/bytedance/sonic"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/pkg/stanza/operator"
 )
 
@@ -52,7 +51,7 @@ func (c Config) Build(set component.TelemetrySettings) (operator.Operator, error
 
 	return &Processor{
 		TransformerOperator: transformerOperator,
-		Config:              sonic.Config{UseInt64: true},
+		UseInt64:            true,
 		logsProcessed:       logsProcessed,
 	}, nil
 }

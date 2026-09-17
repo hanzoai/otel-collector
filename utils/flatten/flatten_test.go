@@ -4,33 +4,33 @@ import "testing"
 
 func TestFlattenJSON(t *testing.T) {
 	type args struct {
-		data   map[string]interface{}
+		data   map[string]any
 		prefix string
 	}
 	tests := []struct {
 		name   string
 		args   args
-		result map[string]interface{}
+		result map[string]any
 	}{
 		{
 			name: "FlattenJSON",
 			args: args{
-				data: map[string]interface{}{
+				data: map[string]any{
 					"hello": "world",
-					"user": map[string]interface{}{
+					"user": map[string]any{
 						"name": "Alice",
 						"age":  30,
-						"address": map[string]interface{}{
+						"address": map[string]any{
 							"city": "Wonderland",
 							"zip":  "12345",
 						},
 					},
-					"items": []interface{}{
-						map[string]interface{}{
+					"items": []any{
+						map[string]any{
 							"name":  "item1",
 							"price": 10,
 						},
-						map[string]interface{}{
+						map[string]any{
 							"name":  "item2",
 							"price": 20,
 						},
@@ -38,7 +38,7 @@ func TestFlattenJSON(t *testing.T) {
 				},
 				prefix: "",
 			},
-			result: map[string]interface{}{
+			result: map[string]any{
 				"hello":             "world",
 				"user.name":         "Alice",
 				"user.age":          30.0,

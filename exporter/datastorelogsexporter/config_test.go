@@ -50,10 +50,8 @@ func TestLoadConfig(t *testing.T) {
 
 	r1 := cfg.Exporters[component.NewIDWithName(metadata.Type, "full")].(*Config)
 	expectedConfig := &Config{
-		DSN: "tcp://127.0.0.1:9000/?dial_timeout=5s",
-		TimeoutConfig: exporterhelper.TimeoutConfig{
-			Timeout: 5 * time.Second,
-		},
+		DSN:     "tcp://127.0.0.1:9000/?dial_timeout=5s",
+		Timeout: 5 * time.Second,
 		BackOffConfig: configretry.BackOffConfig{
 			Enabled:             true,
 			InitialInterval:     5 * time.Second,
@@ -76,11 +74,11 @@ func TestLoadConfig(t *testing.T) {
 			FetchKeysInterval: 10 * time.Minute,
 			MaxDistinctValues: 25000,
 		},
-		LogLevelConcurrency:       utils.ToPointer(7),
+		LogLevelConcurrency:       new(7),
 		BodyJSONEnabled:           true,
 		PromotedPathsSyncInterval: utils.ToPointer(10 * time.Second),
 		BodyJSONOldBodyEnabled:    true,
-		MaxAllowedDataAgeDays:     utils.ToPointer(15),
+		MaxAllowedDataAgeDays:     new(15),
 	}
 	assert.Equal(t, expectedConfig, r1)
 

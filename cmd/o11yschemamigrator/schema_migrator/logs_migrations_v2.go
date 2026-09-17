@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/hanzoai/otel-collector/constants"
-	"github.com/hanzoai/otel-collector/utils"
 )
 
 var LogsMigrationsV2 = []SchemaMigrationRecord{
@@ -206,7 +205,7 @@ ORDER BY name ASC`,
 				Table:    "logs_v2",
 				Column: Column{
 					Name:  "resource",
-					Type:  JSONColumnType{MaxDynamicPaths: utils.ToPointer[uint](100)},
+					Type:  JSONColumnType{MaxDynamicPaths: new(uint(100))},
 					Codec: "ZSTD(1)",
 				},
 			},
@@ -215,7 +214,7 @@ ORDER BY name ASC`,
 				Table:    "distributed_logs_v2",
 				Column: Column{
 					Name:  "resource",
-					Type:  JSONColumnType{MaxDynamicPaths: utils.ToPointer[uint](100)},
+					Type:  JSONColumnType{MaxDynamicPaths: new(uint(100))},
 					Codec: "ZSTD(1)",
 				},
 			},
@@ -327,7 +326,7 @@ ORDER BY name ASC`,
 								Type: ColumnTypeString,
 							},
 						},
-						MaxDynamicPaths: utils.ToPointer[uint](0),
+						MaxDynamicPaths: new(uint(0)),
 					},
 					Codec: "ZSTD(1)",
 				},
@@ -347,7 +346,7 @@ ORDER BY name ASC`,
 								Type: ColumnTypeString,
 							},
 						},
-						MaxDynamicPaths: utils.ToPointer[uint](0),
+						MaxDynamicPaths: new(uint(0)),
 					},
 					Codec: "ZSTD(1)",
 				},

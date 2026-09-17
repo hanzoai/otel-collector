@@ -2,12 +2,13 @@ package flatten
 
 import (
 	"fmt"
+	"maps"
 	"reflect"
 )
 
 // FlattenJSON flattens a nested JSON into a map[string]string.
-func FlattenJSON(data map[string]interface{}, prefix string) map[string]interface{} {
-	result := make(map[string]interface{})
+func FlattenJSON(data map[string]any, prefix string) map[string]any {
+	result := make(map[string]any)
 	for key, value := range data {
 		fullKey := key
 		if prefix != "" {
@@ -15,17 +16,13 @@ func FlattenJSON(data map[string]interface{}, prefix string) map[string]interfac
 		}
 
 		switch value := value.(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			subResult := FlattenJSON(value, fullKey)
-			for k, v := range subResult {
-				result[k] = v
-			}
-		case []interface{}:
+			maps.Copy(result, subResult)
+		case []any:
 			for i, v := range value {
-				subResult := FlattenJSON(map[string]interface{}{fmt.Sprintf("%d", i): v}, fullKey)
-				for k, v := range subResult {
-					result[k] = v
-				}
+				subResult := FlattenJSON(map[string]any{fmt.Sprintf("%d", i): v}, fullKey)
+				maps.Copy(result, subResult)
 			}
 		case int, int32, int64:
 			v := reflect.ValueOf(value)

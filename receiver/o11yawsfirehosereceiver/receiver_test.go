@@ -22,7 +22,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/component/componenttest"
-	"go.opentelemetry.io/collector/config/confighttp"
 	"go.opentelemetry.io/collector/config/confignet"
 	"go.opentelemetry.io/collector/receiver/receivertest"
 )
@@ -77,11 +76,9 @@ func TestStart(t *testing.T) {
 			require.NoError(t, listener.Close())
 		})
 		cfg := &Config{
-			ServerConfig: confighttp.ServerConfig{
-				NetAddr: confignet.AddrConfig{
-					Endpoint:  listener.Addr().String(),
-					Transport: "tcp",
-				},
+			NetAddr: confignet.AddrConfig{
+				Endpoint:  listener.Addr().String(),
+				Transport: "tcp",
 			},
 		}
 		ctx := context.TODO()

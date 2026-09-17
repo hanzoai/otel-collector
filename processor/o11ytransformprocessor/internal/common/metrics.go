@@ -182,11 +182,9 @@ func NewMetricParserCollection(settings component.TelemetrySettings, options ...
 		return nil, err
 	}
 	mpc := &MetricParserCollection{
-		parserCollection: parserCollection{
-			settings:       settings,
-			resourceParser: rp,
-			scopeParser:    sp,
-		},
+		settings:       settings,
+		resourceParser: rp,
+		scopeParser:    sp,
 	}
 
 	for _, op := range options {

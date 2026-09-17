@@ -64,7 +64,7 @@ func TestARefusedConnectRebuildsTheNode(t *testing.T) {
 
 	// Start's own dial may already have spent part of the budget; drive enough
 	// attempts that a budget which counts refusals must trip.
-	for i := 0; i < stallsBeforeReset+2; i++ {
+	for range stallsBeforeReset + 2 {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		_ = e.pushLogs(ctx, ld)
 		cancel()
@@ -103,7 +103,7 @@ func TestRebuildsAreFloored(t *testing.T) {
 	node := e.node
 	e.mu.Unlock()
 
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		e.resetNode()
 	}
 

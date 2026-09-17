@@ -16,15 +16,15 @@ type JSON struct {
 }
 
 type JSONLog struct {
-	Timestamp      int64                  `json:"timestamp"`
-	TraceID        string                 `json:"trace_id"`
-	SpanID         string                 `json:"span_id"`
-	TraceFlags     int                    `json:"trace_flags"`
-	SeverityText   string                 `json:"severity_text"`
-	SeverityNumber int                    `json:"severity_number"`
-	Attributes     map[string]interface{} `json:"attributes"`
-	Resources      map[string]interface{} `json:"resources"`
-	Body           string                 `json:"body"`
+	Timestamp      int64          `json:"timestamp"`
+	TraceID        string         `json:"trace_id"`
+	SpanID         string         `json:"span_id"`
+	TraceFlags     int            `json:"trace_flags"`
+	SeverityText   string         `json:"severity_text"`
+	SeverityNumber int            `json:"severity_number"`
+	Attributes     map[string]any `json:"attributes"`
+	Resources      map[string]any `json:"resources"`
+	Body           string         `json:"body"`
 }
 
 func NewJsonBodyParser() *JSON {
@@ -33,7 +33,7 @@ func NewJsonBodyParser() *JSON {
 
 func (l *JSON) Parse(body []byte) (plog.Logs, int, error) {
 
-	data := []map[string]interface{}{}
+	data := []map[string]any{}
 	err := json.Unmarshal(body, &data)
 	if err != nil {
 		return plog.NewLogs(), 0, fmt.Errorf("error unmarshalling data:%w", err)
@@ -82,13 +82,13 @@ func (l *JSON) Parse(body []byte) (plog.Logs, int, error) {
 				}
 				jsonLog.SeverityNumber = int(data)
 			case "attributes":
-				data, ok := val.(map[string]interface{})
+				data, ok := val.(map[string]any)
 				if !ok {
 					return plog.NewLogs(), 0, fmt.Errorf("attributes must be a map")
 				}
 				jsonLog.Attributes = data
 			case "resources":
-				data, ok := val.(map[string]interface{})
+				data, ok := val.(map[string]any)
 				if !ok {
 					return plog.NewLogs(), 0, fmt.Errorf("resources must be a map")
 				}
@@ -102,7 +102,7 @@ func (l *JSON) Parse(body []byte) (plog.Logs, int, error) {
 			default:
 				// if there is any other key present convert it to an attribute
 				if jsonLog.Attributes == nil {
-					jsonLog.Attributes = map[string]interface{}{}
+					jsonLog.Attributes = map[string]any{}
 				}
 				jsonLog.Attributes[key] = val
 			}
@@ -153,7 +153,7 @@ func (l *JSON) Parse(body []byte) (plog.Logs, int, error) {
 	return ld, len(data), nil
 }
 
-func (l *JSON) AddAttribute(attrs pcommon.Map, key string, value interface{}) {
+func (l *JSON) AddAttribute(attrs pcommon.Map, key string, value any) {
 	switch value := value.(type) {
 	case string:
 		attrs.PutStr(key, value)

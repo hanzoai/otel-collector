@@ -114,7 +114,7 @@ func concurrencyTest(t *testing.T, numBatches, newBatchesInitialCapacity, batchC
 
 	ids := generateSequentialIds(10000)
 	wg := &sync.WaitGroup{}
-	for i := 0; i < len(ids); i++ {
+	for i := range ids {
 		wg.Add(1)
 		go func(id pcommon.TraceID) {
 			batcher.AddToCurrentBatch(id)
@@ -143,14 +143,14 @@ func concurrencyTest(t *testing.T, numBatches, newBatchesInitialCapacity, batchC
 		idSeen[id] = true
 	}
 
-	for i := 0; i < len(ids); i++ {
+	for i := range ids {
 		require.True(t, idSeen[ids[i]], "want id %v but id was not seen", ids[i])
 	}
 }
 
 func generateSequentialIds(numIds uint64) []pcommon.TraceID {
 	ids := make([]pcommon.TraceID, numIds)
-	for i := uint64(0); i < numIds; i++ {
+	for i := range numIds {
 		traceID := [16]byte{}
 		binary.BigEndian.PutUint64(traceID[:8], 0)
 		binary.BigEndian.PutUint64(traceID[8:], i)

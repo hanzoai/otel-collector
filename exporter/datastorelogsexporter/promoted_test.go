@@ -16,13 +16,13 @@ func TestInvalidBodyType(t *testing.T) {
 func TestPromotedPathSeparation(t *testing.T) {
 	testCases := []struct {
 		name             string
-		body             map[string]interface{}
+		body             map[string]any
 		promotedPaths    map[string]struct{}
-		expectedPromoted map[string]interface{}
+		expectedPromoted map[string]any
 	}{
 		{
 			name: "simple_literal_key_match",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
 				"level":   "info",
 				"user.id": "123",
@@ -30,15 +30,15 @@ func TestPromotedPathSeparation(t *testing.T) {
 			promotedPaths: map[string]struct{}{
 				"user.id": {},
 			},
-			expectedPromoted: map[string]interface{}{
+			expectedPromoted: map[string]any{
 				"user.id": "123",
 			},
 		},
 		{
 			name: "nested_path_extraction",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
-				"user": map[string]interface{}{
+				"user": map[string]any{
 					"id":    "123",
 					"name":  "john",
 					"email": "john@example.com",
@@ -48,16 +48,16 @@ func TestPromotedPathSeparation(t *testing.T) {
 				"user.id":   {},
 				"user.name": {},
 			},
-			expectedPromoted: map[string]interface{}{
+			expectedPromoted: map[string]any{
 				"user.id":   "123",
 				"user.name": "john",
 			},
 		},
 		{
 			name: "parent_is_promoted_but_is_not_leaf_in_data_input",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
-				"user": map[string]interface{}{
+				"user": map[string]any{
 					"id":    "123",
 					"name":  "john",
 					"email": "john@example.com",
@@ -66,13 +66,13 @@ func TestPromotedPathSeparation(t *testing.T) {
 			promotedPaths: map[string]struct{}{
 				"user": {},
 			},
-			expectedPromoted: map[string]interface{}{},
+			expectedPromoted: map[string]any{},
 		},
 		{
 			name: "array_leaf_found_promoted",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
-				"user": map[string]interface{}{
+				"user": map[string]any{
 					"orders": []any{
 						map[string]any{
 							"id":         "1",
@@ -85,7 +85,7 @@ func TestPromotedPathSeparation(t *testing.T) {
 			promotedPaths: map[string]struct{}{
 				"user.orders": {},
 			},
-			expectedPromoted: map[string]interface{}{
+			expectedPromoted: map[string]any{
 				"user.orders": []any{
 					map[string]any{
 						"id":         "1",
@@ -100,11 +100,11 @@ func TestPromotedPathSeparation(t *testing.T) {
 		// https://clickhouse.com/docs/operations/settings/formats#type_json_skip_duplicated_paths
 		{
 			name: "ambiguous_dot_notation_literal_preference",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
 				"a.b.c":   "literal_value", // use first occurrence of the path
-				"a": map[string]interface{}{
-					"b": map[string]interface{}{
+				"a": map[string]any{
+					"b": map[string]any{
 						"c": "nested_value",
 					},
 				},
@@ -112,19 +112,19 @@ func TestPromotedPathSeparation(t *testing.T) {
 			promotedPaths: map[string]struct{}{
 				"a.b.c": {},
 			},
-			expectedPromoted: map[string]interface{}{
+			expectedPromoted: map[string]any{
 				"a.b.c": "literal_value",
 			},
 		},
 		{
 			name: "multiple_siblings_same_parent",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
-				"user": map[string]interface{}{
+				"user": map[string]any{
 					"id":    "123",
 					"name":  "john",
 					"email": "john@example.com",
-					"address": map[string]interface{}{
+					"address": map[string]any{
 						"street": "123 Main St",
 						"city":   "New York",
 					},
@@ -135,7 +135,7 @@ func TestPromotedPathSeparation(t *testing.T) {
 				"user.name":         {},
 				"user.address.city": {},
 			},
-			expectedPromoted: map[string]interface{}{
+			expectedPromoted: map[string]any{
 				"user.id":           "123",
 				"user.name":         "john",
 				"user.address.city": "New York",
@@ -143,9 +143,9 @@ func TestPromotedPathSeparation(t *testing.T) {
 		},
 		{
 			name: "multiple_siblings_same_parent_with_dot_notation",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
-				"user": map[string]interface{}{
+				"user": map[string]any{
 					"id":             "123",
 					"name":           "john",
 					"email":          "john@example.com",
@@ -158,7 +158,7 @@ func TestPromotedPathSeparation(t *testing.T) {
 				"user.name":         {},
 				"user.address.city": {},
 			},
-			expectedPromoted: map[string]interface{}{
+			expectedPromoted: map[string]any{
 				"user.id":           "123",
 				"user.name":         "john",
 				"user.address.city": "New York",
@@ -166,17 +166,17 @@ func TestPromotedPathSeparation(t *testing.T) {
 		},
 		{
 			name: "deeply_nested_paths",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
-				"request": map[string]interface{}{
-					"headers": map[string]interface{}{
+				"request": map[string]any{
+					"headers": map[string]any{
 						"authorization": "Bearer token123",
 						"content-type":  "application/json",
 					},
-					"body": map[string]interface{}{
-						"user": map[string]interface{}{
-							"profile": map[string]interface{}{
-								"settings": map[string]interface{}{
+					"body": map[string]any{
+						"user": map[string]any{
+							"profile": map[string]any{
+								"settings": map[string]any{
 									"theme": "dark",
 								},
 							},
@@ -188,26 +188,26 @@ func TestPromotedPathSeparation(t *testing.T) {
 				"request.headers.authorization":            {},
 				"request.body.user.profile.settings.theme": {},
 			},
-			expectedPromoted: map[string]interface{}{
+			expectedPromoted: map[string]any{
 				"request.headers.authorization":            "Bearer token123",
 				"request.body.user.profile.settings.theme": "dark",
 			},
 		},
 		{
 			name: "no_promoted_paths",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
 				"level":   "info",
-				"user": map[string]interface{}{
+				"user": map[string]any{
 					"id": "123",
 				},
 			},
 			promotedPaths:    map[string]struct{}{},
-			expectedPromoted: map[string]interface{}{},
+			expectedPromoted: map[string]any{},
 		},
 		{
 			name: "non_existent_paths",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
 				"level":   "info",
 			},
@@ -215,15 +215,15 @@ func TestPromotedPathSeparation(t *testing.T) {
 				"non.existent.path": {},
 				"another.missing":   {},
 			},
-			expectedPromoted: map[string]interface{}{},
+			expectedPromoted: map[string]any{},
 		},
 		{
 			name: "mixed_literal_and_nested",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
 				"a.b.c":   "literal",
-				"a": map[string]interface{}{
-					"b": map[string]interface{}{
+				"a": map[string]any{
+					"b": map[string]any{
 						"d": "nested",
 					},
 				},
@@ -232,19 +232,19 @@ func TestPromotedPathSeparation(t *testing.T) {
 				"a.b.c": {},
 				"a.b.d": {},
 			},
-			expectedPromoted: map[string]interface{}{
+			expectedPromoted: map[string]any{
 				"a.b.c": "literal",
 				"a.b.d": "nested",
 			},
 		},
 		{
 			name: "nested_after_match_is_found",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
 				"a.b.c":   "literal",
-				"a": map[string]interface{}{
-					"b": map[string]interface{}{
-						"d": map[string]interface{}{
+				"a": map[string]any{
+					"b": map[string]any{
+						"d": map[string]any{
 							"nested_key": "nested_value",
 						},
 					},
@@ -254,17 +254,17 @@ func TestPromotedPathSeparation(t *testing.T) {
 				"a.b.c": {},
 				"a.b.d": {},
 			},
-			expectedPromoted: map[string]interface{}{
+			expectedPromoted: map[string]any{
 				"a.b.c": "literal",
 			},
 		},
 		{
 			name: "nested_after_match_is_found_with_dot_notation",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
 				"a.b.c":   "literal",
-				"a": map[string]interface{}{
-					"b.d": map[string]interface{}{
+				"a": map[string]any{
+					"b.d": map[string]any{
 						"nested_key": "nested_value",
 					},
 				},
@@ -273,25 +273,25 @@ func TestPromotedPathSeparation(t *testing.T) {
 				"a.b.c": {},
 				"a.b.d": {},
 			},
-			expectedPromoted: map[string]interface{}{
+			expectedPromoted: map[string]any{
 				"a.b.c": "literal",
 			},
 		},
 		{
 			name: "nested_2_matches_found",
-			body: map[string]interface{}{
+			body: map[string]any{
 				"message": "test log",
-				"a.b.c": map[string]interface{}{
+				"a.b.c": map[string]any{
 					"nested_key": "nested_value",
 				},
-				"a": map[string]interface{}{
+				"a": map[string]any{
 					"b.c": "literal",
 				},
 			},
 			promotedPaths: map[string]struct{}{
 				"a.b.c": {},
 			},
-			expectedPromoted: map[string]interface{}{
+			expectedPromoted: map[string]any{
 				"a.b.c": "literal",
 			},
 		},

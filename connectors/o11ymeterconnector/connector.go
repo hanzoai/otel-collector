@@ -15,9 +15,9 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.uber.org/zap"
 
+	"github.com/google/uuid"
 	"github.com/hanzoai/otel-collector/pkg/metering"
 	v1 "github.com/hanzoai/otel-collector/pkg/metering/v1"
-	"github.com/google/uuid"
 )
 
 // meterConnector records count and size of spans, metrics data points, log records
@@ -78,9 +78,7 @@ func (*meterConnector) Capabilities() consumer.Capabilities {
 
 func (meterconnector *meterConnector) Start(ctx context.Context, host component.Host) error {
 	meterconnector.started = true
-	meterconnector.wg.Add(1)
-	go func() {
-		defer meterconnector.wg.Done()
+	meterconnector.wg.Go(func() {
 		for {
 			select {
 			case <-meterconnector.done:
@@ -89,7 +87,7 @@ func (meterconnector *meterConnector) Start(ctx context.Context, host component.
 				_ = meterconnector.exportMetrics(ctx)
 			}
 		}
-	}()
+	})
 
 	return nil
 }

@@ -40,7 +40,7 @@ func TestParserGoldenConfig(t *testing.T) {
 				Name: "parse_to_simple",
 				Expect: func() *Config {
 					cfg := NewConfig()
-					cfg.ParseTo = o11ystanzaentry.RootableField{Field: o11ystanzaentry.Field{FieldInterface: o11ystanzaentry.NewBodyField("log")}}
+					cfg.ParseTo = o11ystanzaentry.RootableField{FieldInterface: o11ystanzaentry.NewBodyField("log")}
 					return cfg
 				}(),
 			},
@@ -108,7 +108,7 @@ func TestParserGoldenConfig(t *testing.T) {
 				Name: "parse_to_attributes",
 				Expect: func() *Config {
 					p := NewConfig()
-					p.ParseTo = o11ystanzaentry.RootableField{Field: o11ystanzaentry.Field{FieldInterface: entry.NewAttributeField()}}
+					p.ParseTo = o11ystanzaentry.RootableField{FieldInterface: entry.NewAttributeField()}
 					return p
 				}(),
 			},
@@ -116,7 +116,7 @@ func TestParserGoldenConfig(t *testing.T) {
 				Name: "parse_to_body",
 				Expect: func() *Config {
 					p := NewConfig()
-					p.ParseTo = o11ystanzaentry.RootableField{Field: o11ystanzaentry.Field{FieldInterface: o11ystanzaentry.NewBodyField()}}
+					p.ParseTo = o11ystanzaentry.RootableField{FieldInterface: o11ystanzaentry.NewBodyField()}
 					return p
 				}(),
 			},
@@ -124,7 +124,7 @@ func TestParserGoldenConfig(t *testing.T) {
 				Name: "parse_to_resource",
 				Expect: func() *Config {
 					p := NewConfig()
-					p.ParseTo = o11ystanzaentry.RootableField{Field: o11ystanzaentry.Field{FieldInterface: entry.NewResourceField()}}
+					p.ParseTo = o11ystanzaentry.RootableField{FieldInterface: entry.NewResourceField()}
 					return p
 				}(),
 			},

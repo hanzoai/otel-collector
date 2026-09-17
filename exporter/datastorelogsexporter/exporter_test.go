@@ -6,13 +6,13 @@ import (
 	"testing"
 	"time"
 
-	driver "github.com/hanzo-ds/go/lib/driver"
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/google/uuid"
+	driver "github.com/hanzo-ds/go/lib/driver"
+	cmock "github.com/hanzo-ds/mock"
 	"github.com/hanzoai/otel-collector/pkg/pdatagen/plogsgen"
 	"github.com/hanzoai/otel-collector/utils"
-	"github.com/google/uuid"
 	"github.com/jellydator/ttlcache/v3"
-	cmock "github.com/hanzo-ds/mock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/exporter"
@@ -102,7 +102,7 @@ func TestExporterInit(t *testing.T) {
 	cols = append(cols, cmock.ColumnType{Name: "string_count", Type: "UInt64"})
 	cols = append(cols, cmock.ColumnType{Name: "number_count", Type: "UInt64"})
 
-	rows := cmock.NewRows(cols, [][]interface{}{{"key1", "string", "string", 2, 1}, {"key2", "number", "number", 1, 2}})
+	rows := cmock.NewRows(cols, [][]any{{"key1", "string", "string", 2, 1}, {"key2", "number", "number", 1, 2}})
 
 	mock.ExpectSelect(".*SETTINGS max_threads = 2").WillReturnRows(rows)
 	mock.ExpectClose()
@@ -466,7 +466,7 @@ func TestProcessBody(t *testing.T) {
 					BodyJSONEnabled:           tc.bodyJSONEnabled,
 					BodyJSONOldBodyEnabled:    tc.bodyJSONOldBodyEnabled,
 					PromotedPathsSyncInterval: utils.ToPointer(5 * time.Minute),
-					LogLevelConcurrency:       utils.ToPointer(1),
+					LogLevelConcurrency:       new(1),
 					AttributesLimits: AttributesLimits{
 						FetchKeysInterval: 2 * time.Second,
 						MaxDistinctValues: 25000,

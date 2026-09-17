@@ -184,22 +184,22 @@ func (pg *PathGenerator) generatePath() string {
 	}
 
 	// Join all components with dots
-	result := ""
+	var result strings.Builder
 	for i, component := range pathComponents {
 		if i > 0 {
-			result += "."
+			result.WriteString(".")
 		}
-		result += component
+		result.WriteString(component)
 	}
 
-	return result
+	return result.String()
 }
 
 // generateUniquePaths creates unique paths with the current path structure
 func (pg *PathGenerator) generateUniquePaths(count int) []string {
 	pg.usedPaths = make(map[string]bool)
 	paths := make([]string, count)
-	for i := 0; i < count; i++ {
+	for i := range count {
 		paths[i] = pg.generateUniquePath()
 	}
 	return paths
@@ -362,19 +362,19 @@ func (dg *DataGenerator) randomFromPool(pool []string) string {
 	return pool[dg.rand.Intn(len(pool))]
 }
 
-func (dg *DataGenerator) randomMap() map[string]interface{} {
+func (dg *DataGenerator) randomMap() map[string]any {
 	// Rich, nested structure inspired by older generator logic (without path inputs)
-	body := map[string]interface{}{
+	body := map[string]any{
 		"stream": "stdout",
 		"_p":     "F",
 		"log":    fmt.Sprintf(`{"level":"%s","target":"amzn_nfm::events::event_provider_ebpf"}`, dg.randomFromPool(levels)),
-		"log_processed": map[string]interface{}{
+		"log_processed": map[string]any{
 			"level":     dg.randomFromPool(levels),
 			"message":   dg.randomFromPool(messages),
 			"target":    "amzn_nfm::events::event_provider_ebpf",
 			"timestamp": time.Now().UnixMilli(),
 		},
-		"kubernetes": map[string]interface{}{
+		"kubernetes": map[string]any{
 			"pod_name":        dg.randomFromPool(podNames),
 			"namespace_name":  dg.randomFromPool(namespaceNames),
 			"pod_id":          fmt.Sprintf("%x", rand.Int63()),
@@ -391,30 +391,30 @@ func (dg *DataGenerator) randomMap() map[string]interface{} {
 
 	// Add richer arrays like the older version
 	body["array_primitives_same_type"] = []int{dg.randomInt(1, 100), dg.randomInt(1, 100), dg.randomInt(1, 100), dg.randomInt(1, 100)}
-	body["array_primitives_mixed"] = []interface{}{
+	body["array_primitives_mixed"] = []any{
 		dg.randomInt(1, 100),
 		dg.randomFromPool(messages),
 		dg.randomBool(),
 		dg.rand.Float64(),
 	}
-	body["array_objects"] = []map[string]interface{}{
+	body["array_objects"] = []map[string]any{
 		{"a": dg.randomFromPool(messages), "b": dg.randomInt(1, 100), "c": dg.randomBool(), "d": dg.rand.Float64()},
 		{"a": dg.randomFromPool(messages), "b": dg.randomInt(1, 100), "c": dg.randomBool(), "d": dg.rand.Float64()},
 		{"a": dg.randomFromPool(messages), "b": dg.randomInt(1, 100), "c": dg.randomBool(), "d": dg.rand.Float64()},
 		{"a": dg.randomFromPool(messages), "b": dg.randomInt(1, 100), "c": dg.randomBool(), "d": dg.rand.Float64()},
 	}
-	body["array_objects_and_primitives"] = []interface{}{
-		map[string]interface{}{"x": dg.randomFromPool(messages), "y": dg.randomInt(1, 100), "nested": map[string]any{
+	body["array_objects_and_primitives"] = []any{
+		map[string]any{"x": dg.randomFromPool(messages), "y": dg.randomInt(1, 100), "nested": map[string]any{
 			"detail": []any{
-				map[string]interface{}{"message": dg.randomFromPool(messages), "number": dg.randomInt(1, 100)},
+				map[string]any{"message": dg.randomFromPool(messages), "number": dg.randomInt(1, 100)},
 				dg.randomFromPool(messages),
 				dg.randomInt(1, 100),
-				map[string]interface{}{"amount": dg.rand.Float64(), "is_paid": dg.randomBool()},
+				map[string]any{"amount": dg.rand.Float64(), "is_paid": dg.randomBool()},
 			},
 		}},
 		dg.randomFromPool(messages),
 		dg.randomInt(1, 100),
-		map[string]interface{}{"z": dg.rand.Float64(), "w": dg.randomBool()},
+		map[string]any{"z": dg.rand.Float64(), "w": dg.randomBool()},
 	}
 
 	// Randomly remove or add keys for variability
@@ -432,12 +432,12 @@ func (dg *DataGenerator) randomMap() map[string]interface{} {
 }
 
 // randomDetails generates deeply nested details without depending on external paths
-func (dg *DataGenerator) randomDetails() map[string]interface{} {
-	details := map[string]interface{}{}
+func (dg *DataGenerator) randomDetails() map[string]any {
+	details := map[string]any{}
 
 	// Product block
 	if dg.randomBoolN(2) {
-		product := map[string]interface{}{
+		product := map[string]any{
 			"contextId":         fmt.Sprintf("%x", rand.Int63()),
 			"fileName":          dg.randomFromPool([]string{"abc_webhook_trigger.js", "main.go", "service.py"}),
 			"level":             dg.randomFromPool([]string{"info", "warn", "error"}),
@@ -452,14 +452,14 @@ func (dg *DataGenerator) randomDetails() map[string]interface{} {
 		}
 
 		if dg.randomBool() {
-			additionalInfo := map[string]interface{}{
+			additionalInfo := map[string]any{
 				"error":     dg.randomBool(),
 				"errorData": nil,
 				"message":   dg.randomFromPool(messages),
 			}
 
 			if dg.randomBool() {
-				shipping := map[string]interface{}{
+				shipping := map[string]any{
 					"cod_charges":             0,
 					"discounted_price":        0,
 					"external_shipping_match": "",
@@ -480,7 +480,7 @@ func (dg *DataGenerator) randomDetails() map[string]interface{} {
 					"visibility":              dg.randomBool(),
 				}
 
-				data := map[string]interface{}{
+				data := map[string]any{
 					"cart_id":  dg.randomInt(100000000, 999999999),
 					"shipping": shipping,
 					"status":   dg.randomFromPool([]string{"pending", "confirmed", "shipped"}),
@@ -504,12 +504,12 @@ func (dg *DataGenerator) randomDetails() map[string]interface{} {
 
 	// Game block
 	if dg.randomBool() {
-		game := map[string]interface{}{
+		game := map[string]any{
 			"is_game": dg.randomFromPool([]string{"true", "false"}),
-			"metadata": map[string]interface{}{
+			"metadata": map[string]any{
 				"version":           dg.randomFromPool([]string{"v0.0.1", "v0.0.2", "v0.0.3", "v0.0.4", "v0.0.5"}),
 				"installation_path": dg.randomFromPool([]string{"C://games/installed/valorant", "/opt/games/valorant", "C://games/installed/witcher2", "/opt/games/witcher2", "C://games/installed/witcher3", "/opt/games/witcher3", "C://games/installed/witcher4", "/opt/games/witcher4", "C://games/installed/readdeadredemption2", "/opt/games/readdeadredemption2"}),
-				"vanguard": map[string]interface{}{
+				"vanguard": map[string]any{
 					"running":            dg.randomBool(),
 					"malformed_hardware": dg.randomBool(),
 					"version":            dg.randomFromPool([]string{"patch_v1.100.0", "patch_v1.101.0"}),
@@ -519,7 +519,7 @@ func (dg *DataGenerator) randomDetails() map[string]interface{} {
 		}
 
 		if dg.randomBool() {
-			delete(game["metadata"].(map[string]interface{}), "installation_path")
+			delete(game["metadata"].(map[string]any), "installation_path")
 		}
 		details["game"] = game
 	}
@@ -562,7 +562,7 @@ func (dg *DataGenerator) randomInt(min, max int) int {
 }
 
 // generateValueForType generates a value directly for the specified type
-func (dg *DataGenerator) generateValueForType(dataType string, rowID uint64) interface{} {
+func (dg *DataGenerator) generateValueForType(dataType string, rowID uint64) any {
 	// Sometimes return null for realistic data (10% chance)
 	// But for JSON types, we want to avoid null at the column level
 	if dg.rand.Intn(10) == 0 && !strings.Contains(dataType, "JSON") {
@@ -591,51 +591,51 @@ func (dg *DataGenerator) generateValueForType(dataType string, rowID uint64) int
 			dg.rand.Int63n(65536), dg.rand.Int63n(281474976710656))
 	case "Array(Nullable(String))":
 		size := 1 + int(rowID%5) // Deterministic size based on rowID
-		arr := make([]interface{}, size)
-		for i := 0; i < size; i++ {
+		arr := make([]any, size)
+		for i := range size {
 			arr[i] = fmt.Sprintf("arr_%d_%d", rowID, i)
 		}
 		return arr
 	case "Array(Nullable(Int64))":
 		size := 1 + int(rowID%5)
-		arr := make([]interface{}, size)
-		for i := 0; i < size; i++ {
+		arr := make([]any, size)
+		for i := range size {
 			arr[i] = int64(rowID) + int64(i)
 		}
 		return arr
 	case "Array(Nullable(Float64))":
 		size := 1 + int(rowID%5)
-		arr := make([]interface{}, size)
-		for i := 0; i < size; i++ {
+		arr := make([]any, size)
+		for i := range size {
 			arr[i] = float64(rowID) + float64(i) + dg.rand.Float64()
 		}
 		return arr
 	case "Array(Nullable(Bool))":
 		size := 1 + int(rowID%5)
-		arr := make([]interface{}, size)
-		for i := 0; i < size; i++ {
+		arr := make([]any, size)
+		for i := range size {
 			arr[i] = ((rowID + uint64(i)) % 2) == 0
 		}
 		return arr
 	case "Tuple(Nullable(String), Nullable(Int64))":
-		return []interface{}{
+		return []any{
 			fmt.Sprintf("tuple_str_%d", rowID),
 			int64(rowID) + dg.rand.Int63n(1000),
 		}
 	case "Tuple(Nullable(Float64), Nullable(Bool))":
-		return []interface{}{
+		return []any{
 			float64(rowID) + dg.rand.Float64()*1000,
 			(rowID % 2) == 0,
 		}
 	case "Tuple(Nullable(String), Nullable(Int64), Nullable(Float64), Nullable(Bool))":
-		return []interface{}{
+		return []any{
 			fmt.Sprintf("tuple_str_%d", rowID),
 			int64(rowID) + dg.rand.Int63n(1000),
 			float64(rowID) + dg.rand.Float64()*1000,
 			(rowID % 2) == 0,
 		}
 	case "Tuple(JSON(), Nullable(String), Nullable(Int64), JSON())":
-		return []interface{}{
+		return []any{
 			dg.randomMap(),
 			fmt.Sprintf("tuple_str_%d", rowID),
 			int64(rowID) + dg.rand.Int63n(1000),
@@ -643,8 +643,8 @@ func (dg *DataGenerator) generateValueForType(dataType string, rowID uint64) int
 		}
 	case "Array(JSON)":
 		size := 1 + int(rowID%5)
-		arr := make([]interface{}, size)
-		for i := 0; i < size; i++ {
+		arr := make([]any, size)
+		for i := range size {
 			// Simple JSON object based on rowID
 			arr[i] = dg.randomMap()
 		}
@@ -702,7 +702,7 @@ func (dg *DataGenerator) GenerateBatch() (*BatchData, error) {
 			payload := make(map[string]any)
 
 			// Generate column values directly based on the types for THIS record
-			columnValues := make([]interface{}, len(paths))
+			columnValues := make([]any, len(paths))
 			for i, dataType := range columnTypes {
 				// Generate value directly for the type, no extraction needed
 				value := dg.generateValueForType(dataType, id)

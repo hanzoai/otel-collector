@@ -1,15 +1,14 @@
 package fingerprint
 
 import (
+	"maps"
 	"sort"
 )
 
 func NewLabelsAsJSONString(name string, ms ...map[string]string) string {
 	attrs := make(map[string]string)
 	for _, m := range ms {
-		for k, v := range m {
-			attrs[k] = v
-		}
+		maps.Copy(attrs, m)
 	}
 
 	attrs["__name__"] = name

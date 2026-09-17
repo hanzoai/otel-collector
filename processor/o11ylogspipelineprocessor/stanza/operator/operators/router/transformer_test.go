@@ -21,10 +21,8 @@ func TestTransformer(t *testing.T) {
 
 	basicConfig := func() *Config {
 		return &Config{
-			BasicConfig: helper.BasicConfig{
-				OperatorID:   "test_operator_id",
-				OperatorType: "router",
-			},
+			OperatorID:   "test_operator_id",
+			OperatorType: "router",
 		}
 	}
 

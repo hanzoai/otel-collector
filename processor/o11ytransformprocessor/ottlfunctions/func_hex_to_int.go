@@ -29,7 +29,7 @@ func createHexToIntFunction[K any](_ ottl.FunctionContext, oArgs ottl.Arguments)
 
 func hexToInt[K any](target ottl.StringGetter[K]) (ottl.ExprFunc[K], error) {
 
-	return func(ctx context.Context, tCtx K) (interface{}, error) {
+	return func(ctx context.Context, tCtx K) (any, error) {
 		val, err := target.Get(ctx, tCtx)
 		if err != nil {
 			return nil, err

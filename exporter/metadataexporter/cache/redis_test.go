@@ -138,7 +138,7 @@ func TestRedisKeyCache_AttrsExistForResource_Basic(t *testing.T) {
 
 	cache, mock := buildMockRedisKeyCache(t, func(m kvmock.ClientMock) {
 		// We expect an SMIsMember call
-		members := []interface{}{"10", "20", "30"}
+		members := []any{"10", "20", "30"}
 		m.ExpectSMIsMember(attrsKey, members...).
 			SetVal([]bool{true, false, true})
 	})
