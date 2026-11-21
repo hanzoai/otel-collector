@@ -2,6 +2,8 @@
 
 # Hanzo O11y Otel Collector
 
+[![Open in Hanzo](https://hanzo.app/badges/open-in-hanzo.svg)](https://hanzo.app/dev/open?repo=github.com/hanzoai/otel-collector&ref=main&action=open) [![Edit with Hanzo](https://hanzo.app/badges/edit-with-hanzo.svg)](https://hanzo.app/dev/open?repo=github.com/hanzoai/otel-collector&ref=main&action=edit) [![Deploy with Hanzo](https://hanzo.app/badges/deploy-with-hanzo.svg)](https://hanzo.app/dev/open?repo=github.com/hanzoai/otel-collector&ref=main&action=deploy)
+
 The Hanzo distribution of the OpenTelemetry Collector. Ingests traces / metrics /
 logs over **ZAP-native** (`zap-proto/http`, `:4319`) plus OTLP (`:4317`/`:4318`)
 and writes to the one hanzoai/datastore (Datastore). Adds `receiver/zapreceiver`
